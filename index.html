@@ -94,7 +94,24 @@
   .top5-date{font-size:10px; color:var(--muted); margin-bottom:6px;}
 
   .day-group{margin-bottom:4px;}
-  .day-header{display:flex; align-items:center; gap:10px; padding:9px 14px; background:var(--surface2); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:5;}
+  .day-header{display:flex; align-items:center; gap:10px; padding:9px 14px; background:var(--surface2); border-bottom:1px solid var(--border); position:sticky; top:46px; z-index:5; cursor:pointer; user-select:none;}
+  .day-header .caret{margin-left:auto; transition:transform .15s; color:var(--muted); font-size:11px;}
+  .day-group.open > .day-header .caret{transform:rotate(180deg);}
+  .day-body{display:none;}
+  .day-group.open > .day-body{display:block;}
+
+  .month-group{margin-bottom:2px;}
+  .month-header{display:flex; align-items:center; gap:10px; padding:12px 14px; background:var(--surface); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:6; cursor:pointer; user-select:none;}
+  .month-header .name{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:14px;}
+  .month-header .n{color:var(--muted); font-size:11.5px;}
+  .month-header .caret{margin-left:auto; transition:transform .15s; color:var(--amber); font-size:12px;}
+  .month-group.open > .month-header .caret{transform:rotate(180deg);}
+  .month-body{display:none; padding:8px 0 4px;}
+  .month-group.open > .month-body{display:block;}
+
+  .expand-controls{display:flex; gap:6px;}
+  .expand-controls button{background:var(--surface); border:1px solid var(--border); color:var(--muted); font-size:11.5px; font-weight:600; padding:7px 13px; border-radius:8px; cursor:pointer; font-family:'Space Grotesk',sans-serif;}
+  .expand-controls button:hover{border-color:var(--amber-dim); color:var(--text);}
   .day-header .date{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13px;}
   .day-header .n{color:var(--muted); font-size:11.5px;}
   .day-header .line{flex:1; height:1px; background:var(--border);}
@@ -104,6 +121,18 @@
   .date-strip button{flex-shrink:0; background:var(--surface); border:1px solid var(--border); color:var(--muted); font-size:11.5px; font-weight:600; padding:7px 13px; border-radius:8px; cursor:pointer; font-family:'Space Grotesk',sans-serif; white-space:nowrap; position:relative;}
   .date-strip button.active{background:var(--amber); color:#1A1200; border-color:var(--amber);}
   .date-strip button .strip-n{opacity:.65; font-weight:400; margin-left:3px;}
+
+  .header-right{position:relative;}
+  .country-dropdown{position:absolute; top:calc(100% + 6px); right:0; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:10px; z-index:80; box-shadow:0 12px 32px rgba(0,0,0,.5); width:min(260px, 90vw); max-height:360px; overflow-y:auto;}
+  .country-dropdown-title{font-family:'Space Grotesk',sans-serif; font-size:10.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px; padding:0 2px;}
+  .country-dropdown-grid{display:flex; flex-direction:column; gap:4px;}
+  .country-dropdown-grid button{display:flex; flex-direction:column; align-items:flex-start; gap:1px; text-align:left; background:var(--surface2); border:1px solid var(--border); color:var(--text); padding:8px 11px; border-radius:8px; cursor:pointer; font-family:'Inter',sans-serif; transition:border-color .12s, background .12s; width:100%;}
+  .country-dropdown-grid button .c-name{font-size:12.5px; font-weight:700; font-family:'Space Grotesk',sans-serif;}
+  .country-dropdown-grid button .c-league{font-size:10.5px; color:var(--muted);}
+  .country-dropdown-grid button:hover{border-color:var(--amber-dim); background:var(--surface);}
+  .country-dropdown-grid button.active{background:var(--amber); border-color:var(--amber);}
+  .country-dropdown-grid button.active .c-name{color:#1A1200;}
+  .country-dropdown-grid button.active .c-league{color:#3A2C10;}
 
   .day-summary{display:flex; gap:18px; padding:9px 14px 14px; font-size:11px; color:var(--muted); flex-wrap:wrap;}
   .day-summary b{color:var(--text); font-family:'JetBrains Mono',monospace;}
@@ -192,8 +221,9 @@
       <h1>🏒 PUCK<span>LINE</span></h1>
       <div class="subtitle" id="subtitle"></div>
     </div>
-    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
+    <div class="header-right" style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
       <div class="season-switch" id="leagueSwitch"></div>
+      <div class="country-dropdown" id="countryStrip" style="display:none;"></div>
       <div class="season-switch" id="seasonSwitch"></div>
       <div class="meta-right" id="metaRight"></div>
     </div>
@@ -225,6 +255,10 @@
 
   <div id="combined" class="panel">
     <div id="combinedContent"></div>
+  </div>
+
+  <div id="playnow" class="panel">
+    <div id="playnowContent"></div>
   </div>
 
   <footer>
@@ -307,18 +341,56 @@ function completedSeasonKeys(league){
   return Object.keys(DATA.leagues[lg].seasons).filter(k=>DATA.leagues[lg].seasons[k].status==='completed');
 }
 
+const CORE_LEAGUES = ['NHL', 'AHL'];
+let countryPickerOpen = false;
+
+document.addEventListener('click', ()=>{
+  if(countryPickerOpen){
+    countryPickerOpen = false;
+    renderHeader();
+  }
+});
+
+function countryLeagueKeys(){
+  return Object.keys(DATA.leagues).filter(k => !CORE_LEAGUES.includes(k));
+}
+
+// Dzieli pełną nazwę np. "Czech Republic Extraliga" -> {country:"Czech Republic", league:"Extraliga"}
+const MULTI_WORD_COUNTRY_CONTINUATIONS = ['Republic','Kingdom','States','Emirates'];
+function splitCountryLeague(fullLabel){
+  const words = fullLabel.trim().split(/\s+/);
+  if(words.length >= 2 && MULTI_WORD_COUNTRY_CONTINUATIONS.includes(words[1])){
+    return { country: words.slice(0,2).join(' '), league: words.slice(2).join(' ') };
+  }
+  return { country: words[0], league: words.slice(1).join(' ') };
+}
+
 function renderHeader(){
+  const isCountry = !CORE_LEAGUES.includes(currentLeague) && currentLeague !== 'COMBINED' && currentLeague !== '__PLAYNOW__';
+  const currentSplit = isCountry ? splitCountryLeague(DATA.leagues[currentLeague].label) : null;
+  const krajLabel = isCountry ? `🌍 ${currentSplit.country}` : '🌍 KRAJ';
+
   document.getElementById('leagueSwitch').innerHTML = `
+    <button class="${currentLeague==='__PLAYNOW__'?'active':''}" data-league="__PLAYNOW__">🔥 CO ZAGRAĆ (2 DNI)</button>
     <button class="${currentLeague==='NHL'?'active':''}" data-league="NHL">NHL</button>
     <button class="${currentLeague==='AHL'?'active':''}" data-league="AHL">AHL</button>
-    <button class="${currentLeague==='COMBINED'?'active':''}" data-league="COMBINED">🔗 SERIA ŁĄCZONA</button>`;
+    <button class="${currentLeague==='COMBINED'?'active':''}" data-league="COMBINED">🔗 SERIA ŁĄCZONA</button>
+    <button class="${isCountry?'active':''}" data-league="__KRAJ__">${krajLabel} ${countryPickerOpen?'▴':'▾'}</button>`;
+
   document.querySelectorAll('#leagueSwitch button').forEach(b=>{
-    b.addEventListener('click', ()=>{
+    b.addEventListener('click', (ev)=>{
+      if(b.dataset.league === '__KRAJ__'){
+        ev.stopPropagation();
+        countryPickerOpen = !countryPickerOpen;
+        renderHeader();
+        return;
+      }
       if(b.dataset.league===currentLeague) return;
       currentLeague = b.dataset.league;
-      if(currentLeague !== 'COMBINED'){
+      countryPickerOpen = false;
+      if(currentLeague !== 'COMBINED' && currentLeague !== '__PLAYNOW__'){
         const seasonKeys = Object.keys(DATA.leagues[currentLeague].seasons);
-        currentSeason = seasonKeys.includes('2025-26') ? '2025-26' : seasonKeys[0];
+        currentSeason = seasonKeys.includes('2025-26') ? '2025-26' : seasonKeys[seasonKeys.length-1];
       }
       scheduleSub = 'main';
       h2hAllSeasons = false;
@@ -326,6 +398,45 @@ function renderHeader(){
       renderAll();
     });
   });
+
+  const stripEl = document.getElementById('countryStrip');
+  if(countryPickerOpen){
+    stripEl.style.display = 'block';
+    stripEl.innerHTML = `<div class="country-dropdown-title">Wybierz kraj</div><div class="country-dropdown-grid">${
+      countryLeagueKeys().map(k=>{
+        const sp = splitCountryLeague(DATA.leagues[k].label);
+        return `<button class="${k===currentLeague?'active':''}" data-country="${k}">
+          <span class="c-name">${sp.country}</span><span class="c-league">${sp.league}</span>
+        </button>`;
+      }).join('')
+    }</div>`;
+    stripEl.addEventListener('click', ev=>ev.stopPropagation());
+    stripEl.querySelectorAll('button').forEach(b=>{
+      b.addEventListener('click', ()=>{
+        currentLeague = b.dataset.country;
+        countryPickerOpen = false;
+        const seasonKeys = Object.keys(DATA.leagues[currentLeague].seasons);
+        currentSeason = seasonKeys.includes('2025-26') ? '2025-26' : seasonKeys[seasonKeys.length-1];
+        scheduleSub = 'main';
+        h2hAllSeasons = false;
+        teamSort = {key:'formScore', dir:-1};
+        renderAll();
+      });
+    });
+  } else {
+    stripEl.style.display = 'none';
+    stripEl.innerHTML = '';
+  }
+
+  if(currentLeague === '__PLAYNOW__'){
+    document.getElementById('subtitle').textContent = 'Co zagrać w najbliższych 2 dniach · wszystkie ligi razem · z prognozami';
+    document.getElementById('seasonSwitch').style.display = 'none';
+    document.querySelector('.topbar').style.display = 'none';
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    document.getElementById('playnow').classList.add('active');
+    document.getElementById('metaRight').innerHTML = '';
+    return;
+  }
 
   if(currentLeague === 'COMBINED'){
     document.getElementById('subtitle').textContent = 'Kalendarz łączony NHL + AHL · sezon 2026/27 · najlepsze typy każdego dnia';
@@ -567,6 +678,8 @@ function renderFixtures(){
   populateFixtures(true);
 }
 
+const MONTH_NAMES = ['Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec','Lipiec','Sierpień','Wrzesień','Październik','Listopad','Grudzień'];
+
 function populateFixtures(isInitial){
   const all = getActiveMatches();
   const q = document.getElementById('matchSearch').value.trim().toLowerCase();
@@ -598,7 +711,11 @@ function populateFixtures(isInitial){
       el.addEventListener('click', ()=>{
         const [date,home,away] = el.dataset.jump.split('|');
         const target = document.querySelector(`.fixture-row[data-key="${date}|${home}|${away}"]`);
-        if(target){ target.scrollIntoView({behavior:'smooth', block:'center'}); target.click(); }
+        if(target){
+          const dayGroup = target.closest('.day-group'); if(dayGroup) dayGroup.classList.add('open');
+          const monthGroup = target.closest('.month-group'); if(monthGroup) monthGroup.classList.add('open');
+          target.scrollIntoView({behavior:'smooth', block:'center'}); target.click();
+        }
       });
     });
   } else {
@@ -616,53 +733,117 @@ function populateFixtures(isInitial){
     return;
   }
 
-  // grupowanie po dniach
-  const groups = {};
-  matches.forEach(m=>{ (groups[m.sortDate] = groups[m.sortDate] || []).push(m); });
-  const dates = Object.keys(groups).sort();
+  // grupowanie: miesiąc -> dzień -> mecze
+  const monthGroups = {};
+  matches.forEach(m=>{
+    const monthKey = m.sortDate.slice(0,7); // YYYY-MM
+    monthGroups[monthKey] = monthGroups[monthKey] || {};
+    (monthGroups[monthKey][m.sortDate] = monthGroups[monthKey][m.sortDate] || []).push(m);
+  });
+  const monthKeys = Object.keys(monthGroups).sort();
 
-  // pasek dat - nawigacja do konkretnego dnia
-  dateStripBox.innerHTML = dates.length ? `<div class="date-strip" id="dateStrip">${dates.map(d=>{
-    const dm = groups[d];
-    const short = dm[0].date.split('.').slice(0,2).reverse().join('/'); // DD/MM
-    return `<button data-jump-date="anchor-${d}">${short}<span class="strip-n">${dm.length}</span></button>`;
+  // pasek nawigacji po miesiącach
+  dateStripBox.innerHTML = monthKeys.length ? `<div class="date-strip" id="monthStrip">${monthKeys.map(mk=>{
+    const [y, mo] = mk.split('-');
+    const count = Object.values(monthGroups[mk]).reduce((s,arr)=>s+arr.length,0);
+    return `<button data-jump-month="month-${mk}">${MONTH_NAMES[+mo-1].slice(0,3)} ${y.slice(2)}<span class="strip-n">${count}</span></button>`;
   }).join('')}</div>` : '';
   dateStripBox.querySelectorAll('button').forEach(b=>{
     b.addEventListener('click', ()=>{
-      const el = document.getElementById(b.dataset.jumpDate);
-      viewedDate = b.dataset.jumpDate.replace('anchor-','');
-      if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+      const monthKey = b.dataset.jumpMonth.replace('month-','');
+      const el = document.getElementById(b.dataset.jumpMonth);
+      if(el){ el.classList.add('open'); viewedDate = monthKey+'-01'; el.scrollIntoView({behavior:'smooth', block:'start'}); }
     });
   });
 
-  listEl.innerHTML = `<div class="fixtures-scroll" id="fixturesScroll">${dates.map(d=>{
-    const dayMatches = groups[d];
-    const playedCount = dayMatches.filter(m=>m.played).length;
-    const probs = dayMatches.filter(m=>m.prob!==undefined).map(m=>m.prob);
-    const avgProb = probs.length ? Math.round(probs.reduce((a,b)=>a+b,0)/probs.length) : null;
-    const maxProb = probs.length ? Math.max(...probs) : null;
-    const minProb = probs.length ? Math.min(...probs) : null;
-    const summary = probs.length ? `
-      <div class="day-summary">
-        <span>Rozegrane: <b>${playedCount}/${dayMatches.length}</b></span>
-        <span>Śr. prognoza: <b>${avgProb}%</b></span>
-        <span>Najwyższa: <b style="color:var(--teal)">${maxProb}%</b></span>
-        <span>Najniższa: <b style="color:var(--red)">${minProb}%</b></span>
-      </div>` : '';
-    return `<div class="day-group" id="anchor-${d}">
-      <div class="day-header"><span class="date">${dayMatches[0].date}</span><span class="n">${dayMatches.length} mecz${dayMatches.length===1?'':dayMatches.length<5?'e':'ów'}</span><div class="line"></div></div>
-      ${dayMatches.map(m=>fixtureRowHtml(m)).join('')}
-      ${summary}
+  listEl.innerHTML = `
+    <div class="toolbar" style="margin:0 0 10px;">
+      <div class="expand-controls">
+        <button id="expandAllBtn">⊞ Rozwiń wszystko</button>
+        <button id="collapseAllBtn">⊟ Zwiń wszystko</button>
+      </div>
+    </div>
+    <div class="fixtures-scroll" id="fixturesScroll">${monthKeys.map(mk=>{
+    const days = monthGroups[mk];
+    const dayKeys = Object.keys(days).sort();
+    const [y, mo] = mk.split('-');
+    const monthMatchCount = dayKeys.reduce((s,d)=>s+days[d].length,0);
+    const monthAllMatches = dayKeys.flatMap(d=>days[d]);
+    const monthPlayed = monthAllMatches.filter(m=>m.played);
+    const monthOvers = monthPlayed.filter(m=>m.over15).length;
+    const monthOverTxt = monthPlayed.length ? ` · <span style="color:var(--teal)">${monthOvers}/${monthPlayed.length} Over</span> (${Math.round(monthOvers/monthPlayed.length*100)}%)` : '';
+    return `<div class="month-group" id="month-${mk}">
+      <div class="month-header" data-toggle="month">
+        <span class="name">${MONTH_NAMES[+mo-1]} ${y}</span>
+        <span class="n">${monthMatchCount} mecz${monthMatchCount===1?'':monthMatchCount<5?'e':'ów'} · ${dayKeys.length} dni${monthOverTxt}</span>
+        <span class="caret">▾</span>
+      </div>
+      <div class="month-body">
+        ${dayKeys.map(d=>{
+          const dayMatches = days[d];
+          const playedCount = dayMatches.filter(m=>m.played).length;
+          const dayPlayed = dayMatches.filter(m=>m.played);
+          const dayOvers = dayPlayed.filter(m=>m.over15).length;
+          const dayOverTxt = dayPlayed.length ? ` · <span style="color:var(--teal)">${dayOvers}/${dayPlayed.length} Over</span>` : '';
+          const probs = dayMatches.filter(m=>m.prob!==undefined).map(m=>m.prob);
+          const avgProb = probs.length ? Math.round(probs.reduce((a,b)=>a+b,0)/probs.length) : null;
+          const maxProb = probs.length ? Math.max(...probs) : null;
+          const minProb = probs.length ? Math.min(...probs) : null;
+          const summary = probs.length ? `
+            <div class="day-summary">
+              <span>Rozegrane: <b>${playedCount}/${dayMatches.length}</b></span>
+              ${dayPlayed.length ? `<span>Over: <b style="color:var(--teal)">${dayOvers}/${dayPlayed.length}</b> (${Math.round(dayOvers/dayPlayed.length*100)}%)</span>` : ''}
+              <span>Śr. prognoza: <b>${avgProb}%</b></span>
+              <span>Najwyższa: <b style="color:var(--teal)">${maxProb}%</b></span>
+              <span>Najniższa: <b style="color:var(--red)">${minProb}%</b></span>
+            </div>` : '';
+          return `<div class="day-group" id="anchor-${d}">
+            <div class="day-header" data-toggle="day">
+              <span class="date">${dayMatches[0].date}</span>
+              <span class="n">${dayMatches.length} mecz${dayMatches.length===1?'':dayMatches.length<5?'e':'ów'}${dayOverTxt}</span>
+              <span class="caret">▾</span>
+            </div>
+            <div class="day-body">
+              ${dayMatches.map(m=>fixtureRowHtml(m)).join('')}
+              ${summary}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
     </div>`;
   }).join('') || `<div style="color:var(--muted); font-size:13px; padding:24px; text-align:center;">Brak meczów w tym oknie czasowym. ${quickFilter!=='all'?'Spróbuj filtra <b style="color:var(--text)">Cały terminarz</b>.':''}</div>`}</div>`;
+
   attachRowHandlers(listEl, matches);
   trackScrollPosition(document.getElementById('fixturesScroll'), 'anchor-');
 
-  if(isInitial && dates.length){
-    const targetDate = pickScrollTarget(dates);
+  // klik w nagłówek miesiąca/dnia - toggle "open" (nie przebudowuje HTML, tylko klasa)
+  listEl.querySelectorAll('.month-header').forEach(h=>{
+    h.addEventListener('click', ()=>{ h.closest('.month-group').classList.toggle('open'); });
+  });
+  listEl.querySelectorAll('.day-header').forEach(h=>{
+    h.addEventListener('click', (ev)=>{ ev.stopPropagation(); h.closest('.day-group').classList.toggle('open'); });
+  });
+
+  const expandBtn = document.getElementById('expandAllBtn');
+  const collapseBtn = document.getElementById('collapseAllBtn');
+  if(expandBtn) expandBtn.addEventListener('click', ()=>{
+    listEl.querySelectorAll('.month-group, .day-group').forEach(g=>g.classList.add('open'));
+  });
+  if(collapseBtn) collapseBtn.addEventListener('click', ()=>{
+    listEl.querySelectorAll('.month-group, .day-group').forEach(g=>g.classList.remove('open'));
+  });
+
+  if(isInitial && monthKeys.length){
+    const allDates = monthKeys.flatMap(mk=>Object.keys(monthGroups[mk]));
+    const targetDate = pickScrollTarget(allDates.sort());
+    const targetMonth = targetDate ? targetDate.slice(0,7) : null;
     requestAnimationFrame(()=>{
-      const el = document.getElementById('anchor-'+targetDate);
-      if(el) el.scrollIntoView({block:'start'});
+      const monthEl = targetMonth ? document.getElementById('month-'+targetMonth) : null;
+      const dayEl = targetDate ? document.getElementById('anchor-'+targetDate) : null;
+      if(monthEl) monthEl.classList.add('open');
+      if(dayEl) dayEl.classList.add('open');
+      if(dayEl) dayEl.scrollIntoView({block:'start'});
+      else if(monthEl) monthEl.scrollIntoView({block:'start'});
     });
   }
 }
@@ -819,6 +1000,10 @@ document.querySelectorAll('#mainNav button').forEach(btn=>{
 
 function renderAll(){
   renderHeader();
+  if(currentLeague === '__PLAYNOW__'){
+    renderPlayNow();
+    return;
+  }
   if(currentLeague === 'COMBINED'){
     renderCombined();
     return;
@@ -826,6 +1011,68 @@ function renderAll(){
   renderDashboard();
   renderFixtures();
   renderH2H();
+}
+
+// ---------- Co zagrać (2 dni, wszystkie ligi) ----------
+function renderPlayNow(){
+  const content = document.getElementById('playnowContent');
+  const allMatches = [];
+  Object.keys(DATA.leagues).forEach(lg=>{
+    Object.values(DATA.leagues[lg].seasons).forEach(s=>{
+      if(s.status !== 'upcoming') return;
+      const pool = [...(s.preseason?.matches||[]), ...(s.mainSeason?.matches||[])];
+      pool.forEach(m=>{ if(within2days(m.sortDate)) allMatches.push({...m, league: lg}); });
+    });
+  });
+
+  const groups = {};
+  allMatches.forEach(m=>{ (groups[m.sortDate] = groups[m.sortDate] || []).push(m); });
+  const dates = Object.keys(groups).sort();
+
+  if(!dates.length){
+    content.innerHTML = `<div class="schedule-note">📅 <span>Brak zaplanowanych meczów w ciągu najbliższych 2 dni w żadnej z lig. Sprawdź konkretną ligę, żeby zobaczyć pełny terminarz.</span></div>`;
+    return;
+  }
+
+  content.innerHTML = `
+    <div class="legend">🔥 Wszystko, co można dziś i jutro obstawiać — ze wszystkich ${Object.keys(DATA.leagues).length} lig naraz, posortowane od najwyższej prognozy w obrębie dnia</div>
+    <div class="fixtures-scroll">${dates.map(d=>{
+      const dayMatches = [...groups[d]].sort((a,b)=>(b.prob??-1)-(a.prob??-1));
+      const withP = dayMatches.filter(m=>m.prob!==undefined);
+      const top5 = withP.slice(0,5);
+      const topPanel = top5.length>=3 ? `
+        <div class="top5-panel" style="margin:10px 0 8px;">
+          <div class="top5-title">🔥 TOP ${top5.length} dnia</div>
+          <div class="top5-grid">
+            ${top5.map((m,i)=>`
+              <div class="top5-item" data-jump="pn-row-${cssKey(d+'|'+m.league+'|'+m.home+'|'+m.away)}">
+                <div class="top5-rank">#${i+1} · ${m.league}</div>
+                <div class="top5-teams">${teamShort(m.home)}<br><span style="color:var(--muted); font-weight:400;">–</span> ${teamShort(m.away)}</div>
+                <span class="prob-badge ${probClass(m.prob)}">${m.prob.toFixed(0)}%</span>
+              </div>`).join('')}
+          </div>
+        </div>` : '';
+      return `<div class="day-group open">
+        ${topPanel}
+        <div class="day-header" style="cursor:default;"><span class="date">${dayMatches[0].date}</span><span class="n">${dayMatches.length} mecz${dayMatches.length===1?'':dayMatches.length<5?'e':'ów'}</span></div>
+        <div class="day-body" style="display:block;">
+          ${dayMatches.map(m=>combinedRowHtml(m, d, 'pn-row-')).join('')}
+        </div>
+      </div>`;
+    }).join('')}</div>`;
+
+  content.querySelectorAll('.top5-item').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const target = document.getElementById(el.dataset.jump);
+      if(target){ target.scrollIntoView({behavior:'smooth', block:'center'}); target.click(); }
+    });
+  });
+  content.querySelectorAll('.fixture-row[data-cmb]').forEach(row=>{
+    row.addEventListener('click', ()=>{
+      const m = allMatches.find(x=>x.sortDate+'|'+x.league+'|'+x.home+'|'+x.away === row.dataset.cmbKey);
+      toggleFixtureDetails(row, m, m.league);
+    });
+  });
 }
 
 // ---------- Seria łączona (kalendarz NHL + AHL) ----------
@@ -901,12 +1148,14 @@ function renderCombined(){
   }
 }
 
-function combinedRowHtml(m, dayKey){
+function combinedRowHtml(m, dayKey, idPrefix){
+  const prefix = idPrefix || 'cmb-row-';
+  const detailsPrefix = idPrefix ? idPrefix.replace('-row-','-') : 'cmb-';
   const leagueBadgeColor = m.league==='NHL' ? 'var(--amber)' : 'var(--teal)';
   const leagueBadge = `<span style="font-family:'Space Grotesk',sans-serif; font-size:9px; font-weight:700; color:#0A0E1A; background:${leagueBadgeColor}; border-radius:4px; padding:2px 5px; margin-right:6px;">${m.league}</span>`;
   const combKey = `${m.sortDate}|${m.league}|${m.home}|${m.away}`;
-  const rowId = 'cmb-row-' + cssKey(dayKey+'|'+m.league+'|'+m.home+'|'+m.away);
-  return `<div class="fixture-row" id="${rowId}" data-cmb data-cmb-key="${combKey}" data-key="cmb-${combKey}">
+  const rowId = prefix + cssKey(dayKey+'|'+m.league+'|'+m.home+'|'+m.away);
+  return `<div class="fixture-row" id="${rowId}" data-cmb data-cmb-key="${combKey}" data-key="${detailsPrefix}${combKey}">
     <div class="fixture-teams">
       <div class="fixture-team-line">${leagueBadge}${logo(m.home, m.league)}<span class="role">HOME</span><b>${m.home}</b>${m.homePct!==undefined?`<span class="tpct" style="color:${pctColor(m.homePct)}">${m.homePct.toFixed(1)}%</span>`:''}</div>
       <div class="fixture-team-line"><span style="width:26px; display:inline-block;"></span>${logo(m.away, m.league)}<span class="role">AWAY</span><b>${m.away}</b>${m.awayPct!==undefined?`<span class="tpct" style="color:${pctColor(m.awayPct)}">${m.awayPct.toFixed(1)}%</span>`:''}</div>
@@ -914,7 +1163,7 @@ function combinedRowHtml(m, dayKey){
     <div class="fixture-extra"><span style="opacity:.7;">${m.date.split('.').slice(0,2).join('.')}</span></div>
     ${m.prob!==undefined ? `<span class="prob-badge ${probClass(m.prob)}">${m.prob.toFixed(0)}%</span>` : '<span style="color:var(--muted); font-size:11px; width:52px; text-align:center;">brak</span>'}
   </div>
-  <div class="details" id="details-${cssKey('cmb-'+combKey)}"></div>`;
+  <div class="details" id="details-${cssKey(detailsPrefix+combKey)}"></div>`;
 }
 
 // ---------- H2H ----------

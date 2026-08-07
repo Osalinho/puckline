@@ -1,11 +1,11 @@
 """
-Scraper + budowa danych dla PUCKLINE (NHL + AHL).
-Pobiera terminarze z 24score.com dla obu lig, liczy statystyki over 1,5 gola
-w 1. tercji i model prognozy, zapisuje jeden wspólny data.json:
-{ "leagues": { "NHL": {...}, "AHL": {...} } }
+Scraper + budowa danych dla PUCKLINE (12 lig hokejowych).
+Pobiera terminarze z 24score.com dla wszystkich lig, liczy statystyki over 1,5
+gola w 1. tercji i model prognozy, zapisuje jeden wspolny data.json:
+{ "leagues": { "NHL": {...}, "AHL": {...}, "CZECH": {...}, ... } }
 
-Uruchamiane automatycznie przez GitHub Actions (.github/workflows/update.yml).
-Można też odpalić ręcznie: python3 scraper.py
+Uruchamiane automatycznie przez GitHub Actions (.github/workflows/update.yml)
+codziennie o 8:00 czasu polskiego. Mozna tez odpalic recznie: python3 scraper.py
 """
 import re, json, math, time, hashlib
 import requests
@@ -20,7 +20,7 @@ HEADERS = {
     "Referer": "https://en.24score.com/",
 }
 
-FIXTURES_URL = "https://en.24score.com/ice_hockey/usa/{league}/{season}/regular_season/fixtures/"
+FIXTURES_URL = "https://en.24score.com/ice_hockey/{path}/{season}/regular_season/fixtures/"
 
 HIST_DECAY = 0.25
 H2H_WEIGHT = 0.12
@@ -54,34 +54,47 @@ def abbr_for(name):
     words = [w for w in re.split(r"\s+", name) if w]
     return words[0][:3].upper() if len(words) == 1 else "".join(w[0] for w in words[:3]).upper()
 
-# ---------------------------------------------------------------------------
-# KONFIGURACJA LIG I SEZONÓW. Dodanie kolejnego sezonu/ligi = wpis poniżej.
-# ---------------------------------------------------------------------------
+def season3(y1):
+    return {"id": f"{y1}-{str(y1+1)[2:]}", "label": f"{y1}/{str(y1+1)[2:]}", "url": f"{y1}-{y1+1}"}
+
 LEAGUES = {
-    "NHL": {
-        "url_league": "nhl",
-        "aliases": {},
-        "team_meta": NHL_TEAM_META,
-        "completed_seasons": [
-            {"id": "2024-25", "label": "2024/25", "url_season": "2024-2025"},
-            {"id": "2025-26", "label": "2025/26", "url_season": "2025-2026"},
-        ],
-        "upcoming_season": {"id": "2026-27", "label": "2026/27", "url_season": "2026-2027"},
-        "preseason_cutoff": "2026-10-06",
-    },
-    "AHL": {
-        "url_league": "ahl",
-        "aliases": {"Bridgeport": "Hamilton AHL"},
-        "team_meta": None,
-        "completed_seasons": [
-            {"id": "2024-25", "label": "2024/25", "url_season": "2024-2025"},
-            {"id": "2025-26", "label": "2025/26", "url_season": "2025-2026"},
-        ],
-        "upcoming_season": {"id": "2026-27", "label": "2026/27", "url_season": "2026-2027"},
-        "preseason_cutoff": None,
-    },
+    "NHL": {"path": "usa/nhl", "aliases": {}, "team_meta": NHL_TEAM_META,
+            "completed": [season3(2024), season3(2025)], "upcoming": season3(2026),
+            "preseason_cutoff": "2026-10-06"},
+    "AHL": {"path": "usa/ahl", "aliases": {"Bridgeport": "Hamilton AHL"}, "team_meta": None,
+            "completed": [season3(2024), season3(2025)], "upcoming": season3(2026),
+            "preseason_cutoff": None},
+    "CZECH": {"path": "czech_republic/extraliga", "aliases": {}, "team_meta": None,
+              "completed": [season3(2023), season3(2024), season3(2025)], "upcoming": season3(2026),
+              "preseason_cutoff": None},
+    "DENMARK": {"path": "denmark/al-bank_ligaen", "aliases": {}, "team_meta": None,
+                "completed": [season3(2023), season3(2024), season3(2025)], "upcoming": season3(2026),
+                "preseason_cutoff": None},
+    "FRANCE": {"path": "france/ligue_magnus", "aliases": {}, "team_meta": None,
+               "completed": [season3(2023), season3(2024), season3(2025)], "upcoming": season3(2026),
+               "preseason_cutoff": None},
+    "FINLAND": {"path": "finland/sm-liiga", "aliases": {}, "team_meta": None,
+                "completed": [season3(2023), season3(2024), season3(2025)], "upcoming": season3(2026),
+                "preseason_cutoff": None},
+    "CANADA_OHL": {"path": "canada_/ohl", "aliases": {}, "team_meta": None,
+                   "completed": [season3(2023), season3(2024), season3(2025)], "upcoming": season3(2026),
+                   "preseason_cutoff": None},
+    "GERMANY": {"path": "germany/del", "aliases": {}, "team_meta": None,
+                "completed": [season3(2023), season3(2024), season3(2025)], "upcoming": season3(2026),
+                "preseason_cutoff": None},
+    "NORWAY": {"path": "norway/ehl", "aliases": {}, "team_meta": None,
+               "completed": [season3(2023), season3(2024), season3(2025)], "upcoming": season3(2026),
+               "preseason_cutoff": None},
+    "SLOVAKIA": {"path": "slovakia/st_extraliga", "aliases": {}, "team_meta": None,
+                 "completed": [season3(2023), season3(2024), season3(2025)], "upcoming": season3(2026),
+                 "preseason_cutoff": None},
+    "SWITZERLAND": {"path": "switzerland/nla", "aliases": {}, "team_meta": None,
+                    "completed": [season3(2023), season3(2024), season3(2025)], "upcoming": season3(2026),
+                    "preseason_cutoff": None},
+    "SWEDEN": {"path": "sweden/allsvenskan", "aliases": {}, "team_meta": None,
+               "completed": [season3(2023), season3(2024), season3(2025)], "upcoming": season3(2026),
+               "preseason_cutoff": None},
 }
-# ---------------------------------------------------------------------------
 
 
 def fetch_html_session(session, url, params=None, referer=None, retries=3):
@@ -113,10 +126,9 @@ def parse_fixtures_html(html, aliases):
     soup = BeautifulSoup(html, "html.parser")
     tables = soup.find_all("table")
     if not tables:
-        print("=== BRAK TABELI - fragment otrzymanej strony (pierwsze 1500 znakow) ===")
+        print("=== BRAK TABELI - fragment (pierwsze 1500 znakow) ===")
         print(html[:1500])
-        print("=== koniec fragmentu ===")
-        raise RuntimeError("Nie znaleziono tabeli z meczami - strona mogla zmienic strukture.")
+        raise RuntimeError("Nie znaleziono tabeli z meczami.")
     rows = tables[0].find_all("tr")
     matches = []
     current_date = None
@@ -145,27 +157,27 @@ def parse_fixtures_html(html, aliases):
     return matches
 
 
-def fetch_season_matches(url_league, url_season, aliases):
-    url = FIXTURES_URL.format(league=url_league, season=url_season)
+def fetch_season_matches(path, url_season, aliases):
+    url = FIXTURES_URL.format(path=path, season=url_season)
     session = requests.Session()
     session.headers.update(HEADERS)
     html = fetch_html_session(session, url)
 
     key_match = re.search(r'data_key["\']?\s*:\s*["\']([A-Za-z0-9]+)["\']', html)
     if not key_match:
-        print("=== BRAK data_key w stronie - fragment (pierwsze 1500 znakow) ===")
+        print("=== BRAK data_key - fragment (pierwsze 1500 znakow) ===")
         print(html[:1500])
-        raise RuntimeError("Nie znaleziono klucza data_key na stronie - struktura mogla sie zmienic.")
+        raise RuntimeError("Nie znaleziono klucza data_key.")
     data_key = key_match.group(1)
-    print(f"[fetch] znaleziono data_key: {data_key}")
+    print(f"[fetch] data_key: {data_key}")
 
     backend_url = "https://en.24score.com/backend/load_page_data.php"
     frag = fetch_html_session(session, backend_url, params={"data_key": data_key}, referer=url)
     return parse_fixtures_html(frag, aliases)
 
 
-def build_completed_season(cfg, url_league, aliases):
-    played = [m for m in fetch_season_matches(url_league, cfg["url_season"], aliases) if m["played"]]
+def build_completed_season(season_cfg, path, aliases):
+    played = [m for m in fetch_season_matches(path, season_cfg["url"], aliases) if m["played"]]
     played.sort(key=lambda m: m["sortDate"])
     teams = sorted(set(m["home"] for m in played) | set(m["away"] for m in played))
 
@@ -233,7 +245,7 @@ def build_completed_season(cfg, url_league, aliases):
             "modelBasis": "sezon biezacy",
         })
 
-    return {"id": cfg["id"], "label": cfg["label"], "status": "completed",
+    return {"id": season_cfg["id"], "label": season_cfg["label"], "status": "completed",
             "matchCount": len(played), "teams": list(team_stats.values()), "matches": match_list}
 
 
@@ -303,8 +315,8 @@ def format_basis(basis_home, basis_away):
     return " + ".join(f"{label} ({w:.0f}%)" for label, w in parts)
 
 
-def build_upcoming_season(cfg, completed_desc, url_league, aliases, preseason_cutoff):
-    matches = fetch_season_matches(url_league, cfg["url_season"], aliases)
+def build_upcoming_season(season_cfg, completed_desc, path, aliases, preseason_cutoff):
+    matches = fetch_season_matches(path, season_cfg["url"], aliases)
     matches.sort(key=lambda m: m["sortDate"])
     if preseason_cutoff:
         preseason = [m for m in matches if m["sortDate"] < preseason_cutoff]
@@ -345,18 +357,18 @@ def build_upcoming_season(cfg, completed_desc, url_league, aliases, preseason_cu
             })
         return out
 
-    return {"id": cfg["id"], "label": cfg["label"], "status": "upcoming",
+    return {"id": season_cfg["id"], "label": season_cfg["label"], "status": "upcoming",
             "preseason": {"matches": [slim(m) for m in preseason], "count": len(preseason)},
             "mainSeason": {"matches": [slim(m) for m in main], "count": len(main)}}
 
 
 def build_league(league_key, cfg):
     print(f"\n===== Liga: {league_key} =====")
-    completed_seasons = [build_completed_season(s, cfg["url_league"], cfg["aliases"]) for s in cfg["completed_seasons"]]
+    completed_seasons = [build_completed_season(sc, cfg["path"], cfg["aliases"]) for sc in cfg["completed"]]
     completed_desc = list(reversed(completed_seasons))
-    seasons_out = {s["id"]: cs for s, cs in zip(cfg["completed_seasons"], completed_seasons)}
-    seasons_out[cfg["upcoming_season"]["id"]] = build_upcoming_season(
-        cfg["upcoming_season"], completed_desc, cfg["url_league"], cfg["aliases"], cfg["preseason_cutoff"]
+    seasons_out = {sc["id"]: cs for sc, cs in zip(cfg["completed"], completed_seasons)}
+    seasons_out[cfg["upcoming"]["id"]] = build_upcoming_season(
+        cfg["upcoming"], completed_desc, cfg["path"], cfg["aliases"], cfg["preseason_cutoff"]
     )
 
     all_team_names = set()
@@ -380,21 +392,32 @@ def build_league(league_key, cfg):
 
 def main():
     leagues_out = {}
+    failed = []
     for league_key, cfg in LEAGUES.items():
-        leagues_out[league_key] = build_league(league_key, cfg)
+        try:
+            leagues_out[league_key] = build_league(league_key, cfg)
+        except Exception as e:
+            print(f"!!! BLAD przy lidze {league_key}: {e}")
+            failed.append(league_key)
 
     now = datetime.now(timezone.utc).strftime("%d.%m.%Y %H:%M UTC")
     for league in leagues_out.values():
         for s in league["seasons"].values():
             s["lastUpdated"] = now
 
-    data = {
-        "leagues": leagues_out,
-        "modelConfig": {"h2hWeight": H2H_WEIGHT, "h2hMinMatches": H2H_MIN_MATCHES},
-        "lastUpdated": now,
-    }
+    try:
+        with open("data.json", encoding="utf-8") as f:
+            existing = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        existing = {"leagues": {}}
+
+    existing.setdefault("leagues", {})
+    existing["leagues"].update(leagues_out)
+    existing["modelConfig"] = {"h2hWeight": H2H_WEIGHT, "h2hMinMatches": H2H_MIN_MATCHES}
+    existing["lastUpdated"] = now
+
     with open("data.json", "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False)
+        json.dump(existing, f, ensure_ascii=False)
 
     print("\n===== Podsumowanie =====")
     for lg, league in leagues_out.items():
@@ -403,7 +426,12 @@ def main():
                 print(f"{lg} {sid}: {len(s['teams'])} druzyn, {len(s['matches'])} meczow")
             else:
                 print(f"{lg} {sid}: presezon {s['preseason']['count']}, main {s['mainSeason']['count']}")
+    if failed:
+        print(f"\n!!! Ligi ktore sie NIE zaktualizowaly (blad): {failed}")
+        print("Pozostale dane (dla tych lig) zostaly bez zmian w data.json.")
     print("Zapisano data.json,", now)
+    if failed:
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":
