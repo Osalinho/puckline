@@ -261,6 +261,10 @@
     <div id="playnowContent"></div>
   </div>
 
+  <div id="wynikiall" class="panel">
+    <div id="wynikiallContent"></div>
+  </div>
+
   <footer>
     <div style="font-style:italic; color:var(--text); opacity:.75; margin-bottom:6px;">„Statystyka nie przewiduje przyszłości. Zwiększa jedynie szanse na dobrą decyzję."</div>
     <div>Dane: 24score.com · próg over 1,5 gola w 1. tercji · prognoza to model statystyczny, nie porada bukmacherska</div>
@@ -366,12 +370,14 @@ function splitCountryLeague(fullLabel){
 }
 
 function renderHeader(){
-  const isCountry = !CORE_LEAGUES.includes(currentLeague) && currentLeague !== 'COMBINED' && currentLeague !== '__PLAYNOW__';
+  const SPECIAL_TABS = ['COMBINED', '__PLAYNOW__', '__WYNIKIALL__'];
+  const isCountry = !CORE_LEAGUES.includes(currentLeague) && !SPECIAL_TABS.includes(currentLeague);
   const currentSplit = isCountry ? splitCountryLeague(DATA.leagues[currentLeague].label) : null;
   const krajLabel = isCountry ? `🌍 ${currentSplit.country}` : '🌍 KRAJ';
 
   document.getElementById('leagueSwitch').innerHTML = `
-    <button class="${currentLeague==='__PLAYNOW__'?'active':''}" data-league="__PLAYNOW__">🔥 CO ZAGRAĆ (2 DNI)</button>
+    <button class="${currentLeague==='__PLAYNOW__'?'active':''}" data-league="__PLAYNOW__">🔥 CO ZAGRAĆ (4 DNI)</button>
+    <button class="${currentLeague==='__WYNIKIALL__'?'active':''}" data-league="__WYNIKIALL__">📊 WYNIKI ALL</button>
     <button class="${currentLeague==='NHL'?'active':''}" data-league="NHL">NHL</button>
     <button class="${currentLeague==='AHL'?'active':''}" data-league="AHL">AHL</button>
     <button class="${currentLeague==='COMBINED'?'active':''}" data-league="COMBINED">🔗 SERIA ŁĄCZONA</button>
@@ -388,7 +394,7 @@ function renderHeader(){
       if(b.dataset.league===currentLeague) return;
       currentLeague = b.dataset.league;
       countryPickerOpen = false;
-      if(currentLeague !== 'COMBINED' && currentLeague !== '__PLAYNOW__'){
+      if(!SPECIAL_TABS.includes(currentLeague)){
         const seasonKeys = Object.keys(DATA.leagues[currentLeague].seasons);
         currentSeason = seasonKeys.includes('2025-26') ? '2025-26' : seasonKeys[seasonKeys.length-1];
       }
@@ -429,11 +435,21 @@ function renderHeader(){
   }
 
   if(currentLeague === '__PLAYNOW__'){
-    document.getElementById('subtitle').textContent = 'Co zagrać w najbliższych 2 dniach · wszystkie ligi razem · z prognozami';
+    document.getElementById('subtitle').textContent = 'Co zagrać w najbliższych 4 dniach · wszystkie ligi razem · z prognozami';
     document.getElementById('seasonSwitch').style.display = 'none';
     document.querySelector('.topbar').style.display = 'none';
     document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
     document.getElementById('playnow').classList.add('active');
+    document.getElementById('metaRight').innerHTML = '';
+    return;
+  }
+
+  if(currentLeague === '__WYNIKIALL__'){
+    document.getElementById('subtitle').textContent = 'Rozegrane mecze ze wszystkich lig · prognoza vs faktyczny wynik';
+    document.getElementById('seasonSwitch').style.display = 'none';
+    document.querySelector('.topbar').style.display = 'none';
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    document.getElementById('wynikiall').classList.add('active');
     document.getElementById('metaRight').innerHTML = '';
     return;
   }
@@ -619,6 +635,12 @@ function within2days(dateStr){
   const d1 = new Date(dateStr+'T00:00:00');
   const diff = (d1-d0)/86400000;
   return diff>=0 && diff<=2;
+}
+function within4days(dateStr){
+  const d0 = new Date(todayStr()+'T00:00:00');
+  const d1 = new Date(dateStr+'T00:00:00');
+  const diff = (d1-d0)/86400000;
+  return diff>=0 && diff<=4;
 }
 function within7days(dateStr){
   const d0 = new Date(todayStr()+'T00:00:00');
@@ -1004,6 +1026,10 @@ function renderAll(){
     renderPlayNow();
     return;
   }
+  if(currentLeague === '__WYNIKIALL__'){
+    renderWynikiAll();
+    return;
+  }
   if(currentLeague === 'COMBINED'){
     renderCombined();
     return;
@@ -1013,7 +1039,7 @@ function renderAll(){
   renderH2H();
 }
 
-// ---------- Co zagrać (2 dni, wszystkie ligi) ----------
+// ---------- Co zagrać (4 dni, wszystkie ligi) ----------
 function renderPlayNow(){
   const content = document.getElementById('playnowContent');
   const allMatches = [];
@@ -1021,7 +1047,7 @@ function renderPlayNow(){
     Object.values(DATA.leagues[lg].seasons).forEach(s=>{
       if(s.status !== 'upcoming') return;
       const pool = [...(s.preseason?.matches||[]), ...(s.mainSeason?.matches||[])];
-      pool.forEach(m=>{ if(within2days(m.sortDate)) allMatches.push({...m, league: lg}); });
+      pool.forEach(m=>{ if(within4days(m.sortDate)) allMatches.push({...m, league: lg}); });
     });
   });
 
@@ -1030,7 +1056,7 @@ function renderPlayNow(){
   const dates = Object.keys(groups).sort();
 
   if(!dates.length){
-    content.innerHTML = `<div class="schedule-note">📅 <span>Brak zaplanowanych meczów w ciągu najbliższych 2 dni w żadnej z lig. Sprawdź konkretną ligę, żeby zobaczyć pełny terminarz.</span></div>`;
+    content.innerHTML = `<div class="schedule-note">📅 <span>Brak zaplanowanych meczów w ciągu najbliższych 4 dni w żadnej z lig. Sprawdź konkretną ligę, żeby zobaczyć pełny terminarz.</span></div>`;
     return;
   }
 
@@ -1075,7 +1101,97 @@ function renderPlayNow(){
   });
 }
 
-// ---------- Seria łączona (kalendarz NHL + AHL) ----------
+// ---------- Wyniki ALL (trafność prognoz, wszystkie ligi) ----------
+let wynikiScope = 'current'; // 'current' = tylko sezon 2026/27, 'all' = wszystkie sezony/ligi
+
+function collectPlayedWithProb(scope){
+  const rows = [];
+  Object.keys(DATA.leagues).forEach(lg=>{
+    Object.entries(DATA.leagues[lg].seasons).forEach(([sid, s])=>{
+      if(scope==='current' && sid !== '2026-27') return;
+      let matches = [];
+      if(s.status === 'completed') matches = s.matches;
+      else matches = [...(s.preseason?.matches||[]), ...(s.mainSeason?.matches||[])];
+      matches.filter(m=>m.played && m.prob!==undefined).forEach(m=>{
+        rows.push({...m, league: lg, seasonLabel: s.label});
+      });
+    });
+  });
+  rows.sort((a,b)=>b.sortDate.localeCompare(a.sortDate));
+  return rows;
+}
+
+function renderWynikiAll(){
+  const content = document.getElementById('wynikiallContent');
+  const rows = collectPlayedWithProb(wynikiScope);
+
+  const total = rows.length;
+  const correct = rows.filter(r => (r.prob>=50) === r.over15).length;
+  const accuracy = total ? Math.round(correct/total*1000)/10 : 0;
+
+  // podział per liga
+  const byLeague = {};
+  rows.forEach(r=>{
+    byLeague[r.league] = byLeague[r.league] || {n:0, correct:0};
+    byLeague[r.league].n++;
+    if((r.prob>=50) === r.over15) byLeague[r.league].correct++;
+  });
+
+  content.innerHTML = `
+    <div class="toolbar">
+      <div class="h2h-min-filter" id="wynikiScopeFilter">
+        <button data-scope="current">Sezon 2026/27</button>
+        <button data-scope="all">Wszystkie sezony i ligi</button>
+      </div>
+      <span class="count">${total} rozegranych meczów z prognozą</span>
+    </div>
+    <div class="top5-panel" style="margin-bottom:16px;">
+      <div class="top5-title">📊 Trafność modelu</div>
+      <div style="display:flex; gap:28px; flex-wrap:wrap; align-items:center; padding:4px 4px 10px;">
+        <div><div style="color:var(--muted); font-size:10.5px; text-transform:uppercase; letter-spacing:.04em; margin-bottom:3px;">Trafione</div><div style="font-family:'JetBrains Mono',monospace; font-weight:700; font-size:22px; color:var(--teal);">${correct}/${total}</div></div>
+        <div><div style="color:var(--muted); font-size:10.5px; text-transform:uppercase; letter-spacing:.04em; margin-bottom:3px;">Skuteczność</div><span class="prob-badge ${probClass(accuracy)}" style="font-size:16px;">${accuracy}%</span></div>
+      </div>
+      ${Object.keys(byLeague).length>1 ? `<div style="display:flex; flex-wrap:wrap; gap:8px; padding-top:8px; border-top:1px solid var(--amber-dim);">
+        ${Object.entries(byLeague).sort((a,b)=>b[1].n-a[1].n).map(([lg,st])=>{
+          const pct = Math.round(st.correct/st.n*100);
+          return `<span style="background:var(--surface2); border-radius:7px; padding:5px 10px; font-size:11px;"><b style="font-family:'Space Grotesk',sans-serif;">${lg}</b> <span style="color:var(--muted)">${st.correct}/${st.n}</span> <span style="color:${pct>=50?'var(--teal)':'var(--red)'}">(${pct}%)</span></span>`;
+        }).join('')}
+      </div>` : ''}
+    </div>
+    <div class="matches-head" style="grid-template-columns:76px 60px 1fr 60px 60px 70px;">
+      <div>Data</div><div>Liga</div><div>Mecz</div><div style="text-align:center">P1</div><div style="text-align:right">Prognoza</div><div style="text-align:right">Trafność</div>
+    </div>
+    <div class="matches-list" id="wynikiList" style="max-height:640px;"></div>`;
+
+  document.querySelectorAll('#wynikiScopeFilter button').forEach(b=>{
+    if(b.dataset.scope===wynikiScope) b.classList.add('active');
+    b.addEventListener('click', ()=>{ wynikiScope=b.dataset.scope; renderWynikiAll(); });
+  });
+
+  const listEl = document.getElementById('wynikiList');
+  listEl.innerHTML = rows.map((m,i)=>{
+    const isCorrect = (m.prob>=50) === m.over15;
+    const key = `${m.sortDate}|${m.league}|${m.home}|${m.away}|${i}`;
+    return `<div class="fixture-row" data-widx="${i}" data-key="${key}" style="grid-template-columns:76px 60px 1fr 60px 60px 70px; display:grid; align-items:center;">
+      <div class="match-date" style="font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--muted);">${m.date}</div>
+      <div><span style="font-size:9px; font-weight:700; color:#0A0E1A; background:var(--amber); border-radius:4px; padding:2px 5px;">${m.league}</span></div>
+      <div style="font-size:12.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${logo(m.home,m.league)}<b>${m.home}</b> <span style="color:var(--muted)">–</span> <b>${m.away}</b>${logo(m.away,m.league)}</div>
+      <div style="text-align:center; font-family:'JetBrains Mono',monospace; font-size:11.5px;"><span class="dot" style="background:${m.over15?'var(--teal)':'var(--red)'}"></span>${m.p1}</div>
+      <div style="text-align:right;"><span class="prob-badge ${probClass(m.prob)}" style="width:44px; padding:3px 0; font-size:11.5px;">${m.prob.toFixed(0)}%</span></div>
+      <div style="text-align:right; font-weight:700; color:${isCorrect?'var(--teal)':'var(--red)'};">${isCorrect?'✔ TAK':'✘ NIE'}</div>
+    </div>
+    <div class="details" id="details-${cssKey(key)}"></div>`;
+  }).join('') || `<div style="color:var(--muted); font-size:13px; padding:24px; text-align:center;">Brak jeszcze rozegranych meczów z prognozą w tym zakresie.</div>`;
+
+  listEl.querySelectorAll('.fixture-row').forEach(row=>{
+    row.addEventListener('click', ()=>{
+      const m = rows[+row.dataset.widx];
+      toggleFixtureDetails(row, m, m.league);
+    });
+  });
+}
+
+
 function renderCombined(){
   const content = document.getElementById('combinedContent');
   const leagueMatches = [];
