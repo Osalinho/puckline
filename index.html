@@ -376,7 +376,7 @@ function renderHeader(){
   const krajLabel = isCountry ? `🌍 ${currentSplit.country}` : '🌍 KRAJ';
 
   document.getElementById('leagueSwitch').innerHTML = `
-    <button class="${currentLeague==='__PLAYNOW__'?'active':''}" data-league="__PLAYNOW__">🔥 CO ZAGRAĆ (4 DNI)</button>
+    <button class="${currentLeague==='__PLAYNOW__'?'active':''}" data-league="__PLAYNOW__">🔥 CO ZAGRAĆ (TYDZIEŃ)</button>
     <button class="${currentLeague==='__WYNIKIALL__'?'active':''}" data-league="__WYNIKIALL__">📊 WYNIKI ALL</button>
     <button class="${currentLeague==='NHL'?'active':''}" data-league="NHL">NHL</button>
     <button class="${currentLeague==='AHL'?'active':''}" data-league="AHL">AHL</button>
@@ -435,7 +435,7 @@ function renderHeader(){
   }
 
   if(currentLeague === '__PLAYNOW__'){
-    document.getElementById('subtitle').textContent = 'Co zagrać w najbliższych 4 dniach · wszystkie ligi razem · z prognozami';
+    document.getElementById('subtitle').textContent = 'Co zagrać w najbliższym tygodniu · wszystkie ligi razem · z prognozami';
     document.getElementById('seasonSwitch').style.display = 'none';
     document.querySelector('.topbar').style.display = 'none';
     document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
@@ -712,13 +712,16 @@ function populateFixtures(isInitial){
 
   document.getElementById('matchCount').textContent = matches.length + ' meczów';
 
-  // TOP 5 wg prognozy, zawsze z aktualnie widocznego zbioru
   const withProb = matches.filter(m=>m.prob!==undefined);
-  const top5 = [...withProb].sort((a,b)=>b.prob-a.prob).slice(0,5);
+
+  // TOP wg prognozy - ZAWSZE tylko z najbliższych 7 dni (nie z całego przefiltrowanego terminarza),
+  // żeby nie podpowiadać "top" meczów z odległej przyszłości gdy przeglądasz cały sezon.
+  const nearTermPool = matches.filter(m=>m.prob!==undefined && within7days(m.sortDate));
+  const top5 = [...nearTermPool].sort((a,b)=>b.prob-a.prob).slice(0,5);
   const top5Box = document.getElementById('top5Container');
   if(top5.length>=3){
     top5Box.innerHTML = `<div class="top5-panel">
-      <div class="top5-title">🔥 TOP ${top5.length} meczów według modelu</div>
+      <div class="top5-title">🔥 TOP ${top5.length} najbliższych meczów według modelu</div>
       <div class="top5-grid">
         ${top5.map((m,i)=>`
           <div class="top5-item" data-jump="${m.date}|${m.home}|${m.away}">
@@ -1039,7 +1042,10 @@ function renderAll(){
   renderH2H();
 }
 
-// ---------- Co zagrać (4 dni, wszystkie ligi) ----------
+// ---------- Co zagrać (tydzień, wszystkie ligi) ----------
+const NA_LEAGUES = ['NHL','AHL','CANADA_OHL'];
+let playNowLeagueFilter = null; // null = wszystkie; inaczej Set aktywnych kluczy lig
+
 function renderPlayNow(){
   const content = document.getElementById('playnowContent');
   const allMatches = [];
@@ -1047,50 +1053,89 @@ function renderPlayNow(){
     Object.values(DATA.leagues[lg].seasons).forEach(s=>{
       if(s.status !== 'upcoming') return;
       const pool = [...(s.preseason?.matches||[]), ...(s.mainSeason?.matches||[])];
-      pool.forEach(m=>{ if(within4days(m.sortDate)) allMatches.push({...m, league: lg}); });
+      pool.forEach(m=>{ if(within7days(m.sortDate)) allMatches.push({...m, league: lg}); });
     });
   });
 
-  const groups = {};
-  allMatches.forEach(m=>{ (groups[m.sortDate] = groups[m.sortDate] || []).push(m); });
-  const dates = Object.keys(groups).sort();
+  if(!playNowLeagueFilter) playNowLeagueFilter = new Set(Object.keys(DATA.leagues));
+  const visibleMatches = allMatches.filter(m=>playNowLeagueFilter.has(m.league));
 
-  if(!dates.length){
-    content.innerHTML = `<div class="schedule-note">📅 <span>Brak zaplanowanych meczów w ciągu najbliższych 4 dni w żadnej z lig. Sprawdź konkretną ligę, żeby zobaczyć pełny terminarz.</span></div>`;
+  const leagueChips = Object.keys(DATA.leagues).map(lg=>{
+    const active = playNowLeagueFilter.has(lg);
+    return `<button class="${active?'active':''}" data-toggle-league="${lg}">${lg}</button>`;
+  }).join('');
+
+  if(!allMatches.length){
+    content.innerHTML = `
+      <div class="legend">🔥 Wszystko, co można obstawiać w ciągu najbliższego tygodnia — ze wszystkich ${Object.keys(DATA.leagues).length} lig naraz</div>
+      <div class="schedule-note">📅 <span>Brak zaplanowanych meczów w ciągu najbliższych 7 dni w żadnej z lig. Sprawdź konkretną ligę, żeby zobaczyć pełny terminarz.</span></div>`;
     return;
   }
 
+  const groups = {};
+  visibleMatches.forEach(m=>{ (groups[m.sortDate] = groups[m.sortDate] || []).push(m); });
+  const dates = Object.keys(groups).sort();
+
+  const withP = visibleMatches.filter(m=>m.prob!==undefined);
+  const top10 = [...withP].sort((a,b)=>b.prob-a.prob).slice(0,10);
+  const topPanel = top10.length>=3 ? `
+    <div class="top5-panel" style="margin-bottom:16px;">
+      <div class="top5-title">🔥 TOP ${top10.length} meczów tygodnia według modelu</div>
+      <div class="top5-grid" style="grid-template-columns:repeat(5,1fr); grid-auto-rows:1fr;">
+        ${top10.map((m,i)=>`
+          <div class="top5-item" data-jump="pn-row-${cssKey(m.sortDate+'|'+m.league+'|'+m.home+'|'+m.away)}">
+            <div class="top5-rank">#${i+1} · ${m.league}</div>
+            <div class="top5-teams">${teamShort(m.home)}<br><span style="color:var(--muted); font-weight:400;">–</span> ${teamShort(m.away)}</div>
+            <div class="top5-date">${m.date}</div>
+            <span class="prob-badge ${probClass(m.prob)}">${m.prob.toFixed(0)}%</span>
+          </div>`).join('')}
+      </div>
+    </div>` : '';
+
   content.innerHTML = `
-    <div class="legend">🔥 Wszystko, co można dziś i jutro obstawiać — ze wszystkich ${Object.keys(DATA.leagues).length} lig naraz, posortowane od najwyższej prognozy w obrębie dnia</div>
+    <div class="legend">🔥 Wszystko, co można obstawiać w ciągu najbliższego tygodnia — ze wszystkich ${Object.keys(DATA.leagues).length} lig naraz, posortowane od najwyższej prognozy w obrębie dnia</div>
+    <div class="quick-filters" id="playNowLeagueChips" style="margin-bottom:14px;">${leagueChips}</div>
+    ${topPanel}
     <div class="fixtures-scroll">${dates.map(d=>{
       const dayMatches = [...groups[d]].sort((a,b)=>(b.prob??-1)-(a.prob??-1));
-      const withP = dayMatches.filter(m=>m.prob!==undefined);
-      const top5 = withP.slice(0,5);
-      const topPanel = top5.length>=3 ? `
-        <div class="top5-panel" style="margin:10px 0 8px;">
-          <div class="top5-title">🔥 TOP ${top5.length} dnia</div>
-          <div class="top5-grid">
-            ${top5.map((m,i)=>`
-              <div class="top5-item" data-jump="pn-row-${cssKey(d+'|'+m.league+'|'+m.home+'|'+m.away)}">
-                <div class="top5-rank">#${i+1} · ${m.league}</div>
-                <div class="top5-teams">${teamShort(m.home)}<br><span style="color:var(--muted); font-weight:400;">–</span> ${teamShort(m.away)}</div>
-                <span class="prob-badge ${probClass(m.prob)}">${m.prob.toFixed(0)}%</span>
-              </div>`).join('')}
-          </div>
-        </div>` : '';
-      return `<div class="day-group open">
-        ${topPanel}
-        <div class="day-header" style="cursor:default;"><span class="date">${dayMatches[0].date}</span><span class="n">${dayMatches.length} mecz${dayMatches.length===1?'':dayMatches.length<5?'e':'ów'}</span></div>
-        <div class="day-body" style="display:block;">
-          ${dayMatches.map(m=>combinedRowHtml(m, d, 'pn-row-')).join('')}
+      const strongCount = dayMatches.filter(m=>m.prob!==undefined && m.prob>=65).length;
+      const euroMatches = dayMatches.filter(m=>!NA_LEAGUES.includes(m.league));
+      const naMatches = dayMatches.filter(m=>NA_LEAGUES.includes(m.league));
+      const intensityTag = strongCount>0 ? ` · <span style="color:var(--teal)">🔥 ${strongCount} mocnych typów (≥65%)</span>` : '';
+      const section = (title, list) => list.length ? `
+        <div style="padding:8px 14px 2px; font-family:'Space Grotesk',sans-serif; font-size:10.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em;">${title}</div>
+        ${list.map(m=>combinedRowHtml(m, d, 'pn-row-')).join('')}` : '';
+      return `<div class="day-group" id="pn-anchor-${d}">
+        <div class="day-header" data-toggle="day">
+          <span class="date">${dayMatches[0].date}</span>
+          <span class="n">${dayMatches.length} mecz${dayMatches.length===1?'':dayMatches.length<5?'e':'ów'}${intensityTag}</span>
+          <span class="caret">▾</span>
+        </div>
+        <div class="day-body">
+          ${section('🌆 Popołudnie / wieczór (Europa)', euroMatches)}
+          ${section('🌙 Noc (USA / Kanada)', naMatches)}
         </div>
       </div>`;
     }).join('')}</div>`;
 
+  content.querySelectorAll('#playNowLeagueChips button').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const lg = b.dataset.toggleLeague;
+      if(playNowLeagueFilter.has(lg)) playNowLeagueFilter.delete(lg); else playNowLeagueFilter.add(lg);
+      if(playNowLeagueFilter.size===0) playNowLeagueFilter = new Set(Object.keys(DATA.leagues));
+      renderPlayNow();
+    });
+  });
+  content.querySelectorAll('.day-header[data-toggle="day"]').forEach(h=>{
+    h.addEventListener('click', ()=>{ h.closest('.day-group').classList.toggle('open'); });
+  });
   content.querySelectorAll('.top5-item').forEach(el=>{
     el.addEventListener('click', ()=>{
       const target = document.getElementById(el.dataset.jump);
-      if(target){ target.scrollIntoView({behavior:'smooth', block:'center'}); target.click(); }
+      if(target){
+        const dayGroup = target.closest('.day-group'); if(dayGroup) dayGroup.classList.add('open');
+        target.scrollIntoView({behavior:'smooth', block:'center'}); target.click();
+      }
     });
   });
   content.querySelectorAll('.fixture-row[data-cmb]').forEach(row=>{
@@ -1099,6 +1144,12 @@ function renderPlayNow(){
       toggleFixtureDetails(row, m, m.league);
     });
   });
+
+  // domyślnie rozwiń najbliższy dzień
+  if(dates.length){
+    const first = document.getElementById('pn-anchor-'+dates[0]);
+    if(first) first.classList.add('open');
+  }
 }
 
 // ---------- Wyniki ALL (trafność prognoz, wszystkie ligi) ----------
