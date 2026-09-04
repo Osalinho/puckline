@@ -1,11 +1,10 @@
 """
 Scraper + budowa danych dla PUCKLINE (12 lig hokejowych).
 Pobiera terminarze z 24score.com dla wszystkich lig, liczy statystyki over 1,5
-gola w 1. tercji i model prognozy, zapisuje jeden wspolny data.json:
-{ "leagues": { "NHL": {...}, "AHL": {...}, "CZECH": {...}, ... } }
+gola w 1. tercji i model prognozy, zapisuje jeden wspolny data.json.
 
-Uruchamiane automatycznie przez GitHub Actions (.github/workflows/update.yml)
-codziennie o 8:00 czasu polskiego. Mozna tez odpalic recznie: python3 scraper.py
+Zoptymalizowany: Stare completed sezony wczytuje z cache (data.json),
+a pobiera z sieci TYLKO mecze bieżącego sezonu.
 """
 import re, json, math, time, hashlib
 import requests
@@ -28,22 +27,22 @@ H2H_MIN_MATCHES = 2
 CURRENT_SEASON_RAMP = 25
 
 NHL_TEAM_META = {
-"Anaheim Ducks":("ANA","#F47A38"),"Boston Bruins":("BOS","#FFB81C"),
-"Buffalo Sabres":("BUF","#003087"),"Calgary Flames":("CGY","#C8102E"),
-"Carolina Hurricanes":("CAR","#CC0000"),"Chicago Blackhawks":("CHI","#CF0A2C"),
-"Colorado Avalanche":("COL","#6F263D"),"Columbus Blue Jackets":("CBJ","#002654"),
-"Dallas Stars":("DAL","#006847"),"Detroit Red Wings":("DET","#CE1126"),
-"Edmonton Oilers":("EDM","#FF4C00"),"Florida Panthers":("FLA","#C8102E"),
-"Los Angeles Kings":("LAK","#A2AAAD"),"Minnesota Wild":("MIN","#A6192E"),
-"Montreal Canadiens":("MTL","#AF1E2D"),"Nashville Predators":("NSH","#FFB81C"),
-"New Jersey Devils":("NJD","#CE1126"),"New York Islanders":("NYI","#00539B"),
-"New York Rangers":("NYR","#0038A8"),"Ottawa Senators":("OTT","#C52032"),
-"Philadelphia Flyers":("PHI","#F74902"),"Pittsburgh Penguins":("PIT","#FCB514"),
-"San Jose Sharks":("SJS","#006D75"),"Seattle Kraken":("SEA","#99D9D9"),
-"St. Louis Blues":("STL","#002F87"),"Tampa Bay Lightning":("TBL","#002868"),
-"Toronto Maple Leafs":("TOR","#00205B"),"Utah Mammoth":("UTA","#71AFE5"),
-"Vancouver Canucks":("VAN","#00205B"),"Vegas Golden Knights":("VGK","#B4975A"),
-"Washington Capitals":("WSH","#C8102E"),"Winnipeg Jets":("WPG","#041E42"),
+    "Anaheim Ducks":("ANA","#F47A38"),"Boston Bruins":("BOS","#FFB81C"),
+    "Buffalo Sabres":("BUF","#003087"),"Calgary Flames":("CGY","#C8102E"),
+    "Carolina Hurricanes":("CAR","#CC0000"),"Chicago Blackhawks":("CHI","#CF0A2C"),
+    "Colorado Avalanche":("COL","#6F263D"),"Columbus Blue Jackets":("CBJ","#002654"),
+    "Dallas Stars":("DAL","#006847"),"Detroit Red Wings":("DET","#CE1126"),
+    "Edmonton Oilers":("EDM","#FF4C00"),"Florida Panthers":("FLA","#C8102E"),
+    "Los Angeles Kings":("LAK","#A2AAAD"),"Minnesota Wild":("MIN","#A6192E"),
+    "Montreal Canadiens":("MTL","#AF1E2D"),"Nashville Predators":("NSH","#FFB81C"),
+    "New Jersey Devils":("NJD","#CE1126"),"New York Islanders":("NYI","#00539B"),
+    "New York Rangers":("NYR","#0038A8"),"Ottawa Senators":("OTT","#C52032"),
+    "Philadelphia Flyers":("PHI","#F74902"),"Pittsburgh Penguins":("PIT","#FCB514"),
+    "San Jose Sharks":("SJS","#006D75"),"Seattle Kraken":("SEA","#99D9D9"),
+    "St. Louis Blues":("STL","#002F87"),"Tampa Bay Lightning":("TBL","#002868"),
+    "Toronto Maple Leafs":("TOR","#00205B"),"Utah Mammoth":("UTA","#71AFE5"),
+    "Vancouver Canucks":("VAN","#00205B"),"Vegas Golden Knights":("VGK","#B4975A"),
+    "Washington Capitals":("WSH","#C8102E"),"Winnipeg Jets":("WPG","#041E42"),
 }
 
 def color_for(name):
@@ -96,7 +95,6 @@ LEAGUES = {
                "preseason_cutoff": None},
 }
 
-
 def fetch_html_session(session, url, params=None, referer=None, retries=3):
     last_err = None
     extra_headers = {"Referer": referer} if referer else {}
@@ -112,15 +110,12 @@ def fetch_html_session(session, url, params=None, referer=None, retries=3):
             time.sleep(2 * (attempt + 1))
     raise RuntimeError(f"Nie udalo sie pobrac {url}: {last_err}")
 
-
 def norm_team(name, aliases):
     return aliases.get(name, name)
-
 
 def date_key(d):
     dd, mm, yyyy = d.split(".")
     return f"{yyyy}-{mm}-{dd}"
-
 
 def parse_fixtures_html(html, aliases):
     soup = BeautifulSoup(html, "html.parser")
@@ -139,9 +134,17 @@ def parse_fixtures_html(html, aliases):
         date_cell, teams_cell, score_cell, periods_cell = cells[0], cells[1], cells[2], cells[3]
         if date_cell:
             current_date = date_cell
-        if "–" not in teams_cell or not current_date:
+        
+        # Odporność na różne rodzaje myślników (-, –, —)
+        if not re.search(r'[\-–—]', teams_cell) or not current_date:
             continue
-        home, away = [norm_team(t.strip(), aliases) for t in teams_cell.split("–", 1)]
+        
+        teams_split = re.split(r'\s*[\-–—]\s*', teams_cell, 1)
+        if len(teams_split) < 2:
+            continue
+
+        home = norm_team(teams_split[0].strip(), aliases)
+        away = norm_team(teams_split[1].strip(), aliases)
         score_match = re.match(r"(\d+):(\d+)", score_cell)
         periods = re.findall(r"(\d+):(\d+)", periods_cell)
         m = {"date": current_date, "sortDate": date_key(current_date), "home": home, "away": away, "played": False}
@@ -155,7 +158,6 @@ def parse_fixtures_html(html, aliases):
             m["over15"] = (m["p1_home"] + m["p1_away"]) >= 2
         matches.append(m)
     return matches
-
 
 def fetch_season_matches(path, url_season, aliases):
     url = FIXTURES_URL.format(path=path, season=url_season)
@@ -174,7 +176,6 @@ def fetch_season_matches(path, url_season, aliases):
     backend_url = "https://en.24score.com/backend/load_page_data.php"
     frag = fetch_html_session(session, backend_url, params={"data_key": data_key}, referer=url)
     return parse_fixtures_html(frag, aliases)
-
 
 def build_completed_season(season_cfg, path, aliases):
     played = [m for m in fetch_season_matches(path, season_cfg["url"], aliases) if m["played"]]
@@ -248,7 +249,6 @@ def build_completed_season(season_cfg, path, aliases):
     return {"id": season_cfg["id"], "label": season_cfg["label"], "status": "completed",
             "matchCount": len(played), "teams": list(team_stats.values()), "matches": match_list}
 
-
 def historical_weights(completed_desc, current_w):
     L = len(completed_desc)
     if L == 0:
@@ -258,12 +258,10 @@ def historical_weights(completed_desc, current_w):
     hist_total = 1 - current_w
     return [hist_total * r / total_raw for r in raw]
 
-
 def current_season_weight(n_played):
     if n_played <= 0:
         return 0.0
     return 0.9 * (1 - math.exp(-n_played / CURRENT_SEASON_RAMP))
-
 
 def blended_team_stats(team, completed_desc, current_games=None):
     current_games = current_games or []
@@ -294,7 +292,6 @@ def blended_team_stats(team, completed_desc, current_games=None):
     basis = [{"label": p[4], "weight": round(p[0]/total_w*100, 1)} for p in parts]
     return {"overallPct": wavg(1), "homePct": wavg(2), "awayPct": wavg(3), "basis": basis}
 
-
 def blended_h2h(a, b, completed_desc, current_games=None):
     current_games = current_games or []
     all_games = [m for m in current_games if {m["home"], m["away"]} == {a, b}]
@@ -306,14 +303,12 @@ def blended_h2h(a, b, completed_desc, current_games=None):
     overs = sum(1 for g in all_games if g["over15"])
     return {"matches": n, "pct": round(overs/n*100, 1)}
 
-
 def format_basis(basis_home, basis_away):
     merged = {}
     for b in basis_home + basis_away:
         merged[b["label"]] = merged.get(b["label"], 0) + b["weight"]/2
     parts = sorted(merged.items(), key=lambda x: -x[1])
     return " + ".join(f"{label} ({w:.0f}%)" for label, w in parts)
-
 
 def build_upcoming_season(season_cfg, completed_desc, path, aliases, preseason_cutoff):
     matches = fetch_season_matches(path, season_cfg["url"], aliases)
@@ -361,10 +356,20 @@ def build_upcoming_season(season_cfg, completed_desc, path, aliases, preseason_c
             "preseason": {"matches": [slim(m) for m in preseason], "count": len(preseason)},
             "mainSeason": {"matches": [slim(m) for m in main], "count": len(main)}}
 
-
-def build_league(league_key, cfg):
+def build_league(league_key, cfg, existing_league_data=None):
     print(f"\n===== Liga: {league_key} =====")
-    completed_seasons = [build_completed_season(sc, cfg["path"], cfg["aliases"]) for sc in cfg["completed"]]
+    completed_seasons = []
+    
+    for sc in cfg["completed"]:
+        # Cache Check: Użycie zapisanych starych sezonów z data.json zamiast ciągłego pobierania
+        if (existing_league_data and 
+            "seasons" in existing_league_data and 
+            sc["id"] in existing_league_data["seasons"]):
+            print(f"[CACHE] Używam zapisanych danych dla zakończonego sezonu {sc['id']}")
+            completed_seasons.append(existing_league_data["seasons"][sc["id"]])
+        else:
+            completed_seasons.append(build_completed_season(sc, cfg["path"], cfg["aliases"]))
+
     completed_desc = list(reversed(completed_seasons))
     seasons_out = {sc["id"]: cs for sc, cs in zip(cfg["completed"], completed_seasons)}
     seasons_out[cfg["upcoming"]["id"]] = build_upcoming_season(
@@ -377,7 +382,8 @@ def build_league(league_key, cfg):
             all_team_names.update(t["name"] for t in s["teams"])
         else:
             for m in s["mainSeason"]["matches"] + s["preseason"]["matches"]:
-                all_team_names.add(m["home"]); all_team_names.add(m["away"])
+                all_team_names.add(m["home"])
+                all_team_names.add(m["away"])
 
     team_meta = {}
     for name in all_team_names:
@@ -389,13 +395,22 @@ def build_league(league_key, cfg):
 
     return {"teamMeta": team_meta, "seasons": seasons_out}
 
-
 def main():
+    # Odczyt dotychczasowych danych z data.json dla użycia cache
+    try:
+        with open("data.json", encoding="utf-8") as f:
+            existing = json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        existing = {"leagues": {}}
+
+    existing_leagues = existing.get("leagues", {})
     leagues_out = {}
     failed = []
+
     for league_key, cfg in LEAGUES.items():
         try:
-            leagues_out[league_key] = build_league(league_key, cfg)
+            prev_data = existing_leagues.get(league_key)
+            leagues_out[league_key] = build_league(league_key, cfg, existing_league_data=prev_data)
         except Exception as e:
             print(f"!!! BLAD przy lidze {league_key}: {e}")
             failed.append(league_key)
@@ -404,12 +419,6 @@ def main():
     for league in leagues_out.values():
         for s in league["seasons"].values():
             s["lastUpdated"] = now
-
-    try:
-        with open("data.json", encoding="utf-8") as f:
-            existing = json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):
-        existing = {"leagues": {}}
 
     existing.setdefault("leagues", {})
     existing["leagues"].update(leagues_out)
@@ -432,7 +441,6 @@ def main():
     print("Zapisano data.json,", now)
     if failed:
         raise SystemExit(1)
-
 
 if __name__ == "__main__":
     main()
