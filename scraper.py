@@ -3,16 +3,18 @@ Scraper + budowa danych dla PUCKLINE (12 lig hokejowych).
 Pobiera terminarze z 24score.com dla wszystkich lig, liczy statystyki over 1,5
 gola w 1. tercji i model prognozy, zapisuje jeden wspolny data.json.
 """
-import re, json, math, time, hashlib
+import os, re, json, math, time, hashlib
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime, timezone
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-                  "(KHTML, like Gecko) Chrome/124.0 Safari/537.36",
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+                  "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
     "Accept-Language": "en-US,en;q=0.9,pl;q=0.8",
+    "Cache-Control": "no-cache",
+    "Pragma": "no-cache",
     "Referer": "https://en.24score.com/",
 }
 
@@ -97,14 +99,14 @@ def fetch_html_session(session, url, params=None, referer=None, retries=3):
     extra_headers = {"Referer": referer} if referer else {}
     for attempt in range(retries):
         try:
-            time.sleep(1.5)  # Odstęp zapobiegający blokowaniu IP przez 24score
+            time.sleep(2.0)
             r = session.get(url, params=params, headers=extra_headers, timeout=30)
             if r.status_code == 200 and len(r.text) > 500:
                 return r.text
             print(f"[fetch] Proba {attempt+1} -> status {r.status_code}, len {len(r.text)}")
         except Exception as e:
             print(f"[fetch] Proba {attempt+1} nieudana: {e}")
-        time.sleep(2 * (attempt + 1))
+        time.sleep(3 * (attempt + 1))
     return ""
 
 
@@ -388,39 +390,43 @@ def build_league(session, league_key, cfg):
     return {"teamMeta": team_meta, "seasons": seasons_out}
 
 
+def is_valid_league_data(league_data):
+    """Sprawdza, czy liga zawiera wystarczająca liczbe meczow (min. 10)"""
+    total_matches = 0
+    for s in league_data.get("seasons", {}).values():
+        if s.get("status") == "completed":
+            total_matches += len(s.get("matches", []))
+        else:
+            total_matches += len(s.get("mainSeason", {}).get("matches", []))
+    return total_matches >= 10
+
+
 def main():
-    # 1. Wczytujemy istniejący plik data.json
-    try:
-        with open("data.json", encoding="utf-8") as f:
-            existing = json.load(f)
-        print("[info] Wczytano istniejący data.json.")
-    except (FileNotFoundError, json.JSONDecodeError):
-        existing = {"leagues": {}}
-        print("[info] Tworzenie nowego data.json od zera.")
+    existing = {"leagues": {}}
+    if os.path.exists("data.json"):
+        try:
+            with open("data.json", encoding="utf-8") as f:
+                existing = json.load(f)
+            print("[info] Wczytano istniejący plik data.json.")
+        except Exception as e:
+            print(f"[warn] Nie udałosię wczytać data.json: {e}")
 
     existing.setdefault("leagues", {})
-    failed = []
 
-    # 2. Tworzymy jedną trwałą sesję z nagłówkami
     session = requests.Session()
     session.headers.update(HEADERS)
 
-    # 3. Pobieramy ligi
     for league_key, cfg in LEAGUES.items():
         try:
             new_data = build_league(session, league_key, cfg)
             
-            # Jeśli liga zwróciła jakiekolwiek dane lub zespoły, zasilamy bazę
-            has_teams = any(len(s.get("teams", [])) > 0 for s in new_data["seasons"].values() if s.get("status") == "completed")
-            
-            if has_teams or league_key not in existing["leagues"]:
+            if is_valid_league_data(new_data):
                 existing["leagues"][league_key] = new_data
-                print(f"[success] Zaktualizowano ligę {league_key}.")
+                print(f"[OK] Zaktualizowano ligę {league_key}.")
             else:
-                print(f"[warn] Zachowano poprzednie dane dla {league_key}.")
+                print(f"[SKIP] Pobieranie {league_key} nie powiodło się (mniej niż 10 meczów). Zachowuję dotychczasowe dane z data.json!")
         except Exception as e:
-            print(f"!!! Błąd przy pobieraniu {league_key}: {e}")
-            failed.append(league_key)
+            print(f"[ERROR] Błąd przy {league_key}: {e}. Zachowuję stare dane.")
 
     now = datetime.now(timezone.utc).strftime("%d.%m.%Y %H:%M UTC")
     
@@ -431,12 +437,10 @@ def main():
     existing["modelConfig"] = {"h2hWeight": H2H_WEIGHT, "h2hMinMatches": H2H_MIN_MATCHES}
     existing["lastUpdated"] = now
 
-    # 4. Zapisujemy scalony plik
     with open("data.json", "w", encoding="utf-8") as f:
-        json.dump(existing, f, ensure_ascii=False)
+        json.dump(existing, f, ensure_ascii=False, indent=2)
 
-    print("\n===== Zapisano data.json =====")
-    print("Ostatnia aktualizacja:", now)
+    print(f"\n===== Zapisano data.json ({now}) =====")
 
 
 if __name__ == "__main__":
