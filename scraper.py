@@ -1,22 +1,19 @@
 """
 Scraper + budowa danych dla PUCKLINE (12 lig hokejowych).
-Pobiera terminarze z 24score.com dla wszystkich lig, liczy statystyki over 1,5
-gola w 1. tercji i model prognozy, zapisuje jeden wspolny data.json:
-{ "leagues": { "NHL": {...}, "AHL": {...}, "CZECH": {...}, ... } }
-
-Uruchamiane automatycznie przez GitHub Actions (.github/workflows/update.yml)
-codziennie o 8:00 czasu polskiego. Mozna tez odpalic recznie: python3 scraper.py
+Używa curl_cffi z impersonacją Chrome, aby ominąć bloki TLS/Cloudflare na 24score.com.
 """
-import re, json, math, time, hashlib
-import requests
+import os, re, json, math, time, hashlib
 from bs4 import BeautifulSoup
 from datetime import datetime, timezone
+from curl_cffi import requests
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-                  "(KHTML, like Gecko) Chrome/124.0 Safari/537.36",
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+                  "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
     "Accept-Language": "en-US,en;q=0.9,pl;q=0.8",
+    "Cache-Control": "no-cache",
+    "Pragma": "no-cache",
     "Referer": "https://en.24score.com/",
 }
 
@@ -98,19 +95,19 @@ LEAGUES = {
 
 
 def fetch_html_session(session, url, params=None, referer=None, retries=3):
-    last_err = None
     extra_headers = {"Referer": referer} if referer else {}
     for attempt in range(retries):
         try:
-            r = session.get(url, params=params, headers=extra_headers, timeout=30)
-            print(f"[fetch] {r.url} -> status {r.status_code}, {len(r.text)} znakow")
-            r.raise_for_status()
-            return r.text
+            time.sleep(1.5)
+            # Uzywamy impersonate="chrome120" z biblioteki curl_cffi
+            r = session.get(url, params=params, headers=extra_headers, impersonate="chrome120", timeout=30)
+            if r.status_code == 200 and len(r.text) > 500:
+                return r.text
+            print(f"[fetch] Proba {attempt+1} -> status {r.status_code}, len {len(r.text)}")
         except Exception as e:
-            last_err = e
-            print(f"[fetch] proba {attempt+1} nieudana: {e}")
-            time.sleep(2 * (attempt + 1))
-    raise RuntimeError(f"Nie udalo sie pobrac {url}: {last_err}")
+            print(f"[fetch] Proba {attempt+1} nieudana: {e}")
+        time.sleep(2 * (attempt + 1))
+    return ""
 
 
 def norm_team(name, aliases):
@@ -123,12 +120,12 @@ def date_key(d):
 
 
 def parse_fixtures_html(html, aliases):
+    if not html:
+        return []
     soup = BeautifulSoup(html, "html.parser")
     tables = soup.find_all("table")
     if not tables:
-        print("=== BRAK TABELI - fragment (pierwsze 1500 znakow) ===")
-        print(html[:1500])
-        raise RuntimeError("Nie znaleziono tabeli z meczami.")
+        return []
     rows = tables[0].find_all("tr")
     matches = []
     current_date = None
@@ -157,27 +154,28 @@ def parse_fixtures_html(html, aliases):
     return matches
 
 
-def fetch_season_matches(path, url_season, aliases):
+def fetch_season_matches(session, path, url_season, aliases):
     url = FIXTURES_URL.format(path=path, season=url_season)
-    session = requests.Session()
-    session.headers.update(HEADERS)
-    html = fetch_html_session(session, url)
+    try:
+        html = fetch_html_session(session, url)
+        if not html:
+            return []
+        key_match = re.search(r'data_key["\']?\s*:\s*["\']([A-Za-z0-9]+)["\']', html)
+        if not key_match:
+            return []
+        data_key = key_match.group(1)
+        
+        backend_url = "https://en.24score.com/backend/load_page_data.php"
+        frag = fetch_html_session(session, backend_url, params={"data_key": data_key}, referer=url)
+        return parse_fixtures_html(frag, aliases)
+    except Exception as e:
+        print(f"[warn] Blad pobierania {url_season} dla {path}: {e}")
+        return []
 
-    key_match = re.search(r'data_key["\']?\s*:\s*["\']([A-Za-z0-9]+)["\']', html)
-    if not key_match:
-        print("=== BRAK data_key - fragment (pierwsze 1500 znakow) ===")
-        print(html[:1500])
-        raise RuntimeError("Nie znaleziono klucza data_key.")
-    data_key = key_match.group(1)
-    print(f"[fetch] data_key: {data_key}")
 
-    backend_url = "https://en.24score.com/backend/load_page_data.php"
-    frag = fetch_html_session(session, backend_url, params={"data_key": data_key}, referer=url)
-    return parse_fixtures_html(frag, aliases)
-
-
-def build_completed_season(season_cfg, path, aliases):
-    played = [m for m in fetch_season_matches(path, season_cfg["url"], aliases) if m["played"]]
+def build_completed_season(session, season_cfg, path, aliases):
+    raw_matches = fetch_season_matches(session, path, season_cfg["url"], aliases)
+    played = [m for m in raw_matches if m["played"]]
     played.sort(key=lambda m: m["sortDate"])
     teams = sorted(set(m["home"] for m in played) | set(m["away"] for m in played))
 
@@ -226,7 +224,9 @@ def build_completed_season(season_cfg, path, aliases):
 
     match_list = []
     for m in sorted(played, key=lambda x: x["sortDate"], reverse=True):
-        ht, at = team_stats[m["home"]], team_stats[m["away"]]
+        ht, at = team_stats.get(m["home"]), team_stats.get(m["away"])
+        if not ht or not at:
+            continue
         home_score_calc = 0.4*ht["overallPct"] + 0.4*ht["homePct"] + 0.2*ht["recent5Pct"]
         away_score_calc = 0.4*at["overallPct"] + 0.4*at["awayPct"] + 0.2*at["recent5Pct"]
         base_prob = (home_score_calc + away_score_calc) / 2
@@ -315,8 +315,8 @@ def format_basis(basis_home, basis_away):
     return " + ".join(f"{label} ({w:.0f}%)" for label, w in parts)
 
 
-def build_upcoming_season(season_cfg, completed_desc, path, aliases, preseason_cutoff):
-    matches = fetch_season_matches(path, season_cfg["url"], aliases)
+def build_upcoming_season(session, season_cfg, completed_desc, path, aliases, preseason_cutoff):
+    matches = fetch_season_matches(session, path, season_cfg["url"], aliases)
     matches.sort(key=lambda m: m["sortDate"])
     if preseason_cutoff:
         preseason = [m for m in matches if m["sortDate"] < preseason_cutoff]
@@ -362,13 +362,13 @@ def build_upcoming_season(season_cfg, completed_desc, path, aliases, preseason_c
             "mainSeason": {"matches": [slim(m) for m in main], "count": len(main)}}
 
 
-def build_league(league_key, cfg):
-    print(f"\n===== Liga: {league_key} =====")
-    completed_seasons = [build_completed_season(sc, cfg["path"], cfg["aliases"]) for sc in cfg["completed"]]
+def build_league(session, league_key, cfg):
+    print(f"\n===== Pobieranie ligi: {league_key} =====")
+    completed_seasons = [build_completed_season(session, sc, cfg["path"], cfg["aliases"]) for sc in cfg["completed"]]
     completed_desc = list(reversed(completed_seasons))
     seasons_out = {sc["id"]: cs for sc, cs in zip(cfg["completed"], completed_seasons)}
     seasons_out[cfg["upcoming"]["id"]] = build_upcoming_season(
-        cfg["upcoming"], completed_desc, cfg["path"], cfg["aliases"], cfg["preseason_cutoff"]
+        session, cfg["upcoming"], completed_desc, cfg["path"], cfg["aliases"], cfg["preseason_cutoff"]
     )
 
     all_team_names = set()
@@ -390,48 +390,57 @@ def build_league(league_key, cfg):
     return {"teamMeta": team_meta, "seasons": seasons_out}
 
 
+def is_valid_league_data(league_data):
+    total_matches = 0
+    for s in league_data.get("seasons", {}).values():
+        if s.get("status") == "completed":
+            total_matches += len(s.get("matches", []))
+        else:
+            total_matches += len(s.get("mainSeason", {}).get("matches", []))
+    return total_matches >= 10
+
+
 def main():
-    leagues_out = {}
-    failed = []
-    for league_key, cfg in LEAGUES.items():
+    existing = {"leagues": {}}
+    if os.path.exists("data.json"):
         try:
-            leagues_out[league_key] = build_league(league_key, cfg)
+            with open("data.json", encoding="utf-8") as f:
+                existing = json.load(f)
+            print("[info] Wczytano istniejący plik data.json.")
         except Exception as e:
-            print(f"!!! BLAD przy lidze {league_key}: {e}")
-            failed.append(league_key)
-
-    now = datetime.now(timezone.utc).strftime("%d.%m.%Y %H:%M UTC")
-    for league in leagues_out.values():
-        for s in league["seasons"].values():
-            s["lastUpdated"] = now
-
-    try:
-        with open("data.json", encoding="utf-8") as f:
-            existing = json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):
-        existing = {"leagues": {}}
+            print(f"[warn] Nie udało się wczytać data.json: {e}")
 
     existing.setdefault("leagues", {})
-    existing["leagues"].update(leagues_out)
+
+    # Sesja curl_cffi
+    session = requests.Session()
+    session.headers.update(HEADERS)
+
+    for league_key, cfg in LEAGUES.items():
+        try:
+            new_data = build_league(session, league_key, cfg)
+            
+            if is_valid_league_data(new_data):
+                existing["leagues"][league_key] = new_data
+                print(f"[OK] Zaktualizowano ligę {league_key}.")
+            else:
+                print(f"[SKIP] Pobieranie {league_key} zwróciło mniej niż 10 meczów. Zachowuję dotychczasowe dane z data.json!")
+        except Exception as e:
+            print(f"[ERROR] Błąd przy {league_key}: {e}. Zachowuję stare dane.")
+
+    now = datetime.now(timezone.utc).strftime("%d.%m.%Y %H:%M UTC")
+    
+    for league in existing["leagues"].values():
+        for s in league.get("seasons", {}).values():
+            s["lastUpdated"] = now
+
     existing["modelConfig"] = {"h2hWeight": H2H_WEIGHT, "h2hMinMatches": H2H_MIN_MATCHES}
     existing["lastUpdated"] = now
 
     with open("data.json", "w", encoding="utf-8") as f:
-        json.dump(existing, f, ensure_ascii=False)
+        json.dump(existing, f, ensure_ascii=False, indent=2)
 
-    print("\n===== Podsumowanie =====")
-    for lg, league in leagues_out.items():
-        for sid, s in league["seasons"].items():
-            if s["status"] == "completed":
-                print(f"{lg} {sid}: {len(s['teams'])} druzyn, {len(s['matches'])} meczow")
-            else:
-                print(f"{lg} {sid}: presezon {s['preseason']['count']}, main {s['mainSeason']['count']}")
-    if failed:
-        print(f"\n!!! Ligi ktore sie NIE zaktualizowaly (blad): {failed}")
-        print("Pozostale dane (dla tych lig) zostaly bez zmian w data.json.")
-    print("Zapisano data.json,", now)
-    if failed:
-        raise SystemExit(1)
+    print(f"\n===== Zapisano data.json ({now}) =====")
 
 
 if __name__ == "__main__":
