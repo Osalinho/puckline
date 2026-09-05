@@ -190,7 +190,7 @@ def build_completed_season(season_cfg, path, aliases):
         home_games = [m for m in games if m["home"] == t]
         away_games = [m for m in games if m["away"] == t]
         home_overs = sum(1 for m in home_games if m["over15"])
-        away_overs = sum(1 for m in away_games if m["away"] == t)
+        away_overs = sum(1 for m in away_games if m["over15"])
         last5 = games[-5:]
         recent5_overs = sum(1 for m in last5 if m["over15"])
         recent5_pct = round(recent5_overs / len(last5) * 100, 1) if last5 else 0
@@ -274,7 +274,7 @@ def blended_team_stats(team, completed_desc, current_games=None):
         home_g = [m for m in current_games if m["home"] == team]
         away_g = [m for m in current_games if m["away"] == team]
         home_overs = sum(1 for m in home_g if m["over15"])
-        away_overs = sum(1 for m in away_g if m["away"] == team]
+        away_overs = sum(1 for m in away_g if m["over15"])
         parts.append((cw, overs/n_current*100,
                       home_overs/len(home_g)*100 if home_g else overs/n_current*100,
                       away_overs/len(away_g)*100 if away_g else overs/n_current*100, "biezacy sezon"))
@@ -389,7 +389,6 @@ def build_league(league_key, cfg):
 
 
 def count_matches_in_league(league_data):
-    """Pomocnicza funkcja zliczajaca mecze w pobranej lidze"""
     total = 0
     for s in league_data.get("seasons", {}).values():
         if s.get("status") == "completed":
@@ -401,7 +400,6 @@ def count_matches_in_league(league_data):
 
 
 def main():
-    # 1. Najpierw wczytujemy ISTNIEJACY plik data.json, zeby niczego nie stracic
     try:
         with open("data.json", encoding="utf-8") as f:
             existing = json.load(f)
@@ -413,13 +411,11 @@ def main():
     existing.setdefault("leagues", {})
     failed = []
 
-    # 2. Pobieramy kazda lige z osobna z zabezpieczeniem
     for league_key, cfg in LEAGUES.items():
         try:
             new_data = build_league(league_key, cfg)
             matches_count = count_matches_in_league(new_data)
             
-            # Zapisujemy nowa lige TYLKO wtedy, gdy faktycznie pobrano z niej mecze
             if matches_count > 0:
                 existing["leagues"][league_key] = new_data
                 print(f"[success] Zaktualizowano {league_key} (pobrano {matches_count} meczow).")
@@ -432,7 +428,6 @@ def main():
 
     now = datetime.now(timezone.utc).strftime("%d.%m.%Y %H:%M UTC")
     
-    # Aktualizujemy daty
     for league in existing["leagues"].values():
         for s in league.get("seasons", {}).values():
             s["lastUpdated"] = now
@@ -440,7 +435,6 @@ def main():
     existing["modelConfig"] = {"h2hWeight": H2H_WEIGHT, "h2hMinMatches": H2H_MIN_MATCHES}
     existing["lastUpdated"] = now
 
-    # 3. Zapisujemy scalony plik
     with open("data.json", "w", encoding="utf-8") as f:
         json.dump(existing, f, ensure_ascii=False)
 
