@@ -22,8 +22,10 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Zainstaluj zależności
-        run: pip install requests beautifulsoup4
+            - name: Zainstaluj zależności
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests beautifulsoup4 curl-cffi
 
       - name: Uruchom scraper
         run: python3 scraper.py
