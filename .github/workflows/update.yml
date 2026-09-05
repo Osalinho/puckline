@@ -1,18 +1,15 @@
-name: Aktualizacja danych PUCKLINE
+name: Update Hockey Data
 
 on:
   schedule:
-    # 07:00 UTC = 8:00 czasu polskiego (CET, zima). W czasie letnim (CEST)
-    # wypadnie to na 9:00 - GitHub Actions nie umie automatycznie przełączać się na czas letni.
-    - cron: '0 7 * * *'
-  workflow_dispatch: {}   # pozwala też odpalić ręcznie z zakładki "Actions" na GitHubie
-
-permissions:
-  contents: write
+    # Automatyczne uruchamianie codziennie o 06:00 UTC (8:00 czasu polskiego)
+    - cron: '0 6 * * *'
+  workflow_dispatch: # Przycisk "Run workflow" do ręcznego wyzwalania w GitHubie
 
 jobs:
   update-data:
     runs-on: ubuntu-latest
+
     steps:
       - name: Pobierz repozytorium
         uses: actions/checkout@v4
@@ -20,9 +17,9 @@ jobs:
       - name: Ustaw Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.10'
 
-            - name: Zainstaluj zależności
+      - name: Zainstaluj zależności
         run: |
           python -m pip install --upgrade pip
           pip install requests beautifulsoup4 curl-cffi
@@ -30,10 +27,9 @@ jobs:
       - name: Uruchom scraper
         run: python3 scraper.py
 
-      - name: Zacommituj nowe dane (jeśli się zmieniły)
+      - name: Zacommituj i wyślij nowe dane
         run: |
-          git config user.name "puckline-bot"
-          git config user.email "actions@github.com"
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
           git add data.json
-          git diff --cached --quiet && echo "Brak zmian w danych" || git commit -m "Auto-aktualizacja danych ($(date -u '+%Y-%m-%d %H:%M UTC'))"
-          git push
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Automatyczna aktualizacja data.json [skip ci]" && git push)
