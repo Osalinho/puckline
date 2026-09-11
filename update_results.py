@@ -6,155 +6,169 @@ from difflib import SequenceMatcher
 
 DATA_FILE = "data.json"
 
-# Nagłówki udające przeglądarkę
+# Daty do pobrania i uzupełnienia
+TARGET_DATES = ["09.09", "10.09"]
+
 HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
     "Accept": "*/*",
-    "Accept-Language": "pl-PL,pl;q=0.9,en-US;q=0.8,en;q=0.7",
     "x-fsign": "SW1hZ2luZSB3aXRob3V0IGEgZmF0ZWZ1bCBzaWduYXR1cmU=",
     "Referer": "https://www.flashscore.pl/hokej/"
 }
 
 def similar(a, b):
-    """Oblicza podobieństwo tekstu (0.0 - 1.0)"""
     if not a or not b:
         return 0.0
-    return SequenceMatcher(None, a.lower().strip(), b.lower().strip()).ratio()
+    return SequenceMatcher(None, str(a).lower().strip(), str(b).lower().strip()).ratio()
 
-def fetch_flashscore_day(day_offset):
-    """Pobiera mecze dla danego dnia z Flashscore"""
-    url = f"https://local-global.flashscore.ninja/3/x/feed/r_3_{day_offset}"
+def get_offset_for_date(date_str):
+    """Oblicza ile dni wstecz od dzisiaj była dana data (np. '09.09')."""
+    today = datetime.date.today()
+    try:
+        parts = date_str.strip().split(".")
+        day = int(parts[0])
+        month = int(parts[1])
+        year = today.year
+        
+        target_dt = datetime.date(year, month, day)
+        # Jeśli data wyszłaby w przyszłości o ponad miesiąc, korygujemy rok
+        if target_dt > today + datetime.timedelta(days=30):
+            target_dt = datetime.date(year - 1, month, day)
+            
+        return (target_dt - today).days
+    except Exception as e:
+        print(f"[!] Błąd wyliczania offsetu dla daty {date_str}: {e}")
+        return None
+
+def fetch_flashscore_by_offset(offset, date_str):
+    url = f"https://local-global.flashscore.ninja/3/x/feed/r_3_{offset}"
+    print(f"[FETCH] Pobieranie Flashscore dla daty {date_str} (offset: {offset})...")
     
     try:
-        response = requests.get(url, headers=HEADERS, timeout=15)
-        print(f"[DEBUG] Zapytanie {url} -> Status: {response.status_code}")
+        res = requests.get(url, headers=HEADERS, timeout=15)
+        if res.status_code != 200 or not res.text:
+            print(f"  [X] Błąd HTTP {res.status_code} lub pusta odpowiedź.")
+            return []
         
-        if response.status_code != 200:
-            print(f"[!] Błąd HTTP {response.status_code} z Flashscore.")
-            return []
+        matches = []
+        blocks = res.text.split("~")
+        current = {}
+        
+        for block in blocks:
+            if not block.strip(): 
+                continue
+            parts = block.split("÷")
+            if len(parts) < 2: 
+                continue
             
-        raw_text = response.text
-        if not raw_text or len(raw_text) < 100:
-            print(f"[!] Odpowiedź z Flashscore jest pusta lub zablokowana (długość: {len(raw_text)}).")
-            return []
+            k, v = parts[0], parts[1]
+            if k == "AA":
+                if "home" in current and "p1_home" in current:
+                    matches.append(current)
+                current = {"id": v}
+            elif k == "AO": 
+                current["home"] = v
+            elif k == "AP": 
+                current["away"] = v
+            elif k == "PD": # Wynik 1. tercji
+                scores = re.findall(r'\d+', v)
+                if len(scores) >= 2:
+                    current["p1_home"] = int(scores[0])
+                    current["p1_away"] = int(scores[1])
+                    
+        if "home" in current and "p1_home" in current:
+            matches.append(current)
             
-        return parse_flashscore_feed(raw_text)
+        print(f"  [✓] Znaleziono {len(matches)} zakończonych meczów z wynikiem P1.")
+        return matches
     except Exception as e:
-        print(f"[!] Wyjątek podczas pobierania danych: {e}")
+        print(f"  [X] Błąd połączenia: {e}")
         return []
 
-def parse_flashscore_feed(raw_data):
-    matches = []
-    blocks = raw_data.split("~")
-    current = {}
-
-    for block in blocks:
-        if not block.strip():
-            continue
-        parts = block.split("÷")
-        if len(parts) < 2:
-            continue
-            
-        key, val = parts[0], parts[1]
-
-        if key == "AA":  # ID meczu
-            if "home" in current and "p1_home" in current:
-                matches.append(current)
-            current = {"id": val}
-        elif key == "AO":  # Gospodarz
-            current["home"] = val
-        elif key == "AP":  # Gość
-            current["away"] = val
-        elif key == "PD":  # Wynik 1. tercji (np. 1 - 0)
-            scores = re.findall(r'\d+', val)
-            if len(scores) >= 2:
-                current["p1_home"] = int(scores[0])
-                current["p1_away"] = int(scores[1])
-
-    if "home" in current and "p1_home" in current:
-        matches.append(current)
-
-    return matches
-
-def update_data():
-    # 1. Wczytanie data.json
+def run_update():
+    # 1. Wczytanie pliku data.json
     try:
         with open(DATA_FILE, "r", encoding="utf-8") as f:
             data = json.load(f)
     except Exception as e:
-        print(f"[CRITICAL] Nie można wczytać pliku {DATA_FILE}: {e}")
+        print(f"[CRITICAL] Błąd odczytu {DATA_FILE}: {e}")
         return
 
-    # Wykrycie właściwego klucza w data.json dla Wyników ALL
-    target_key = None
-    possible_keys = ["wyniki_all", "wynikiAll", "results", "matches", "PLAYNOW"]
-    
-    if isinstance(data, dict):
-        for k in possible_keys:
-            if k in data and isinstance(data[k], list):
-                target_key = k
-                break
-        if not target_key:
-            # Jeśli brak pasującego klucza, szukamy pierwszej listy w obiekcie JSON
-            for k, v in data.items():
-                if isinstance(v, list) and len(v) > 0:
-                    target_key = k
+    # 2. Pobranie meczów z Flashscore dla wskazanych dat
+    scraped_by_date = {}
+    for d_str in TARGET_DATES:
+        offset = get_offset_for_date(d_str)
+        if offset is not None:
+            scraped_by_date[d_str] = fetch_flashscore_by_offset(offset, d_str)
+
+    updated_count = 0
+
+    # 3. Przeszukiwanie i aktualizacja w data.json
+    def process_match_list(match_list, section_name):
+        nonlocal updated_count
+        if not isinstance(match_list, list):
+            return
+
+        for item in match_list:
+            if not isinstance(item, dict):
+                continue
+
+            item_date = str(item.get("date", item.get("data", item.get("dt", "")))).strip()
+            
+            # Sprawdzamy, czy mecz jest z daty 09.09 lub 10.09
+            matched_date_key = None
+            for d in TARGET_DATES:
+                if d in item_date:
+                    matched_date_key = d
                     break
-        target_list = data.get(target_key, [])
+            
+            if not matched_date_key:
+                continue
+
+            # Pomijamy, jeśli wynik P1 już istnieje
+            p1_h = item.get("p1_home", item.get("p1H", item.get("p1_gospodarz", None)))
+            if p1_h is not None and str(p1_h).strip() != "":
+                continue
+
+            h_name = item.get("home", item.get("homeTeam", item.get("gospodarz", "")))
+            a_name = item.get("away", item.get("awayTeam", item.get("gosc", "")))
+
+            if not h_name or not a_name:
+                continue
+
+            # Szukamy dopasowania wśród wyników z Flashscore
+            flash_matches = scraped_by_date.get(matched_date_key, [])
+            for m in flash_matches:
+                sim_h = similar(h_name, m["home"])
+                sim_a = similar(a_name, m["away"])
+
+                # Elastyczne dopasowywanie nazw drużyn
+                if (sim_h > 0.50 or h_name.lower() in m["home"].lower() or m["home"].lower() in h_name.lower()) and \
+                   (sim_a > 0.50 or a_name.lower() in m["away"].lower() or m["away"].lower() in a_name.lower()):
+                    
+                    item["p1_home"] = m["p1_home"]
+                    item["p1_away"] = m["p1_away"]
+                    item["over15_p1"] = (m["p1_home"] + m["p1_away"]) > 1
+                    
+                    print(f"[+ ZAKTUALIZOWANO] [{section_name}] {matched_date_key} | {h_name} vs {a_name} -> P1: {m['p1_home']}:{m['p1_away']}")
+                    updated_count += 1
+                    break
+
+    # Przeszukanie wszystkich sekcji w JSON (Wyniki ALL, Terminarz, itp.)
+    if isinstance(data, dict):
+        for key, val in data.items():
+            if isinstance(val, list):
+                process_match_list(val, section_name=key)
     elif isinstance(data, list):
-        target_list = data
-    else:
-        print("[CRITICAL] Nieznana struktura data.json")
-        return
+        process_match_list(data, section_name="ROOT_LIST")
 
-    print(f"[INFO] Znaleziono sekcję danych: '{target_key}' z {len(target_list)} wpisami.")
-
-    # 2. Pobranie danych z Flashscore (Wczoraj: -1, Dzisiaj: 0)
-    scraped = fetch_flashscore_day(-1) + fetch_flashscore_day(0)
-    print(f"[INFO] Pobrano łącznie {len(scraped)} meczów z P1 z Flashscore.")
-
-    if not scraped:
-        print("[!] Brak pobranych meczów z Flashscore. Prawdopodobnie blokada IP lub brak rozegranych spotkań.")
-        return
-
-    # 3. Porównanie i aktualizacja
-    updated = 0
-    for item in target_list:
-        # Szukamy tylko spotkań nieuzupełnionych
-        h_name = item.get("home", item.get("homeTeam", item.get("gospodarz", "")))
-        a_name = item.get("away", item.get("awayTeam", item.get("gosc", "")))
-
-        if not h_name or not a_name:
-            continue
-
-        # Weryfikacja czy wynik P1 jest pusty
-        p1_h = item.get("p1_home", item.get("p1H", None))
-        if p1_h is not None and p1_h != "":
-            continue # Mecz już ma wynik
-
-        for m in scraped:
-            # Wykorzystanie fuzzy matching (dopasowanie na poziomie min. 65%)
-            sim_home = similar(h_name, m["home"])
-            sim_away = similar(a_name, m["away"])
-
-            if (sim_home > 0.65 or h_name.lower() in m["home"].lower()) and \
-               (sim_away > 0.65 or a_name.lower() in m["away"].lower()):
-                
-                item["p1_home"] = m["p1_home"]
-                item["p1_away"] = m["p1_away"]
-                item["over15_p1"] = (m["p1_home"] + m["p1_away"]) > 1
-                
-                print(f"[+] ZAKTUALIZOWANO: {h_name} vs {a_name} -> P1: {m['p1_home']}:{m['p1_away']}")
-                updated += 1
-                break
-
-    # 4. Zapis
-    if updated > 0:
+    # 4. Zapis zmian
+    if updated_count > 0:
         with open(DATA_FILE, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
-        print(f"[SUCCESS] Zaktualizowano {updated} meczów w {DATA_FILE}.")
+        print(f"\n[SUKCES] Zaktualizowano pomyślnie {updated_count} meczów!")
     else:
-        print("[INFO] Nie dopasowano żadnych nowych wyników do istniejących rekordów.")
+        print("\n[INFO] Brak nowych meczów do aktualizacji dla dat 09.09 i 10.09.")
 
 if __name__ == "__main__":
-    update_data()
+    run_update()
