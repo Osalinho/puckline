@@ -183,5 +183,10 @@
     "p1h": 1,
     "p1a": 1,
     "over15": true
+  },
+  "2026-08-28|DENMARK|Herlev|Rungsted": {
+    "p1h": 1,
+    "p1a": 0,
+    "over15": false
   }
 }
