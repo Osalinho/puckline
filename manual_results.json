@@ -173,5 +173,10 @@
     "p1h": 1,
     "p1a": 0,
     "over15": false
+  },
+  "2026-09-14|DENMARK|Odense|Frederikshavn": {
+    "p1h": 0,
+    "p1a": 0,
+    "over15": false
   }
 }
