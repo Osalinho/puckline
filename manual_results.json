@@ -3,20 +3,5 @@
     "p1h": 1,
     "p1a": 0,
     "over15": false
-  },
-  "2026-09-15|FRANCE|Grenoble|Angers": {
-    "p1h": 1,
-    "p1a": 0,
-    "over15": false
-  },
-  "2026-09-15|FRANCE|Cergy-Pontoise|Marseille": {
-    "p1h": 0,
-    "p1a": 0,
-    "over15": false
-  },
-  "2026-09-15|FRANCE|Anglet|Bordeaux": {
-    "p1h": 0,
-    "p1a": 2,
-    "over15": true
   }
 }
