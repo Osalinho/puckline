@@ -229,48 +229,89 @@ def normalize_json_row(row: dict):
     }
 
 
+TEAM_SEP_RE = re.compile(r"\s*\u2013\s*")  # " – " en dash otoczony spacjami — dokładny separator z 24score.com
+
+
 def parse_matches_from_html(html: str):
     """
-    Fallback: odpowiedź backendu to fragment HTML z tabelą/listą meczów.
-    Heurystyka: szukamy bloków zawierających datę, dwie nazwy drużyn i
-    ewentualnie wynik w formacie "N:N" (dla pełnego meczu i dla 1. tercji).
+    Realna struktura odpowiedzi /backend/load_page_data.php (potwierdzona na
+    żywych zrzutach z DENMARK i FINLAND, 15.09.2026):
 
-    === WYMAGA KALIBRACJI === (selektory CSS do dopasowania po zobaczeniu realnego HTML-a)
+        <table class="t1 matches">
+          <tr class="odd">
+            <td class="date">14.09.2026</td>            <!-- puste (&nbsp;) gdy ten sam dzień co wiersz wyżej -->
+            <td class="teams">Odense – Frederikshavn</td>   <!-- separator: en dash U+2013 -->
+            <td class="score"><a href="..."><b>0:1</b></a></td>   <!-- <b> puste, gdy mecz jeszcze nierozegrany -->
+            <td class="sets">(0:0, 0:0, 0:1)</td>          <!-- (P1, P2, P3[, OT]) — "— —" gdy nierozegrany -->
+            <td class="odds">...</td> x3
+            <td class="h2h">...</td>
+          </tr>
+          ...
+        </table>
+
+    Tabela zawiera CAŁY sezon (presezon + main season) w jednej liście,
+    posortowanej od najnowszej/najdalszej daty do najstarszej.
     """
     soup = BeautifulSoup(html, "html.parser")
-    rows = soup.select(".match-row, .fixture-row, tr, .event-row")
+    rows = soup.select("table.matches tr")
+    if not rows:
+        raise RuntimeError(
+            "Nie znaleziono <table class='matches'> w odpowiedzi backendu — "
+            "struktura strony mogła się zmienić od ostatniej kalibracji."
+        )
+
     out = []
-    score_re = re.compile(r"^\d+\s*[:\-]\s*\d+$")
+    last_sort_date, last_display_date = None, None
 
     for row in rows:
-        text_parts = [t.strip() for t in row.stripped_strings]
-        if len(text_parts) < 3:
-            continue
-        # heurystyka: pierwsza data-podobna wartość, dwie nazwy drużyn, opcjonalne wyniki
-        date_candidates = [t for t in text_parts if re.match(r"\d{1,2}[./]\d{1,2}[./]\d{2,4}", t)]
-        scores = [t for t in text_parts if score_re.match(t.replace("-", ":"))]
-        names = [t for t in text_parts if t not in date_candidates and t not in scores and len(t) > 1]
-        if not date_candidates or len(names) < 2:
-            continue
+        teams_td = row.select_one("td.teams")
+        if teams_td is None:
+            continue  # wiersz nagłówkowy albo inny, bez danych meczu
 
-        sort_date, display_date = normalize_date(date_candidates[0])
-        home, away = names[0], names[1]
-        played = len(scores) >= 1
-        score_full = scores[0].replace("-", ":") if len(scores) >= 1 else None
-        score_p1 = scores[1].replace("-", ":") if len(scores) >= 2 else None
+        date_td = row.select_one("td.date")
+        date_text = date_td.get_text(strip=True) if date_td else ""
+        if date_text and date_text != "\xa0":
+            try:
+                last_sort_date, last_display_date = normalize_date(date_text)
+            except ValueError:
+                pass  # zostaw ostatnią znaną datę zamiast wywalać cały scrap
+        if last_sort_date is None:
+            continue  # jeszcze nie natrafiliśmy na żadną datę w tej tabeli
+
+        teams_text = teams_td.get_text(strip=True)
+        parts = TEAM_SEP_RE.split(teams_text, maxsplit=1)
+        if len(parts) != 2 or not parts[0] or not parts[1]:
+            continue
+        home, away = clean_team_name(parts[0]), clean_team_name(parts[1])
+
+        score_td = row.select_one("td.score")
+        b_tag = score_td.select_one("b") if score_td else None
+        score_text = b_tag.get_text(strip=True) if b_tag else ""
+        score_full = normalize_score(score_text) if score_text else None
+
+        sets_td = row.select_one("td.sets")
+        sets_text = sets_td.get_text(strip=True) if sets_td else ""
+        p1_score = None
+        if sets_text and sets_text not in ("— —", "—", ""):
+            inner = sets_text.strip("()")
+            periods = [p.strip() for p in inner.split(",")]
+            if periods:
+                p1_score = normalize_score(periods[0])
+
+        played = bool(score_full) and bool(p1_score)
 
         out.append({
-            "home": clean_team_name(home),
-            "away": clean_team_name(away),
-            "date": display_date,
-            "sortDate": sort_date,
+            "home": home,
+            "away": away,
+            "date": last_display_date,
+            "sortDate": last_sort_date,
             "played": played,
             "score": score_full if played else None,
-            "p1": score_p1 if played else None,
+            "p1": p1_score if played else None,
         })
 
     if not out:
-        raise RuntimeError("Parser HTML nie znalazł żadnych meczów — potrzebna kalibracja parse_matches_from_html().")
+        raise RuntimeError("Sparsowano 0 meczów z tabeli — struktura HTML mogła się zmienić.")
     return out
 
 
@@ -291,14 +332,13 @@ def normalize_score(raw):
 def normalize_date(raw: str):
     """Zwraca (sortDate 'YYYY-MM-DD', display 'DD.MM.YYYY') z różnych formatów wejściowych."""
     raw = str(raw).strip()
-    for fmt in ("%Y-%m-%d", "%Y-%m-%dT%H:%M:%S", "%d.%m.%Y", "%d/%m/%Y", "%d.%m.%y"):
+    for fmt in ("%Y-%m-%d", "%d.%m.%Y", "%d/%m/%Y"):
         try:
-            dt = datetime.strptime(raw[:len(fmt) if "T" not in fmt else 19], fmt)
+            dt = datetime.strptime(raw, fmt)
             return dt.strftime("%Y-%m-%d"), dt.strftime("%d.%m.%Y")
         except ValueError:
             continue
-    # ostatnia deska ratunku: spróbuj wyciągnąć samymi cyframi
-    m = re.match(r"(\d{4})-(\d{2})-(\d{2})", raw)
+    m = re.match(r"^(\d{4})-(\d{2})-(\d{2})T", raw)  # ISO z czasem, np. z ewentualnego JSON-a
     if m:
         y, mo, d = m.groups()
         return f"{y}-{mo}-{d}", f"{d}.{mo}.{y}"
