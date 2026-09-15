@@ -1,187 +1,22 @@
 {
-  "2026-09-05|FINLAND|Karpat|JYP": {
-    "p1h": 1,
-    "p1a": 1,
-    "over15": true
-  },
-  "2026-09-05|FINLAND|Kiekko-Espoo|Pelicans": {
-    "p1h": 0,
-    "p1a": 1,
-    "over15": false
-  },
-  "2026-09-08|FINLAND|Hameenlinna|Ilves": {
-    "p1h": 0,
-    "p1a": 2,
-    "over15": true
-  },
-  "2026-09-05|FINLAND|Jukurit|Vaasan Sport": {
-    "p1h": 2,
-    "p1a": 0,
-    "over15": true
-  },
-  "2026-08-28|DENMARK|Sonderjyske|Odense": {
-    "p1h": 0,
-    "p1a": 1,
-    "over15": false
-  },
-  "2026-08-28|DENMARK|Herning Blue Fox|Esbjerg": {
-    "p1h": 2,
-    "p1a": 0,
-    "over15": true
-  },
-  "2026-08-28|DENMARK|Frederikshavn|Aalborg": {
-    "p1h": 0,
-    "p1a": 2,
-    "over15": true
-  },
-  "2026-08-30|DENMARK|Herning Blue Fox|Rungsted": {
-    "p1h": 1,
-    "p1a": 1,
-    "over15": true
-  },
-  "2026-08-30|DENMARK|Frederikshavn|Sonderjyske": {
-    "p1h": 3,
-    "p1a": 2,
-    "over15": true
-  },
-  "2026-09-01|DENMARK|Odense|Rungsted": {
-    "p1h": 1,
-    "p1a": 1,
-    "over15": true
-  },
-  "2026-09-01|DENMARK|Frederikshavn|Rodovre": {
-    "p1h": 1,
-    "p1a": 1,
-    "over15": true
-  },
-  "2026-09-01|FINLAND|Jukurit|Hameenlinna": {
-    "p1h": 0,
-    "p1a": 1,
-    "over15": false
-  },
-  "2026-09-01|FINLAND|TPS Turku|KooKoo": {
-    "p1h": 2,
-    "p1a": 2,
-    "over15": true
-  },
-  "2026-09-01|FINLAND|SaiPa|Tappara": {
-    "p1h": 2,
-    "p1a": 0,
-    "over15": true
-  },
-  "2026-09-01|FINLAND|Lukko|Ilves": {
-    "p1h": 0,
-    "p1a": 0,
-    "over15": false
-  },
-  "2026-09-01|FINLAND|Kiekko-Espoo|KalPa": {
-    "p1h": 0,
-    "p1a": 0,
-    "over15": false
-  },
-  "2026-09-01|FINLAND|Karpat|Assat": {
-    "p1h": 1,
-    "p1a": 1,
-    "over15": true
-  },
-  "2026-09-01|FINLAND|Vaasan Sport|Jokerit": {
-    "p1h": 2,
-    "p1a": 2,
-    "over15": true
-  },
-  "2026-09-04|FINLAND|Pelicans|Vaasan Sport": {
-    "p1h": 4,
-    "p1a": 0,
-    "over15": true
-  },
-  "2026-09-02|DENMARK|Esbjerg|Herlev": {
-    "p1h": 0,
-    "p1a": 0,
-    "over15": false
-  },
-  "2026-09-04|FINLAND|Assat|Ilves": {
-    "p1h": 2,
-    "p1a": 0,
-    "over15": true
-  },
-  "2026-09-04|FINLAND|KalPa|Jukurit": {
-    "p1h": 0,
-    "p1a": 0,
-    "over15": false
-  },
-  "2026-09-04|FINLAND|IFK Helsinki|Hameenlinna": {
-    "p1h": 2,
-    "p1a": 2,
-    "over15": true
-  },
-  "2026-09-05|FINLAND|Lukko|Jokerit": {
-    "p1h": 1,
-    "p1a": 0,
-    "over15": false
-  },
-  "2026-09-05|FINLAND|TPS Turku|IFK Helsinki": {
-    "p1h": 3,
-    "p1a": 0,
-    "over15": true
-  },
-  "2026-09-07|DENMARK|Aalborg|Odense": {
-    "p1h": 0,
-    "p1a": 1,
-    "over15": false
-  },
-  "2026-09-08|DENMARK|Sonderjyske|Rodovre": {
-    "p1h": 1,
-    "p1a": 1,
-    "over15": true
-  },
-  "2026-09-08|DENMARK|Rungsted|Frederikshavn": {
-    "p1h": 2,
-    "p1a": 1,
-    "over15": true
-  },
-  "2026-09-09|DENMARK|Herlev|Esbjerg": {
-    "p1h": 3,
-    "p1a": 1,
-    "over15": true
-  },
-  "2026-09-09|FINLAND|Assat|Jokerit": {
-    "p1h": 2,
-    "p1a": 1,
-    "over15": true
-  },
-  "2026-09-09|FINLAND|Jukurit|IFK Helsinki": {
-    "p1h": 1,
-    "p1a": 0,
-    "over15": false
-  },
-  "2026-09-09|FINLAND|Kiekko-Espoo|KooKoo": {
-    "p1h": 2,
-    "p1a": 0,
-    "over15": true
-  },
-  "2026-09-09|FINLAND|Lukko|JYP": {
-    "p1h": 0,
-    "p1a": 4,
-    "over15": true
-  },
-  "2026-09-09|FINLAND|Pelicans|KalPa": {
-    "p1h": 0,
-    "p1a": 0,
-    "over15": false
-  },
-  "2026-09-09|FINLAND|Vaasan Sport|TPS Turku": {
-    "p1h": 1,
-    "p1a": 0,
-    "over15": false
-  },
-  "2026-09-14|DENMARK|Odense|Frederikshavn": {
-    "p1h": 0,
-    "p1a": 0,
-    "over15": false
-  },
   "2026-08-28|DENMARK|Herlev|Rungsted": {
     "p1h": 1,
     "p1a": 0,
     "over15": false
+  },
+  "2026-09-15|FRANCE|Grenoble|Angers": {
+    "p1h": 1,
+    "p1a": 0,
+    "over15": false
+  },
+  "2026-09-15|FRANCE|Cergy-Pontoise|Marseille": {
+    "p1h": 0,
+    "p1a": 0,
+    "over15": false
+  },
+  "2026-09-15|FRANCE|Anglet|Bordeaux": {
+    "p1h": 0,
+    "p1a": 2,
+    "over15": true
   }
 }
