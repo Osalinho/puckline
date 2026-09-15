@@ -19,7 +19,6 @@ on:
 
 permissions:
   contents: write
-  pull-requests: write
 
 jobs:
   scrape:
@@ -50,9 +49,9 @@ jobs:
           code=$?
           echo "exit_code=$code" >> "$GITHUB_OUTPUT"
           if [ $code -eq 2 ]; then
-            echo "::error::Kontrola integralności NIE przeszła — coś by zniknęło z data.json (np. cała liga albo sezon). data.json NIE został zmieniony, PR nie zostanie otwarty."
+            echo "::error::Kontrola integralności NIE przeszła — coś by zniknęło z data.json (np. cała liga albo sezon). data.json NIE został zmieniony, NIC nie zostanie scommitowane."
           elif [ $code -eq 1 ]; then
-            echo "::warning::Część lig nie została zaktualizowana (błąd pobierania/parsowania) — reszta danych jest bezpieczna, PR i tak zostanie otwarty do przejrzenia."
+            echo "::warning::Część lig nie została zaktualizowana (błąd pobierania/parsowania) — reszta danych jest bezpieczna i zostanie scommitowana normalnie."
           fi
           exit 0
 
@@ -64,35 +63,25 @@ jobs:
           path: /tmp/puckline_debug/
           if-no-files-found: ignore
 
-      - name: Otwórz Pull Requesta z proponowaną aktualizacją
-        if: steps.scrape.outputs.exit_code != '2'
-        id: cpr
-        uses: peter-evans/create-pull-request@v6
-        with:
-          commit-message: "Auto-update wyników PUCKLINE (${{ github.event.inputs.only || 'wszystkie ligi' }})"
-          title: "📊 Auto-update wyników PUCKLINE"
-          body: |
-            Automatyczna aktualizacja `data.json` z 24score.com.
-
-            - Status scrapera: exit code `${{ steps.scrape.outputs.exit_code }}` (0 = wszystko OK, 1 = część lig się nie zaktualizowała, patrz logi joba)
-            - Kontrola integralności (żadna liga/sezon nie mogły zniknąć) przeszła pomyślnie — inaczej ten PR by nie powstał.
-            - **Przejrzyj diff przed mergem**, szczególnie przy pierwszych uruchomieniach po zmianach w scraperze.
-          branch: auto-update-wyniki
-          delete-branch: true
-          add-paths: data.json
+      - name: Commituj i wypchnij zaktualizowany data.json
+        run: |
+          git config user.name "puckline-bot"
+          git config user.email "actions@users.noreply.github.com"
+          if git diff --quiet -- data.json; then
+            echo "Brak zmian w data.json, nic do commitowania."
+          else
+            git add data.json
+            git commit -m "Auto-update wyników $(date -u +'%Y-%m-%d %H:%M UTC')"
+            git push
+          fi
 
       - name: Podsumowanie
         run: |
           if [ "${{ steps.scrape.outputs.exit_code }}" == "2" ]; then
-            echo "Kontrola integralności nie przeszła — main NIETKNIĘTY, PR nie powstał. Sprawdź logi kroku 'Uruchom scraper'."
+            echo "Kontrola integralności nie przeszła — data.json NIE zmieniony. Sprawdź logi kroku 'Uruchom scraper'."
             exit 1
           fi
-          if [ -n "${{ steps.cpr.outputs.pull-request-number }}" ]; then
-            echo "Otwarto PR #${{ steps.cpr.outputs.pull-request-number }}: ${{ steps.cpr.outputs.pull-request-url }}"
-          else
-            echo "Brak zmian w data.json — nic do zaproponowania."
-          fi
           if [ "${{ steps.scrape.outputs.exit_code }}" == "1" ]; then
-            echo "Uwaga: część lig się nie zaktualizowała, sprawdź logi."
+            echo "Uwaga: część lig się nie zaktualizowała, sprawdź logi kroku 'Uruchom scraper' — reszta danych została zapisana."
             exit 1
           fi
