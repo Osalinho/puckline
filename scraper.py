@@ -485,6 +485,20 @@ def h2h_lookup(league_data, home, away):
     return (overs / len(games) * 100), len(games)
 
 
+def safe_stat(blend, key):
+    """
+    Bezpieczny odczyt statystyki z blendu: jeśli akurat tej jednej (np. homePct)
+    brakuje, a drużyna ogólnie ma jakieś dane (hasAnyData=True), używamy
+    overallPct jako rozsądnego przybliżenia zamiast wywalać się na None*float.
+    """
+    val = blend.get(key)
+    if val is not None:
+        return val
+    if blend.get("overallPct") is not None:
+        return blend["overallPct"]
+    return 0.0
+
+
 def predict_match(league_data, home, away, current_stats):
     home_blend = build_team_blend(league_data, home, current_stats.get(home))
     away_blend = build_team_blend(league_data, away, current_stats.get(away))
@@ -492,8 +506,8 @@ def predict_match(league_data, home, away, current_stats):
     if not home_blend["hasAnyData"] or not away_blend["hasAnyData"]:
         return None  # brak wystarczających danych -> "brak" w UI
 
-    base_prob = 0.5 * (0.4 * home_blend["overallPct"] + 0.4 * home_blend["homePct"] + 0.2 * home_blend["recent5Pct"]) \
-              + 0.5 * (0.4 * away_blend["overallPct"] + 0.4 * away_blend["awayPct"] + 0.2 * away_blend["recent5Pct"])
+    base_prob = 0.5 * (0.4 * safe_stat(home_blend, "overallPct") + 0.4 * safe_stat(home_blend, "homePct") + 0.2 * safe_stat(home_blend, "recent5Pct")) \
+              + 0.5 * (0.4 * safe_stat(away_blend, "overallPct") + 0.4 * safe_stat(away_blend, "awayPct") + 0.2 * safe_stat(away_blend, "recent5Pct"))
 
     h2h_pct, h2h_n = h2h_lookup(league_data, home, away)
     if h2h_pct is not None:
