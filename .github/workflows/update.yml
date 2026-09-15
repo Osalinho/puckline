@@ -1,0 +1,98 @@
+name: Aktualizacja wyników PUCKLINE
+
+on:
+  schedule:
+    # 07:00 UTC = 08:00 czasu polskiego zimą (CET), 09:00 latem (CEST) —
+    # GitHub Actions nie przełącza się automatycznie na czas letni.
+    - cron: '0 7 * * *'
+  workflow_dispatch:
+    inputs:
+      only:
+        description: 'Opcjonalnie: tylko wybrane ligi, np. NHL,AHL (puste = wszystkie 12)'
+        required: false
+        default: ''
+      debug:
+        description: 'Zrzuć surowe odpowiedzi 24score.com do artefaktu (do kalibracji parsera)'
+        type: boolean
+        required: false
+        default: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Ustaw Pythona
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Zainstaluj zależności
+        run: pip install requests beautifulsoup4
+
+      - name: Uruchom scraper
+        id: scrape
+        env:
+          DEBUG: ${{ github.event.inputs.debug == 'true' && '1' || '' }}
+        run: |
+          set +e
+          if [ -n "${{ github.event.inputs.only }}" ]; then
+            python scraper.py --only "${{ github.event.inputs.only }}"
+          else
+            python scraper.py
+          fi
+          code=$?
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          if [ $code -eq 2 ]; then
+            echo "::error::Kontrola integralności NIE przeszła — coś by zniknęło z data.json (np. cała liga albo sezon). data.json NIE został zmieniony, PR nie zostanie otwarty."
+          elif [ $code -eq 1 ]; then
+            echo "::warning::Część lig nie została zaktualizowana (błąd pobierania/parsowania) — reszta danych jest bezpieczna, PR i tak zostanie otwarty do przejrzenia."
+          fi
+          exit 0
+
+      - name: Wgraj zrzuty debug (jeśli włączone)
+        if: ${{ github.event.inputs.debug == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: puckline-debug-dump
+          path: /tmp/puckline_debug/
+          if-no-files-found: ignore
+
+      - name: Otwórz Pull Requesta z proponowaną aktualizacją
+        if: steps.scrape.outputs.exit_code != '2'
+        id: cpr
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "Auto-update wyników PUCKLINE (${{ github.event.inputs.only || 'wszystkie ligi' }})"
+          title: "📊 Auto-update wyników PUCKLINE"
+          body: |
+            Automatyczna aktualizacja `data.json` z 24score.com.
+
+            - Status scrapera: exit code `${{ steps.scrape.outputs.exit_code }}` (0 = wszystko OK, 1 = część lig się nie zaktualizowała, patrz logi joba)
+            - Kontrola integralności (żadna liga/sezon nie mogły zniknąć) przeszła pomyślnie — inaczej ten PR by nie powstał.
+            - **Przejrzyj diff przed mergem**, szczególnie przy pierwszych uruchomieniach po zmianach w scraperze.
+          branch: auto-update-wyniki
+          delete-branch: true
+          add-paths: data.json
+
+      - name: Podsumowanie
+        run: |
+          if [ "${{ steps.scrape.outputs.exit_code }}" == "2" ]; then
+            echo "Kontrola integralności nie przeszła — main NIETKNIĘTY, PR nie powstał. Sprawdź logi kroku 'Uruchom scraper'."
+            exit 1
+          fi
+          if [ -n "${{ steps.cpr.outputs.pull-request-number }}" ]; then
+            echo "Otwarto PR #${{ steps.cpr.outputs.pull-request-number }}: ${{ steps.cpr.outputs.pull-request-url }}"
+          else
+            echo "Brak zmian w data.json — nic do zaproponowania."
+          fi
+          if [ "${{ steps.scrape.outputs.exit_code }}" == "1" ]; then
+            echo "Uwaga: część lig się nie zaktualizowała, sprawdź logi."
+            exit 1
+          fi
