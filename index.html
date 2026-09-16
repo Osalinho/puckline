@@ -30,31 +30,6 @@
   .season-switch button.active{background:var(--amber); color:#1A1200;}
   .new-badge{background:var(--teal); color:#052420; font-size:9px; font-weight:700; padding:1px 5px; border-radius:4px;}
 
-  .sync-badge{display:flex; align-items:center; gap:6px; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:7px 12px; font-size:11.5px; font-weight:600; color:var(--muted); cursor:pointer; font-family:'Space Grotesk',sans-serif;}
-  .sync-badge:hover{border-color:var(--amber-dim); color:var(--text);}
-  .sync-dot{width:8px; height:8px; border-radius:50%; background:var(--muted); flex-shrink:0;}
-  .sync-dot.idle{background:var(--teal);}
-  .sync-dot.saved{background:var(--teal);}
-  .sync-dot.pending{background:var(--yellow);}
-  .sync-dot.saving{background:var(--yellow); animation:syncPulse 1s infinite;}
-  .sync-dot.error{background:var(--red);}
-  .sync-dot.no-config{background:var(--muted);}
-  @keyframes syncPulse{0%,100%{opacity:1;}50%{opacity:.35;}}
-
-  .modal-overlay{position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:200; display:none; align-items:center; justify-content:center; padding:20px;}
-  .modal-overlay.open{display:flex;}
-  .modal-box{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:22px 24px; width:min(420px, 100%); max-height:90vh; overflow-y:auto;}
-  .modal-box h3{font-family:'Space Grotesk',sans-serif; font-size:15px; margin-bottom:6px;}
-  .modal-desc{font-size:11.5px; color:var(--muted); line-height:1.5; margin-bottom:16px;}
-  .modal-box label{display:block; font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; margin:12px 0 5px;}
-  .modal-box input{width:100%; background:var(--surface2); border:1px solid var(--border); color:var(--text); padding:9px 11px; border-radius:8px; font-size:13px; outline:none; font-family:'JetBrains Mono',monospace;}
-  .modal-box input:focus{border-color:var(--amber);}
-  .modal-actions{display:flex; gap:8px; margin-top:20px;}
-  .modal-actions button{flex:1; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:12.5px; padding:10px; border-radius:8px; cursor:pointer; border:1px solid var(--border);}
-  .modal-btn-primary{background:var(--amber); color:#1A1200; border-color:var(--amber) !important;}
-  .modal-btn-secondary{background:transparent; color:var(--muted);}
-  .modal-note{font-size:10.5px; color:var(--muted); margin-top:14px; line-height:1.5; font-style:italic;}
-
   .topbar{display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; flex-wrap:wrap; gap:12px;}
 
   nav{display:flex; gap:6px; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:4px; width:fit-content;}
@@ -253,7 +228,6 @@
       <div class="subtitle" id="subtitle"></div>
     </div>
     <div class="header-right" style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
-      <button class="sync-badge" id="syncBadgeBtn" type="button"><span class="sync-dot no-config" id="syncDot"></span><span id="syncLabel">Sync: brak konfiguracji</span></button>
       <div class="season-switch" id="leagueSwitch"></div>
       <div class="country-dropdown" id="countryStrip" style="display:none;"></div>
       <div class="season-switch" id="seasonSwitch"></div>
@@ -305,26 +279,6 @@
     <div style="font-style:italic; color:var(--text); opacity:.75; margin-bottom:6px;">„Statystyka nie przewiduje przyszłości. Zwiększa jedynie szanse na dobrą decyzję."</div>
     <div>Dane: 24score.com · próg over 1,5 gola w 1. tercji · prognoza to model statystyczny, nie porada bukmacherska</div>
   </footer>
-</div>
-
-<div class="modal-overlay" id="syncModalOverlay">
-  <div class="modal-box">
-    <h3>🔗 Synchronizacja wyników (GitHub)</h3>
-    <div class="modal-desc">Ręcznie wpisane wyniki są zapisywane do pliku <code>manual_results.json</code> w Twoim repo na GitHubie — dzięki temu są widoczne na każdym urządzeniu, na którym skonfigurujesz to samo repo i token.</div>
-    <label for="syncOwner">Właściciel repo (użytkownik/organizacja)</label>
-    <input type="text" id="syncOwner" placeholder="np. oskar123" autocomplete="off">
-    <label for="syncRepo">Nazwa repozytorium</label>
-    <input type="text" id="syncRepo" placeholder="np. puckline" autocomplete="off">
-    <label for="syncBranch">Branch</label>
-    <input type="text" id="syncBranch" placeholder="main" value="main" autocomplete="off">
-    <label for="syncToken">GitHub Personal Access Token</label>
-    <input type="password" id="syncToken" placeholder="ghp_... lub github_pat_..." autocomplete="off">
-    <div class="modal-actions">
-      <button class="modal-btn-secondary" id="syncModalCancel" type="button">Anuluj</button>
-      <button class="modal-btn-primary" id="syncModalSave" type="button">Zapisz i połącz</button>
-    </div>
-    <div class="modal-note">Token jest zapisany wyłącznie lokalnie w tej przeglądarce (localStorage) — nigdy nie trafia do repo ani nikąd indziej poza bezpośrednie zapytania do GitHub API. Potrzebny jest token typu „Fine-grained" z uprawnieniem <b>Contents: Read and write</b> ograniczonym do tego jednego repozytorium — wpisz ten sam token na każdym urządzeniu, z którego chcesz korzystać.</div>
-  </div>
 </div>
 
 <script>
@@ -874,8 +828,7 @@ function populateFixtures(isInitial){
     const monthAllMatches = dayKeys.flatMap(d=>days[d]);
     const monthPlayed = monthAllMatches.filter(m=>m.played);
     const monthOvers = monthPlayed.filter(m=>m.over15).length;
-    const monthUnders = monthPlayed.length - monthOvers;
-    const monthOverTxt = monthPlayed.length ? ` · <span style="color:var(--teal)">${monthOvers} Over</span> / <span style="color:var(--red)">${monthUnders} Under</span>` : '';
+    const monthOverTxt = monthPlayed.length ? ` · <span style="color:var(--teal)">${monthOvers}/${monthPlayed.length} Over</span> (${Math.round(monthOvers/monthPlayed.length*100)}%)` : '';
     return `<div class="month-group" id="month-${mk}">
       <div class="month-header" data-toggle="month">
         <span class="name">${MONTH_NAMES[+mo-1]} ${y}</span>
@@ -888,16 +841,15 @@ function populateFixtures(isInitial){
           const playedCount = dayMatches.filter(m=>m.played).length;
           const dayPlayed = dayMatches.filter(m=>m.played);
           const dayOvers = dayPlayed.filter(m=>m.over15).length;
-          const dayUnders = dayPlayed.length - dayOvers;
-          const dayOverTxt = dayPlayed.length ? ` · <span style="color:var(--teal)">${dayOvers} Over</span> / <span style="color:var(--red)">${dayUnders} Under</span>` : '';
+          const dayOverTxt = dayPlayed.length ? ` · <span style="color:var(--teal)">${dayOvers}/${dayPlayed.length} Over</span>` : '';
           const probs = dayMatches.filter(m=>m.prob!==undefined).map(m=>m.prob);
           const avgProb = probs.length ? Math.round(probs.reduce((a,b)=>a+b,0)/probs.length) : null;
           const maxProb = probs.length ? Math.max(...probs) : null;
           const minProb = probs.length ? Math.min(...probs) : null;
           const summary = probs.length ? `
             <div class="day-summary">
-              <span>Mecze tego dnia: <b>${dayMatches.length}</b> (rozegrane: <b>${playedCount}</b>)</span>
-              ${dayPlayed.length ? `<span>Over: <b style="color:var(--teal)">${dayOvers}/${dayPlayed.length}</b> (${Math.round(dayOvers/dayPlayed.length*100)}%)</span><span>Under: <b style="color:var(--red)">${dayUnders}/${dayPlayed.length}</b></span>` : ''}
+              <span>Rozegrane: <b>${playedCount}/${dayMatches.length}</b></span>
+              ${dayPlayed.length ? `<span>Over: <b style="color:var(--teal)">${dayOvers}/${dayPlayed.length}</b> (${Math.round(dayOvers/dayPlayed.length*100)}%)</span>` : ''}
               <span>Śr. prognoza: <b>${avgProb}%</b></span>
               <span>Najwyższa: <b style="color:var(--teal)">${maxProb}%</b></span>
               <span>Najniższa: <b style="color:var(--red)">${minProb}%</b></span>
@@ -973,14 +925,14 @@ function fixtureRowHtml(m){
   const underHit = m.played && !m.over15;
   const rowClass = overHit ? ' over-hit' : (underHit ? ' under-hit' : '');
   const extra = m.played
-    ? `<span style="color:var(--text); font-weight:600;">${m.score || (m.isManual ? '' : '—')}</span><span><span class="dot" style="background:${m.over15?'var(--teal)':'var(--red)'}"></span>${m.p1}${overHit?' <span class="over-check">✔</span>':''}${underHit?' <span class="under-check">✕</span>':''}</span>`
+    ? `<span style="color:var(--text); font-weight:600;">${m.score}</span><span><span class="dot" style="background:${m.over15?'var(--teal)':'var(--red)'}"></span>${m.p1}${overHit?' <span class="over-check">✔</span>':''}${underHit?' <span class="under-check">✕</span>':''}</span>`
     : `<span style="opacity:.7;">${m.date.split('.').slice(0,2).join('.')}</span><span>${m.dataSource==='prev_season'?"sezon '25/26":''}</span>`;
   return `<div class="fixture-row${rowClass}" data-key="${key}">
     ${findHotInfo({...m, league: currentLeague}) ? `<span title="Silna historia H2H Over 1,5 P1" style="flex-shrink:0; font-size:13px;">⚠️</span>` : ''}
     <div class="ft-inline">
-      <span class="ft-side">${logo(m.home)}<b>${m.home}</b>${m.homePct!=null?`<span class="ft-pct" style="color:${pctColor(m.homePct)}">${m.homePct.toFixed(1)}%</span>`:''}</span>
+      <span class="ft-side">${logo(m.home)}<b>${m.home}</b>${m.homePct!==undefined?`<span class="ft-pct" style="color:${pctColor(m.homePct)}">${m.homePct.toFixed(1)}%</span>`:''}</span>
       <span class="ft-sep">–</span>
-      <span class="ft-side">${logo(m.away)}<b>${m.away}</b>${m.awayPct!=null?`<span class="ft-pct" style="color:${pctColor(m.awayPct)}">${m.awayPct.toFixed(1)}%</span>`:''}</span>
+      <span class="ft-side">${logo(m.away)}<b>${m.away}</b>${m.awayPct!==undefined?`<span class="ft-pct" style="color:${pctColor(m.awayPct)}">${m.awayPct.toFixed(1)}%</span>`:''}</span>
     </div>
     <div class="fixture-extra">${extra}</div>
     ${m.prob!==undefined ? `<span class="prob-badge ${probClass(m.prob)}">${m.prob.toFixed(0)}%</span>` : '<span style="color:var(--muted); font-size:11px; width:52px; text-align:center;">brak</span>'}
@@ -1077,14 +1029,14 @@ function toggleFixtureDetails(row, m, league){
   panel.innerHTML = `<div class="details-grid">
     <div class="details-col">
       <h4>${logo(m.home, lg)} ${m.home}</h4>
-      <div class="details-row"><span>Overall</span><span>${m.homeOverallPct!=null?m.homeOverallPct+'%':'—'}</span></div>
-      <div class="details-row"><span>Home</span><span style="color:var(--amber); font-weight:700;">${m.homePct!=null?m.homePct+'%':'—'}</span></div>
+      <div class="details-row"><span>Overall</span><span>${m.homeOverallPct}%</span></div>
+      <div class="details-row"><span>Home</span><span style="color:var(--amber); font-weight:700;">${m.homePct}%</span></div>
     </div>
     <div class="details-vs">vs</div>
     <div class="details-col">
       <h4>${logo(m.away, lg)} ${m.away}</h4>
-      <div class="details-row"><span>Overall</span><span>${m.awayOverallPct!=null?m.awayOverallPct+'%':'—'}</span></div>
-      <div class="details-row"><span>Away</span><span style="color:var(--amber); font-weight:700;">${m.awayPct!=null?m.awayPct+'%':'—'}</span></div>
+      <div class="details-row"><span>Overall</span><span>${m.awayOverallPct}%</span></div>
+      <div class="details-row"><span>Away</span><span style="color:var(--amber); font-weight:700;">${m.awayPct}%</span></div>
     </div>
     <div style="grid-column:1/-1; margin-top:4px; padding-top:12px; border-top:1px solid var(--border);">
       <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:10px;">
@@ -1258,318 +1210,20 @@ function renderPlayNow(){
 // ---------- Wyniki ALL (czy padł Over 1,5 P1 - niezależnie od %, gramy tylko OVER) ----------
 let wynikiScope = 'current'; // 'current' = tylko sezon 2026/27 (dniami, z ręcznym wpisem), 'all' = wszystkie sezony/ligi (lista płaska)
 
-// Ręczne wyniki - kanoniczne źródło to plik manual_results.json w repo GitHub
-// (synchronizacja między urządzeniami). localStorage służy tylko jako lokalny
-// cache na wypadek braku sieci / braku konfiguracji sync.
-let MANUAL_RESULTS = {};
-let GITHUB_SYNC_CONFIG = null;
-let manualResultsSha = null;
-let syncDebounceTimer = null;
-
-function loadSyncConfig(){
-  try{ return JSON.parse(localStorage.getItem('puckline_github_sync_config')||'null'); }catch(e){ return null; }
+// Ręczne wyniki - trzymane lokalnie w przeglądarce (localStorage), dopóki nie wróci auto-aktualizacja.
+// UWAGA: to jest lokalne per przeglądarka/urządzenie, nie synchronizuje się między Tobą a znajomym.
+function getManualResults(){
+  try{ return JSON.parse(localStorage.getItem('puckline_manual_results')||'{}'); }catch(e){ return {}; }
 }
-function saveSyncConfig(cfg){
-  localStorage.setItem('puckline_github_sync_config', JSON.stringify(cfg));
-  GITHUB_SYNC_CONFIG = cfg;
-}
-function detectGithubRepoFromLocation(){
-  const m = location.hostname.match(/^([^.]+)\.github\.io$/i);
-  if(!m) return null;
-  const owner = m[1];
-  const parts = location.pathname.split('/').filter(Boolean);
-  const repo = parts.length ? parts[0] : `${owner}.github.io`;
-  return {owner, repo};
-}
-function updateSyncStatusUI(status){
-  const dot = document.getElementById('syncDot');
-  const label = document.getElementById('syncLabel');
-  if(!dot || !label) return;
-  dot.className = 'sync-dot ' + status;
-  const labels = {
-    'no-config': 'Sync: brak konfiguracji',
-    'idle': 'Sync: połączono',
-    'saved': 'Sync: zapisano ✓',
-    'saving': 'Sync: zapisywanie...',
-    'pending': 'Sync: oczekuje...',
-    'error': 'Sync: błąd zapisu',
-  };
-  label.textContent = labels[status] || 'Sync';
-}
-function setManualResultsLocalCache(){
-  try{ localStorage.setItem('puckline_manual_results_cache', JSON.stringify(MANUAL_RESULTS)); }catch(e){}
-}
-function b64EncodeUtf8(str){ return btoa(unescape(encodeURIComponent(str))); }
-function b64DecodeUtf8(str){ return decodeURIComponent(escape(atob(str.replace(/\n/g,'')))); }
-
-async function loadManualResultsFromGithub(){
-  if(!GITHUB_SYNC_CONFIG || !GITHUB_SYNC_CONFIG.token || !GITHUB_SYNC_CONFIG.owner || !GITHUB_SYNC_CONFIG.repo){
-    try{ MANUAL_RESULTS = JSON.parse(localStorage.getItem('puckline_manual_results_cache') || localStorage.getItem('puckline_manual_results') || '{}'); }catch(e){ MANUAL_RESULTS = {}; }
-    updateSyncStatusUI('no-config');
-    return;
-  }
-  const {owner, repo, token, branch} = GITHUB_SYNC_CONFIG;
-  try{
-    const url = `https://api.github.com/repos/${owner}/${repo}/contents/manual_results.json?ref=${branch||'main'}`;
-    const res = await fetch(url, {headers:{Authorization:`token ${token}`, Accept:'application/vnd.github+json'}});
-    if(res.status===404){
-      MANUAL_RESULTS = {}; manualResultsSha = null;
-      updateSyncStatusUI('idle');
-      return;
-    }
-    if(!res.ok) throw new Error('HTTP '+res.status);
-    const json = await res.json();
-    manualResultsSha = json.sha;
-    MANUAL_RESULTS = JSON.parse(b64DecodeUtf8(json.content) || '{}');
-    setManualResultsLocalCache();
-    updateSyncStatusUI('idle');
-  }catch(e){
-    console.error('Nie udało się pobrać manual_results.json z GitHub:', e);
-    try{ MANUAL_RESULTS = JSON.parse(localStorage.getItem('puckline_manual_results_cache') || localStorage.getItem('puckline_manual_results') || '{}'); }catch(e2){ MANUAL_RESULTS = {}; }
-    updateSyncStatusUI('error');
-  }
-}
-
-async function refreshManualResultsSha(){
-  const {owner, repo, token, branch} = GITHUB_SYNC_CONFIG;
-  const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/manual_results.json?ref=${branch||'main'}`, {headers:{Authorization:`token ${token}`, Accept:'application/vnd.github+json'}});
-  if(res.ok){ const j = await res.json(); manualResultsSha = j.sha; }
-  else if(res.status===404){ manualResultsSha = null; }
-}
-
-async function pushManualResultsToGithub(){
-  if(!GITHUB_SYNC_CONFIG || !GITHUB_SYNC_CONFIG.token){
-    updateSyncStatusUI('no-config');
-    return;
-  }
-  updateSyncStatusUI('saving');
-  const {owner, repo, token, branch} = GITHUB_SYNC_CONFIG;
-  const url = `https://api.github.com/repos/${owner}/${repo}/contents/manual_results.json`;
-  const payload = {
-    message: `Aktualizacja wyników ręcznych ${new Date().toISOString()}`,
-    content: b64EncodeUtf8(JSON.stringify(MANUAL_RESULTS, null, 2)),
-    branch: branch || 'main',
-  };
-  if(manualResultsSha) payload.sha = manualResultsSha;
-  try{
-    let res = await fetch(url, {
-      method:'PUT',
-      headers:{Authorization:`token ${token}`, Accept:'application/vnd.github+json', 'Content-Type':'application/json'},
-      body: JSON.stringify(payload),
-    });
-    if(res.status===409 || res.status===422){
-      await refreshManualResultsSha();
-      payload.sha = manualResultsSha;
-      res = await fetch(url, {
-        method:'PUT',
-        headers:{Authorization:`token ${token}`, Accept:'application/vnd.github+json', 'Content-Type':'application/json'},
-        body: JSON.stringify(payload),
-      });
-    }
-    if(!res.ok) throw new Error('HTTP '+res.status);
-    const j = await res.json();
-    manualResultsSha = j.content.sha;
-    updateSyncStatusUI('saved');
-  }catch(e){
-    console.error('Błąd zapisu manual_results.json do GitHub:', e);
-    updateSyncStatusUI('error');
-  }
-}
-
-function scheduleGithubSync(){
-  updateSyncStatusUI('pending');
-  clearTimeout(syncDebounceTimer);
-  syncDebounceTimer = setTimeout(()=>{ pushManualResultsToGithub(); }, 1500);
-}
-
-function getManualResults(){ return MANUAL_RESULTS; }
 function saveManualResult(key, p1h, p1a){
-  MANUAL_RESULTS[key] = {p1h, p1a, over15: (p1h+p1a)>=2};
-  setManualResultsLocalCache();
-  scheduleGithubSync();
+  const all = getManualResults();
+  all[key] = {p1h, p1a, over15: (p1h+p1a)>=2};
+  localStorage.setItem('puckline_manual_results', JSON.stringify(all));
 }
 function deleteManualResult(key){
-  delete MANUAL_RESULTS[key];
-  setManualResultsLocalCache();
-  scheduleGithubSync();
-}
-
-// ---------- Model bieżącego sezonu — przeliczanie procent po wpisaniu wyników ----------
-const H2H_WEIGHT = 0.12;
-const H2H_MIN_MATCHES_MODEL = 2;
-const HIST_DECAY = 0.25;
-const CURRENT_WEIGHT_TAU = 25;
-const CURRENT_WEIGHT_MAX = 0.9;
-
-function currentWeight(n){ return CURRENT_WEIGHT_MAX * (1 - Math.exp(-n / CURRENT_WEIGHT_TAU)); }
-
-function completedSeasonKeysForLeague(lg){
-  return Object.keys(DATA.leagues[lg].seasons).filter(k=>DATA.leagues[lg].seasons[k].status==='completed');
-}
-
-function historicalBlendForTeam(lg, team, statKey){
-  const completed = completedSeasonKeysForLeague(lg).slice().sort().reverse(); // najnowszy najpierw
-  let totalW = 0, acc = 0, found = false;
-  completed.forEach((sk,i)=>{
-    const season = DATA.leagues[lg].seasons[sk];
-    const row = (season.teams||[]).find(t=>t.name===team);
-    if(!row) return;
-    let val;
-    if(statKey==='recent5Pct'){
-      const trend = row.trend5 || [];
-      val = trend.length ? (trend.filter(x=>x==='O').length/trend.length*100) : row.overallPct;
-    } else {
-      val = row[statKey];
-    }
-    if(val===undefined || val===null) return;
-    const w = Math.pow(HIST_DECAY, i);
-    totalW += w; acc += w*val; found = true;
-  });
-  return found ? acc/totalW : null;
-}
-
-function blendedStat(currentVal, n, histVal){
-  if(histVal===null || histVal===undefined) return currentVal;
-  if(!n || currentVal===null || currentVal===undefined) return histVal;
-  const cw = currentWeight(n);
-  return cw*currentVal + (1-cw)*histVal;
-}
-
-function aggregateCurrentSeasonStats(playedMatches){
-  const per = {};
-  const ensure = name=>{ if(!per[name]) per[name] = {matches:0, overs:0, homeMatches:0, homeOvers:0, awayMatches:0, awayOvers:0, chrono:[]}; return per[name]; };
-  playedMatches.slice().sort((a,b)=>a.sortDate.localeCompare(b.sortDate)).forEach(m=>{
-    const over = !!m.over15;
-    const h = ensure(m.home), a = ensure(m.away);
-    h.matches++; h.homeMatches++; a.matches++; a.awayMatches++;
-    if(over){ h.overs++; h.homeOvers++; a.overs++; a.awayOvers++; }
-    h.chrono.push(over); a.chrono.push(over);
-  });
-  const out = {};
-  Object.entries(per).forEach(([name,s])=>{
-    const last5 = s.chrono.slice(-5);
-    out[name] = {
-      n: s.matches,
-      overallPct: s.matches ? s.overs/s.matches*100 : null,
-      homePct: s.homeMatches ? s.homeOvers/s.homeMatches*100 : null,
-      awayPct: s.awayMatches ? s.awayOvers/s.awayMatches*100 : null,
-      recent5Pct: last5.length ? last5.filter(Boolean).length/last5.length*100 : null,
-    };
-  });
-  return out;
-}
-
-function buildTeamBlend(lg, team, cur){
-  const c = cur || {n:0, overallPct:null, homePct:null, awayPct:null, recent5Pct:null};
-  const blend = {n: c.n};
-  ['overallPct','homePct','awayPct','recent5Pct'].forEach(key=>{
-    const hist = historicalBlendForTeam(lg, team, key);
-    blend[key] = blendedStat(c[key], c.n, hist);
-  });
-  blend.hasAnyData = ['overallPct','homePct','awayPct','recent5Pct'].some(k=>blend[k]!==null && blend[k]!==undefined);
-  return blend;
-}
-
-function h2hPctForPair(lg, home, away){
-  const games = getH2HHistoryAcrossCompleted(home, away, lg);
-  if(games.length < H2H_MIN_MATCHES_MODEL) return {pct:null, n:games.length};
-  const overs = games.filter(g=>g.over15).length;
-  return {pct: overs/games.length*100, n: games.length};
-}
-
-function safeStat(blend, key){
-  // odpowiednik safe_stat() z Pythona: brakujący pojedynczy wskaźnik (np. homePct)
-  // zastępujemy overallPct jako rozsądnym przybliżeniem zamiast cichego zera.
-  const v = blend[key];
-  if(v!==null && v!==undefined) return v;
-  if(blend.overallPct!==null && blend.overallPct!==undefined) return blend.overallPct;
-  return 0;
-}
-
-function predictMatchModel(lg, home, away, currentStatsMap){
-  const homeBlend = buildTeamBlend(lg, home, currentStatsMap[home]);
-  const awayBlend = buildTeamBlend(lg, away, currentStatsMap[away]);
-  if(!homeBlend.hasAnyData || !awayBlend.hasAnyData) return null;
-
-  const base = 0.5*(0.4*safeStat(homeBlend,'overallPct') + 0.4*safeStat(homeBlend,'homePct') + 0.2*safeStat(homeBlend,'recent5Pct'))
-             + 0.5*(0.4*safeStat(awayBlend,'overallPct') + 0.4*safeStat(awayBlend,'awayPct') + 0.2*safeStat(awayBlend,'recent5Pct'));
-
-  const h2h = h2hPctForPair(lg, home, away);
-  const prob = h2h.pct!==null ? (1-H2H_WEIGHT)*base + H2H_WEIGHT*h2h.pct : base;
-
-  const hN = (currentStatsMap[home] && currentStatsMap[home].n) || 0;
-  const aN = (currentStatsMap[away] && currentStatsMap[away].n) || 0;
-  const bothFresh = hN===0 && aN===0;
-  const r1 = v => v===null || v===undefined ? null : Math.round(v*10)/10;
-
-  return {
-    prob: Math.max(0, Math.min(100, Math.round(prob*10)/10)),
-    homePct: r1(homeBlend.homePct),
-    awayPct: r1(awayBlend.awayPct),
-    homeOverallPct: r1(homeBlend.overallPct),
-    awayOverallPct: r1(awayBlend.overallPct),
-    components: {
-      homeOverall: r1(homeBlend.overallPct),
-      homeRole: r1(homeBlend.homePct),
-      awayOverall: r1(awayBlend.overallPct),
-      awayRole: r1(awayBlend.awayPct),
-      h2h: r1(h2h.pct),
-    },
-    modelBasis: bothFresh
-      ? 'Model startowy: brak jeszcze meczów bieżącego sezonu, prognoza w 100% na bazie sezonów historycznych'
-      : `Model ważony: bieżący sezon (${hN}/${aN} meczów gospodarz/gość) + sezony historyczne`,
-    dataSource: bothFresh ? 'prev_season' : undefined,
-  };
-}
-
-// Główna funkcja "przelicz jeszcze raz": scala ręczne wyniki z terminarzem sezonu
-// 2026/27 danej ligi i przelicza prognozy dla meczów jeszcze nierozegranych.
-// Wywoływana przy starcie strony oraz po każdym zapisie/usunięciu wyniku ręcznego.
-// Oficjalne dane ze scrapera (played && !isManual) ZAWSZE wygrywają z ręcznym
-// wpisem — jeśli scraper już potwierdził mecz, zbędny ręczny wpis jest czyszczony.
-function rebuildCurrentSeasonModel(lg){
-  const leagueData = DATA.leagues[lg];
-  const season = leagueData && leagueData.seasons['2026-27'];
-  if(!season) return;
-
-  let manualChanged = false;
-  const pools = [season.preseason && season.preseason.matches, season.mainSeason && season.mainSeason.matches].filter(Boolean);
-
-  pools.forEach(pool=>{
-    pool.forEach(m=>{
-      const key = `${m.sortDate}|${lg}|${m.home}|${m.away}`;
-      const man = MANUAL_RESULTS[key];
-      if(m.played && !m.isManual){
-        if(man){ delete MANUAL_RESULTS[key]; manualChanged = true; }
-        return;
-      }
-      if(man){
-        m.played = true;
-        m.p1 = `${man.p1h}:${man.p1a}`;
-        m.over15 = man.over15;
-        m.isManual = true;
-      } else if(m.isManual){
-        m.played = false;
-        m.isManual = false;
-        delete m.p1;
-        delete m.over15;
-      }
-    });
-  });
-  if(manualChanged){ setManualResultsLocalCache(); scheduleGithubSync(); }
-
-  const allMatches = pools.flat();
-  const played = allMatches.filter(m=>m.played);
-  const currentStats = aggregateCurrentSeasonStats(played);
-
-  allMatches.filter(m=>!m.played).forEach(m=>{
-    const pred = predictMatchModel(lg, m.home, m.away, currentStats);
-    if(pred){
-      Object.assign(m, pred);
-    } else {
-      delete m.prob; delete m.homePct; delete m.awayPct; delete m.homeOverallPct; delete m.awayOverallPct; delete m.components; delete m.modelBasis; delete m.dataSource;
-    }
-  });
+  const all = getManualResults();
+  delete all[key];
+  localStorage.setItem('puckline_manual_results', JSON.stringify(all));
 }
 
 function collectPlayedWithProb(scope){
@@ -1589,19 +1243,33 @@ function collectPlayedWithProb(scope){
   return rows;
 }
 
-// Sezon 2026/27 - mecze mają już scalone ręczne wyniki (rebuildCurrentSeasonModel
-// robi to przy starcie i po każdym zapisie/usunięciu), więc tu tylko spłaszczamy do listy.
+// Sezon 2026/27 ze scaleniem ręcznych wyników - obejmuje też mecze jeszcze nierozegrane (do wpisania).
 function collectCurrentSeasonWithManual(){
+  const manual = getManualResults();
   const rows = [];
+  let cleaned = false;
   Object.keys(DATA.leagues).forEach(lg=>{
     const s = DATA.leagues[lg].seasons['2026-27'];
     if(!s) return;
     const matches = [...(s.preseason?.matches||[]), ...(s.mainSeason?.matches||[])];
     matches.forEach(m=>{
       const key = `${m.sortDate}|${lg}|${m.home}|${m.away}`;
-      rows.push({...m, league: lg, key});
+      const man = manual[key];
+      const row = {...m, league: lg, key, isManual: false};
+      if(m.played){
+        // dane oficjalne (ze scrapera) zawsze wygrywają z ręcznym wpisem - jeśli jest ręczny
+        // wpis dla już potwierdzonego meczu, usuwamy go, bo stał się zbędny
+        if(man){ delete manual[key]; cleaned = true; }
+      } else if(man){
+        row.played = true;
+        row.over15 = man.over15;
+        row.p1 = `${man.p1h}:${man.p1a}`;
+        row.isManual = true;
+      }
+      rows.push(row);
     });
   });
+  if(cleaned) localStorage.setItem('puckline_manual_results', JSON.stringify(manual));
   rows.sort((a,b)=>b.sortDate.localeCompare(a.sortDate));
   return rows;
 }
@@ -1670,7 +1338,6 @@ function attachWynikiRowHandlers(listEl, rows){
       const h = +row.querySelector('[data-p1h]').value || 0;
       const a = +row.querySelector('[data-p1a]').value || 0;
       saveManualResult(row.dataset.key, h, a);
-      rebuildCurrentSeasonModel(row.dataset.key.split('|')[1]);
       rerenderWynikiPreserveScroll();
     });
   });
@@ -1679,7 +1346,6 @@ function attachWynikiRowHandlers(listEl, rows){
       ev.preventDefault(); ev.stopPropagation();
       const row = link.closest('.fixture-row');
       deleteManualResult(row.dataset.key);
-      rebuildCurrentSeasonModel(row.dataset.key.split('|')[1]);
       rerenderWynikiPreserveScroll();
     });
   });
@@ -1799,20 +1465,15 @@ function renderWynikiAll(){
     });
     document.getElementById('saveAllBtn')?.addEventListener('click', ()=>{
       let savedCount = 0;
-      const affectedLeagues = new Set();
       content.querySelectorAll('.fixture-row[data-key]').forEach(row=>{
         const h = row.querySelector('[data-p1h]');
         const a = row.querySelector('[data-p1a]');
         if(h && a && h.value.trim()!=='' && a.value.trim()!==''){
           saveManualResult(row.dataset.key, +h.value, +a.value);
-          affectedLeagues.add(row.dataset.key.split('|')[1]);
           savedCount++;
         }
       });
-      if(savedCount>0){
-        affectedLeagues.forEach(lg=>rebuildCurrentSeasonModel(lg));
-        rerenderWynikiPreserveScroll();
-      }
+      if(savedCount>0) rerenderWynikiPreserveScroll();
     });
   } else {
     content.innerHTML = `
@@ -2216,16 +1877,9 @@ function populateH2H(){
 
 async function boot(){
   try{
-    GITHUB_SYNC_CONFIG = loadSyncConfig();
-    updateSyncStatusUI(GITHUB_SYNC_CONFIG && GITHUB_SYNC_CONFIG.token ? 'idle' : 'no-config');
-
     const res = await fetch("./data.json?v=" + Date.now());
     if(!res.ok) throw new Error("HTTP " + res.status);
     DATA = await res.json();
-
-    await loadManualResultsFromGithub();
-    Object.keys(DATA.leagues || {}).forEach(lg => rebuildCurrentSeasonModel(lg));
-
     document.getElementById("bootError").style.display = "none";
     showLeagueDiagnostics();
     renderAll();
@@ -2235,55 +1889,6 @@ async function boot(){
     console.error("Nie udalo sie wczytac data.json:", e);
   }
 }
-
-function openSyncModal(){
-  const cfg = GITHUB_SYNC_CONFIG || {};
-  const detected = detectGithubRepoFromLocation() || {};
-  document.getElementById('syncOwner').value = cfg.owner || detected.owner || '';
-  document.getElementById('syncRepo').value = cfg.repo || detected.repo || '';
-  document.getElementById('syncBranch').value = cfg.branch || 'main';
-  document.getElementById('syncToken').value = cfg.token || '';
-  document.getElementById('syncModalOverlay').classList.add('open');
-}
-function closeSyncModal(){
-  document.getElementById('syncModalOverlay').classList.remove('open');
-}
-document.getElementById('syncBadgeBtn').addEventListener('click', openSyncModal);
-document.getElementById('syncModalCancel').addEventListener('click', closeSyncModal);
-document.getElementById('syncModalOverlay').addEventListener('click', (e)=>{
-  if(e.target.id === 'syncModalOverlay') closeSyncModal();
-});
-document.getElementById('syncModalSave').addEventListener('click', async ()=>{
-  const owner = document.getElementById('syncOwner').value.trim();
-  const repo = document.getElementById('syncRepo').value.trim();
-  const branch = document.getElementById('syncBranch').value.trim() || 'main';
-  const token = document.getElementById('syncToken').value.trim();
-  if(!owner || !repo || !token){
-    alert('Uzupełnij właściciela repo, nazwę repo i token.');
-    return;
-  }
-  let localCache = {};
-  try{
-    localCache = JSON.parse(localStorage.getItem('puckline_manual_results_cache') || localStorage.getItem('puckline_manual_results') || '{}');
-  }catch(e){}
-
-  saveSyncConfig({owner, repo, branch, token});
-  closeSyncModal();
-  updateSyncStatusUI('saving');
-
-  await loadManualResultsFromGithub();
-
-  let mergedNew = false;
-  Object.keys(localCache).forEach(k=>{
-    if(!(k in MANUAL_RESULTS)){ MANUAL_RESULTS[k] = localCache[k]; mergedNew = true; }
-  });
-  if(mergedNew){ setManualResultsLocalCache(); scheduleGithubSync(); }
-
-  if(DATA){
-    Object.keys(DATA.leagues || {}).forEach(lg => rebuildCurrentSeasonModel(lg));
-    renderAll();
-  }
-});
 
 function showLeagueDiagnostics(){
   const keys = Object.keys(DATA.leagues || {});
