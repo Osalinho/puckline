@@ -2,9 +2,12 @@ name: Aktualizacja wyników PUCKLINE
 
 on:
   schedule:
-    # 07:00 UTC = 08:00 czasu polskiego zimą (CET), 09:00 latem (CEST) —
+    # 07:13 UTC (nie równo do godziny - GitHub ostrzega, że zadania
+    # zaplanowane dokładnie na pełną godzinę częściej się opóźniają albo
+    # są pomijane przy dużym obciążeniu ich infrastruktury) =
+    # ok. 08:13 czasu polskiego zimą (CET), 09:13 latem (CEST) —
     # GitHub Actions nie przełącza się automatycznie na czas letni.
-    - cron: '0 7 * * *'
+    - cron: '13 7 * * *'
   workflow_dispatch:
     inputs:
       only:
