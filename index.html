@@ -874,7 +874,8 @@ function populateFixtures(isInitial){
     const monthAllMatches = dayKeys.flatMap(d=>days[d]);
     const monthPlayed = monthAllMatches.filter(m=>m.played);
     const monthOvers = monthPlayed.filter(m=>m.over15).length;
-    const monthOverTxt = monthPlayed.length ? ` · <span style="color:var(--teal)">${monthOvers}/${monthPlayed.length} Over</span> (${Math.round(monthOvers/monthPlayed.length*100)}%)` : '';
+    const monthUnders = monthPlayed.length - monthOvers;
+    const monthOverTxt = monthPlayed.length ? ` · <span style="color:var(--teal)">${monthOvers} Over</span> / <span style="color:var(--red)">${monthUnders} Under</span>` : '';
     return `<div class="month-group" id="month-${mk}">
       <div class="month-header" data-toggle="month">
         <span class="name">${MONTH_NAMES[+mo-1]} ${y}</span>
@@ -887,15 +888,16 @@ function populateFixtures(isInitial){
           const playedCount = dayMatches.filter(m=>m.played).length;
           const dayPlayed = dayMatches.filter(m=>m.played);
           const dayOvers = dayPlayed.filter(m=>m.over15).length;
-          const dayOverTxt = dayPlayed.length ? ` · <span style="color:var(--teal)">${dayOvers}/${dayPlayed.length} Over</span>` : '';
+          const dayUnders = dayPlayed.length - dayOvers;
+          const dayOverTxt = dayPlayed.length ? ` · <span style="color:var(--teal)">${dayOvers} Over</span> / <span style="color:var(--red)">${dayUnders} Under</span>` : '';
           const probs = dayMatches.filter(m=>m.prob!==undefined).map(m=>m.prob);
           const avgProb = probs.length ? Math.round(probs.reduce((a,b)=>a+b,0)/probs.length) : null;
           const maxProb = probs.length ? Math.max(...probs) : null;
           const minProb = probs.length ? Math.min(...probs) : null;
           const summary = probs.length ? `
             <div class="day-summary">
-              <span>Rozegrane: <b>${playedCount}/${dayMatches.length}</b></span>
-              ${dayPlayed.length ? `<span>Over: <b style="color:var(--teal)">${dayOvers}/${dayPlayed.length}</b> (${Math.round(dayOvers/dayPlayed.length*100)}%)</span>` : ''}
+              <span>Mecze tego dnia: <b>${dayMatches.length}</b> (rozegrane: <b>${playedCount}</b>)</span>
+              ${dayPlayed.length ? `<span>Over: <b style="color:var(--teal)">${dayOvers}/${dayPlayed.length}</b> (${Math.round(dayOvers/dayPlayed.length*100)}%)</span><span>Under: <b style="color:var(--red)">${dayUnders}/${dayPlayed.length}</b></span>` : ''}
               <span>Śr. prognoza: <b>${avgProb}%</b></span>
               <span>Najwyższa: <b style="color:var(--teal)">${maxProb}%</b></span>
               <span>Najniższa: <b style="color:var(--red)">${minProb}%</b></span>
@@ -1523,6 +1525,8 @@ function predictMatchModel(lg, home, away, currentStatsMap){
 // Główna funkcja "przelicz jeszcze raz": scala ręczne wyniki z terminarzem sezonu
 // 2026/27 danej ligi i przelicza prognozy dla meczów jeszcze nierozegranych.
 // Wywoływana przy starcie strony oraz po każdym zapisie/usunięciu wyniku ręcznego.
+// Oficjalne dane ze scrapera (played && !isManual) ZAWSZE wygrywają z ręcznym
+// wpisem — jeśli scraper już potwierdził mecz, zbędny ręczny wpis jest czyszczony.
 function rebuildCurrentSeasonModel(lg){
   const leagueData = DATA.leagues[lg];
   const season = leagueData && leagueData.seasons['2026-27'];
@@ -1536,7 +1540,6 @@ function rebuildCurrentSeasonModel(lg){
       const key = `${m.sortDate}|${lg}|${m.home}|${m.away}`;
       const man = MANUAL_RESULTS[key];
       if(m.played && !m.isManual){
-        // dane "oficjalne" (np. z przyszłego scrapera) zawsze wygrywają - zbędny ręczny wpis czyścimy
         if(man){ delete MANUAL_RESULTS[key]; manualChanged = true; }
         return;
       }
@@ -1546,7 +1549,6 @@ function rebuildCurrentSeasonModel(lg){
         m.over15 = man.over15;
         m.isManual = true;
       } else if(m.isManual){
-        // wpis ręczny został usunięty - mecz wraca do stanu nierozegranego
         m.played = false;
         m.isManual = false;
         delete m.p1;
@@ -1913,9 +1915,9 @@ function combinedRowHtml(m, dayKey, idPrefix){
   return `<div class="fixture-row" id="${rowId}" data-cmb data-cmb-key="${combKey}" data-key="${detailsPrefix}${combKey}">
     ${leagueBadge}${hotBadge}
     <div class="ft-inline">
-      <span class="ft-side">${logo(m.home, m.league)}<b>${m.home}</b>${m.homePct!=null?`<span class="ft-pct" style="color:${pctColor(m.homePct)}">${m.homePct.toFixed(1)}%</span>`:''}</span>
+      <span class="ft-side">${logo(m.home, m.league)}<b>${m.home}</b>${m.homePct!==undefined?`<span class="ft-pct" style="color:${pctColor(m.homePct)}">${m.homePct.toFixed(1)}%</span>`:''}</span>
       <span class="ft-sep">–</span>
-      <span class="ft-side">${logo(m.away, m.league)}<b>${m.away}</b>${m.awayPct!=null?`<span class="ft-pct" style="color:${pctColor(m.awayPct)}">${m.awayPct.toFixed(1)}%</span>`:''}</span>
+      <span class="ft-side">${logo(m.away, m.league)}<b>${m.away}</b>${m.awayPct!==undefined?`<span class="ft-pct" style="color:${pctColor(m.awayPct)}">${m.awayPct.toFixed(1)}%</span>`:''}</span>
     </div>
     <div class="fixture-extra"><span style="opacity:.7;">${m.date.split('.').slice(0,2).join('.')}</span></div>
     ${m.prob!==undefined ? `<span class="prob-badge ${probClass(m.prob)}">${m.prob.toFixed(0)}%</span>` : '<span style="color:var(--muted); font-size:11px; width:52px; text-align:center;">brak</span>'}
@@ -2260,8 +2262,6 @@ document.getElementById('syncModalSave').addEventListener('click', async ()=>{
     alert('Uzupełnij właściciela repo, nazwę repo i token.');
     return;
   }
-  // zachowaj to, co ewentualnie jest już lokalnie zapisane na tym urządzeniu
-  // (np. wyniki wpisane w pracy, zanim skonfigurowano sync) - dołączymy je do GitHuba
   let localCache = {};
   try{
     localCache = JSON.parse(localStorage.getItem('puckline_manual_results_cache') || localStorage.getItem('puckline_manual_results') || '{}');
@@ -2271,7 +2271,7 @@ document.getElementById('syncModalSave').addEventListener('click', async ()=>{
   closeSyncModal();
   updateSyncStatusUI('saving');
 
-  await loadManualResultsFromGithub(); // pobiera stan z GitHuba (albo {} jeśli plik jeszcze nie istnieje)
+  await loadManualResultsFromGithub();
 
   let mergedNew = false;
   Object.keys(localCache).forEach(k=>{
