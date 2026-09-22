@@ -67141,7 +67141,7 @@
           "id": "2026-27",
           "label": "2026/27",
           "status": "upcoming",
-          "lastUpdated": "21.09.2026 14:07 UTC",
+          "lastUpdated": "22.09.2026 12:36 UTC",
           "preseason": {
             "matches": [
               {
@@ -157208,7 +157208,7 @@
           "id": "2026-27",
           "label": "2026/27",
           "status": "upcoming",
-          "lastUpdated": "21.09.2026 14:07 UTC",
+          "lastUpdated": "22.09.2026 12:36 UTC",
           "preseason": {
             "matches": [],
             "count": 0
@@ -212039,7 +212039,7 @@
           "id": "2026-27",
           "label": "2026/27",
           "status": "upcoming",
-          "lastUpdated": "21.09.2026 14:07 UTC",
+          "lastUpdated": "22.09.2026 12:36 UTC",
           "preseason": {
             "matches": [],
             "count": 0
@@ -237344,7 +237344,7 @@
           "id": "2026-27",
           "label": "2026/27",
           "status": "upcoming",
-          "lastUpdated": "21.09.2026 14:07 UTC",
+          "lastUpdated": "22.09.2026 12:36 UTC",
           "preseason": {
             "matches": [],
             "count": 0
@@ -263024,7 +263024,7 @@
           "id": "2026-27",
           "label": "2026/27",
           "status": "upcoming",
-          "lastUpdated": "21.09.2026 14:07 UTC",
+          "lastUpdated": "22.09.2026 12:36 UTC",
           "preseason": {
             "matches": [],
             "count": 0
@@ -305539,7 +305539,7 @@
           "id": "2026-27",
           "label": "2026/27",
           "status": "upcoming",
-          "lastUpdated": "21.09.2026 14:07 UTC",
+          "lastUpdated": "22.09.2026 12:36 UTC",
           "preseason": {
             "matches": [],
             "count": 0
@@ -370321,7 +370321,7 @@
           "id": "2026-27",
           "label": "2026/27",
           "status": "upcoming",
-          "lastUpdated": "21.09.2026 14:07 UTC",
+          "lastUpdated": "22.09.2026 12:36 UTC",
           "preseason": {
             "matches": [],
             "count": 0
@@ -414241,7 +414241,7 @@
           "id": "2026-27",
           "label": "2026/27",
           "status": "upcoming",
-          "lastUpdated": "21.09.2026 14:07 UTC",
+          "lastUpdated": "22.09.2026 12:36 UTC",
           "preseason": {
             "matches": [],
             "count": 0
@@ -440175,7 +440175,7 @@
           "id": "2026-27",
           "label": "2026/27",
           "status": "upcoming",
-          "lastUpdated": "21.09.2026 14:07 UTC",
+          "lastUpdated": "22.09.2026 12:36 UTC",
           "preseason": {
             "matches": [],
             "count": 0
@@ -469952,7 +469952,7 @@
           "id": "2026-27",
           "label": "2026/27",
           "status": "upcoming",
-          "lastUpdated": "21.09.2026 14:07 UTC",
+          "lastUpdated": "22.09.2026 12:36 UTC",
           "preseason": {
             "matches": [],
             "count": 0
@@ -505784,7 +505784,7 @@
           "id": "2026-27",
           "label": "2026/27",
           "status": "upcoming",
-          "lastUpdated": "21.09.2026 14:07 UTC",
+          "lastUpdated": "22.09.2026 12:36 UTC",
           "preseason": {
             "matches": [],
             "count": 0
@@ -542572,7 +542572,7 @@
           "id": "2026-27",
           "label": "2026/27",
           "status": "upcoming",
-          "lastUpdated": "21.09.2026 14:08 UTC",
+          "lastUpdated": "22.09.2026 12:36 UTC",
           "preseason": {
             "matches": [],
             "count": 0
@@ -542886,7 +542886,7 @@
                 "sortDate": "2026-09-21",
                 "home": "AIK",
                 "away": "Kalmar",
-                "played": false,
+                "played": true,
                 "dataSource": null,
                 "homeOverallPct": 47.3,
                 "homePct": 42.1,
@@ -542902,7 +542902,10 @@
                   "awayRole": 47.7,
                   "h2h": 41.7
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/1 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (1/1 meczów gospodarz/gość) + sezony historyczne",
+                "score": "3:0",
+                "p1": "0:0",
+                "over15": false
               },
               {
                 "date": "23.09.2026",
@@ -543003,19 +543006,19 @@
                 "dataSource": null,
                 "homeOverallPct": 45.6,
                 "homePct": 44.9,
-                "awayOverallPct": 47.3,
+                "awayOverallPct": 45.6,
                 "awayPct": 54.4,
-                "prob": 48.5,
+                "prob": 48.1,
                 "h2hMatches": 8,
                 "h2hPct": 50.0,
                 "components": {
                   "homeOverall": 45.6,
                   "homeRole": 44.9,
-                  "awayOverall": 47.3,
+                  "awayOverall": 45.6,
                   "awayRole": 54.4,
                   "h2h": 50.0
                 },
-                "modelBasis": "Model ważony: bieżący sezon (2/1 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "23.09.2026",
@@ -543023,19 +543026,19 @@
                 "home": "Visby Roma",
                 "away": "Kalmar",
                 "played": false,
-                "prob": 72.2,
+                "prob": 71.5,
                 "homePct": null,
-                "awayPct": 47.7,
+                "awayPct": 46.1,
                 "homeOverallPct": 100.0,
-                "awayOverallPct": 47.4,
+                "awayOverallPct": 45.8,
                 "components": {
                   "homeOverall": 100.0,
                   "homeRole": null,
-                  "awayOverall": 47.4,
-                  "awayRole": 47.7,
+                  "awayOverall": 45.8,
+                  "awayRole": 46.1,
                   "h2h": null
                 },
-                "modelBasis": "Model ważony: bieżący sezon (2/1 meczów gospodarz/gość) + sezony historyczne",
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne",
                 "dataSource": null
               },
               {
@@ -543089,21 +543092,21 @@
                 "away": "Nybro",
                 "played": false,
                 "dataSource": null,
-                "homeOverallPct": 47.4,
+                "homeOverallPct": 45.8,
                 "homePct": 45.3,
                 "awayOverallPct": 40.2,
                 "awayPct": 33.2,
-                "prob": 44.6,
+                "prob": 44.2,
                 "h2hMatches": 12,
                 "h2hPct": 66.7,
                 "components": {
-                  "homeOverall": 47.4,
+                  "homeOverall": 45.8,
                   "homeRole": 45.3,
                   "awayOverall": 40.2,
                   "awayRole": 33.2,
                   "h2h": 66.7
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/2 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "25.09.2026",
@@ -543183,19 +543186,19 @@
                 "dataSource": null,
                 "homeOverallPct": 43.9,
                 "homePct": 44.5,
-                "awayOverallPct": 47.3,
+                "awayOverallPct": 45.6,
                 "awayPct": 54.4,
-                "prob": 46.4,
+                "prob": 46.0,
                 "h2hMatches": 12,
                 "h2hPct": 58.3,
                 "components": {
                   "homeOverall": 43.9,
                   "homeRole": 44.5,
-                  "awayOverall": 47.3,
+                  "awayOverall": 45.6,
                   "awayRole": 54.4,
                   "h2h": 58.3
                 },
-                "modelBasis": "Model ważony: bieżący sezon (2/1 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "25.09.2026",
@@ -543269,21 +543272,21 @@
                 "away": "Mora",
                 "played": false,
                 "dataSource": null,
-                "homeOverallPct": 47.3,
-                "homePct": 42.1,
+                "homeOverallPct": 45.6,
+                "homePct": 40.6,
                 "awayOverallPct": 42.2,
                 "awayPct": 51.9,
-                "prob": 43.1,
+                "prob": 42.4,
                 "h2hMatches": 12,
                 "h2hPct": 41.7,
                 "components": {
-                  "homeOverall": 47.3,
-                  "homeRole": 42.1,
+                  "homeOverall": 45.6,
+                  "homeRole": 40.6,
                   "awayOverall": 42.2,
                   "awayRole": 51.9,
                   "h2h": 41.7
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/2 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "27.09.2026",
@@ -543361,19 +543364,19 @@
                 "dataSource": null,
                 "homeOverallPct": 49.4,
                 "homePct": 46.0,
-                "awayOverallPct": 47.4,
-                "awayPct": 47.7,
-                "prob": 44.5,
+                "awayOverallPct": 45.8,
+                "awayPct": 46.1,
+                "prob": 43.9,
                 "h2hMatches": 12,
                 "h2hPct": 50.0,
                 "components": {
                   "homeOverall": 49.4,
                   "homeRole": 46.0,
-                  "awayOverall": 47.4,
-                  "awayRole": 47.7,
+                  "awayOverall": 45.8,
+                  "awayRole": 46.1,
                   "h2h": 50.0
                 },
-                "modelBasis": "Model ważony: bieżący sezon (2/1 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "30.09.2026",
@@ -543381,19 +543384,19 @@
                 "home": "AIK",
                 "away": "Visby Roma",
                 "played": false,
-                "prob": 70.3,
-                "homePct": 42.1,
+                "prob": 69.6,
+                "homePct": 40.6,
                 "awayPct": 100.0,
-                "homeOverallPct": 47.3,
+                "homeOverallPct": 45.6,
                 "awayOverallPct": 100.0,
                 "components": {
-                  "homeOverall": 47.3,
-                  "homeRole": 42.1,
+                  "homeOverall": 45.6,
+                  "homeRole": 40.6,
                   "awayOverall": 100.0,
                   "awayRole": 100.0,
                   "h2h": null
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/2 meczów gospodarz/gość) + sezony historyczne",
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne",
                 "dataSource": null
               },
               {
@@ -543495,19 +543498,19 @@
                 "dataSource": null,
                 "homeOverallPct": 42.0,
                 "homePct": 46.3,
-                "awayOverallPct": 47.4,
-                "awayPct": 47.7,
-                "prob": 43.7,
+                "awayOverallPct": 45.8,
+                "awayPct": 46.1,
+                "prob": 43.1,
                 "h2hMatches": 12,
                 "h2hPct": 50.0,
                 "components": {
                   "homeOverall": 42.0,
                   "homeRole": 46.3,
-                  "awayOverall": 47.4,
-                  "awayRole": 47.7,
+                  "awayOverall": 45.8,
+                  "awayRole": 46.1,
                   "h2h": 50.0
                 },
-                "modelBasis": "Model ważony: bieżący sezon (2/1 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "30.09.2026",
@@ -543560,21 +543563,21 @@
                 "away": "Mora",
                 "played": false,
                 "dataSource": null,
-                "homeOverallPct": 47.4,
+                "homeOverallPct": 45.8,
                 "homePct": 45.3,
                 "awayOverallPct": 42.2,
                 "awayPct": 51.9,
-                "prob": 44.3,
+                "prob": 43.9,
                 "h2hMatches": 12,
                 "h2hPct": 41.7,
                 "components": {
-                  "homeOverall": 47.4,
+                  "homeOverall": 45.8,
                   "homeRole": 45.3,
                   "awayOverall": 42.2,
                   "awayRole": 51.9,
                   "h2h": 41.7
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/2 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "02.10.2026",
@@ -543675,19 +543678,19 @@
                 "dataSource": null,
                 "homeOverallPct": 40.2,
                 "homePct": 47.2,
-                "awayOverallPct": 47.3,
+                "awayOverallPct": 45.6,
                 "awayPct": 54.4,
-                "prob": 48.0,
+                "prob": 47.6,
                 "h2hMatches": 12,
                 "h2hPct": 66.7,
                 "components": {
                   "homeOverall": 40.2,
                   "homeRole": 47.2,
-                  "awayOverall": 47.3,
+                  "awayOverall": 45.6,
                   "awayRole": 54.4,
                   "h2h": 66.7
                 },
-                "modelBasis": "Model ważony: bieżący sezon (2/1 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "03.10.2026",
@@ -543786,19 +543789,19 @@
                 "dataSource": null,
                 "homeOverallPct": 52.8,
                 "homePct": 55.6,
-                "awayOverallPct": 47.3,
+                "awayOverallPct": 45.6,
                 "awayPct": 54.4,
-                "prob": 52.4,
+                "prob": 52.0,
                 "h2hMatches": 8,
                 "h2hPct": 75.0,
                 "components": {
                   "homeOverall": 52.8,
                   "homeRole": 55.6,
-                  "awayOverall": 47.3,
+                  "awayOverall": 45.6,
                   "awayRole": 54.4,
                   "h2h": 75.0
                 },
-                "modelBasis": "Model ważony: bieżący sezon (2/1 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "07.10.2026",
@@ -543832,19 +543835,19 @@
                 "dataSource": null,
                 "homeOverallPct": 45.6,
                 "homePct": 44.9,
-                "awayOverallPct": 47.4,
-                "awayPct": 47.7,
-                "prob": 49.5,
+                "awayOverallPct": 45.8,
+                "awayPct": 46.1,
+                "prob": 48.8,
                 "h2hMatches": 8,
                 "h2hPct": 62.5,
                 "components": {
                   "homeOverall": 45.6,
                   "homeRole": 44.9,
-                  "awayOverall": 47.4,
-                  "awayRole": 47.7,
+                  "awayOverall": 45.8,
+                  "awayRole": 46.1,
                   "h2h": 62.5
                 },
-                "modelBasis": "Model ważony: bieżący sezon (2/1 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "07.10.2026",
@@ -543897,21 +543900,21 @@
                 "away": "BIK Karlskoga",
                 "played": false,
                 "dataSource": null,
-                "homeOverallPct": 47.3,
-                "homePct": 42.1,
+                "homeOverallPct": 45.6,
+                "homePct": 40.6,
                 "awayOverallPct": 45.5,
                 "awayPct": 46.2,
-                "prob": 40.8,
+                "prob": 40.2,
                 "h2hMatches": 12,
                 "h2hPct": 50.0,
                 "components": {
-                  "homeOverall": 47.3,
-                  "homeRole": 42.1,
+                  "homeOverall": 45.6,
+                  "homeRole": 40.6,
                   "awayOverall": 45.5,
                   "awayRole": 46.2,
                   "h2h": 50.0
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/2 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "09.10.2026",
@@ -543920,21 +543923,21 @@
                 "away": "Almtuna",
                 "played": false,
                 "dataSource": null,
-                "homeOverallPct": 47.4,
+                "homeOverallPct": 45.8,
                 "homePct": 45.3,
                 "awayOverallPct": 43.5,
                 "awayPct": 37.7,
-                "prob": 44.5,
+                "prob": 44.1,
                 "h2hMatches": 12,
                 "h2hPct": 41.7,
                 "components": {
-                  "homeOverall": 47.4,
+                  "homeOverall": 45.8,
                   "homeRole": 45.3,
                   "awayOverall": 43.5,
                   "awayRole": 37.7,
                   "h2h": 41.7
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/2 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "09.10.2026",
@@ -544123,21 +544126,21 @@
                 "away": "Ostersund",
                 "played": false,
                 "dataSource": null,
-                "homeOverallPct": 47.3,
-                "homePct": 42.1,
+                "homeOverallPct": 45.6,
+                "homePct": 40.6,
                 "awayOverallPct": 42.0,
                 "awayPct": 36.8,
-                "prob": 42.4,
+                "prob": 41.8,
                 "h2hMatches": 12,
                 "h2hPct": 66.7,
                 "components": {
-                  "homeOverall": 47.3,
-                  "homeRole": 42.1,
+                  "homeOverall": 45.6,
+                  "homeRole": 40.6,
                   "awayOverall": 42.0,
                   "awayRole": 36.8,
                   "h2h": 66.7
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/2 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "14.10.2026",
@@ -544169,21 +544172,21 @@
                 "away": "Sodertalje",
                 "played": false,
                 "dataSource": null,
-                "homeOverallPct": 47.4,
+                "homeOverallPct": 45.8,
                 "homePct": 45.3,
                 "awayOverallPct": 43.9,
                 "awayPct": 43.4,
-                "prob": 44.2,
+                "prob": 43.9,
                 "h2hMatches": 12,
                 "h2hPct": 50.0,
                 "components": {
-                  "homeOverall": 47.4,
+                  "homeOverall": 45.8,
                   "homeRole": 45.3,
                   "awayOverall": 43.9,
                   "awayRole": 43.4,
                   "h2h": 50.0
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/2 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "14.10.2026",
@@ -544282,19 +544285,19 @@
                 "dataSource": null,
                 "homeOverallPct": 43.5,
                 "homePct": 49.2,
-                "awayOverallPct": 47.3,
+                "awayOverallPct": 45.6,
                 "awayPct": 54.4,
-                "prob": 45.5,
+                "prob": 45.1,
                 "h2hMatches": 12,
                 "h2hPct": 25.0,
                 "components": {
                   "homeOverall": 43.5,
                   "homeRole": 49.2,
-                  "awayOverall": 47.3,
+                  "awayOverall": 45.6,
                   "awayRole": 54.4,
                   "h2h": 25.0
                 },
-                "modelBasis": "Model ważony: bieżący sezon (2/1 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "16.10.2026",
@@ -544303,21 +544306,21 @@
                 "away": "Vasteras",
                 "played": false,
                 "dataSource": null,
-                "homeOverallPct": 47.3,
-                "homePct": 42.1,
+                "homeOverallPct": 45.6,
+                "homePct": 40.6,
                 "awayOverallPct": 49.4,
                 "awayPct": 52.8,
-                "prob": 44.1,
+                "prob": 43.4,
                 "h2hMatches": 12,
                 "h2hPct": 50.0,
                 "components": {
-                  "homeOverall": 47.3,
-                  "homeRole": 42.1,
+                  "homeOverall": 45.6,
+                  "homeRole": 40.6,
                   "awayOverall": 49.4,
                   "awayRole": 52.8,
                   "h2h": 50.0
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/2 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "16.10.2026",
@@ -544326,21 +544329,21 @@
                 "away": "Modo",
                 "played": false,
                 "dataSource": null,
-                "homeOverallPct": 47.4,
+                "homeOverallPct": 45.8,
                 "homePct": 45.3,
                 "awayOverallPct": 39.3,
                 "awayPct": 39.3,
-                "prob": 36.5,
+                "prob": 36.2,
                 "h2hMatches": 4,
                 "h2hPct": 0.0,
                 "components": {
-                  "homeOverall": 47.4,
+                  "homeOverall": 45.8,
                   "homeRole": 45.3,
                   "awayOverall": 39.3,
                   "awayRole": 39.3,
                   "h2h": 0.0
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/2 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "16.10.2026",
@@ -544462,19 +544465,19 @@
                 "dataSource": null,
                 "homeOverallPct": 52.8,
                 "homePct": 55.6,
-                "awayOverallPct": 47.4,
-                "awayPct": 47.7,
-                "prob": 47.3,
+                "awayOverallPct": 45.8,
+                "awayPct": 46.1,
+                "prob": 46.7,
                 "h2hMatches": 8,
                 "h2hPct": 37.5,
                 "components": {
                   "homeOverall": 52.8,
                   "homeRole": 55.6,
-                  "awayOverall": 47.4,
-                  "awayRole": 47.7,
+                  "awayOverall": 45.8,
+                  "awayRole": 46.1,
                   "h2h": 37.5
                 },
-                "modelBasis": "Model ważony: bieżący sezon (2/1 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "21.10.2026",
@@ -544482,19 +544485,19 @@
                 "home": "Leksand",
                 "away": "Kalmar",
                 "played": false,
-                "prob": 57.2,
+                "prob": 56.5,
                 "homePct": 100.0,
-                "awayPct": 47.7,
+                "awayPct": 46.1,
                 "homeOverallPct": 50.0,
-                "awayOverallPct": 47.4,
+                "awayOverallPct": 45.8,
                 "components": {
                   "homeOverall": 50.0,
                   "homeRole": 100.0,
-                  "awayOverall": 47.4,
-                  "awayRole": 47.7,
+                  "awayOverall": 45.8,
+                  "awayRole": 46.1,
                   "h2h": null
                 },
-                "modelBasis": "Model ważony: bieżący sezon (2/1 meczów gospodarz/gość) + sezony historyczne",
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne",
                 "dataSource": null
               },
               {
@@ -544573,19 +544576,19 @@
                 "dataSource": null,
                 "homeOverallPct": 42.0,
                 "homePct": 46.3,
-                "awayOverallPct": 47.3,
+                "awayOverallPct": 45.6,
                 "awayPct": 54.4,
-                "prob": 46.3,
+                "prob": 45.9,
                 "h2hMatches": 12,
                 "h2hPct": 66.7,
                 "components": {
                   "homeOverall": 42.0,
                   "homeRole": 46.3,
-                  "awayOverall": 47.3,
+                  "awayOverall": 45.6,
                   "awayRole": 54.4,
                   "h2h": 66.7
                 },
-                "modelBasis": "Model ważony: bieżący sezon (2/1 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "21.10.2026",
@@ -544639,19 +544642,19 @@
                 "home": "Kalmar",
                 "away": "Leksand",
                 "played": false,
-                "prob": 36.7,
+                "prob": 36.3,
                 "homePct": 45.3,
                 "awayPct": 0.0,
-                "homeOverallPct": 47.4,
+                "homeOverallPct": 45.8,
                 "awayOverallPct": 50.0,
                 "components": {
-                  "homeOverall": 47.4,
+                  "homeOverall": 45.8,
                   "homeRole": 45.3,
                   "awayOverall": 50.0,
                   "awayRole": 0.0,
                   "h2h": null
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/2 meczów gospodarz/gość) + sezony historyczne",
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne",
                 "dataSource": null
               },
               {
@@ -544776,19 +544779,19 @@
                 "dataSource": null,
                 "homeOverallPct": 39.3,
                 "homePct": 38.5,
-                "awayOverallPct": 47.3,
+                "awayOverallPct": 45.6,
                 "awayPct": 54.4,
-                "prob": 43.3,
+                "prob": 43.0,
                 "h2hMatches": 4,
                 "h2hPct": 50.0,
                 "components": {
                   "homeOverall": 39.3,
                   "homeRole": 38.5,
-                  "awayOverall": 47.3,
+                  "awayOverall": 45.6,
                   "awayRole": 54.4,
                   "h2h": 50.0
                 },
-                "modelBasis": "Model ważony: bieżący sezon (2/1 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "28.10.2026",
@@ -544797,21 +544800,21 @@
                 "away": "Vimmerby",
                 "played": false,
                 "dataSource": null,
-                "homeOverallPct": 47.3,
-                "homePct": 42.1,
+                "homeOverallPct": 45.6,
+                "homePct": 40.6,
                 "awayOverallPct": 45.6,
                 "awayPct": 46.3,
-                "prob": 46.6,
+                "prob": 46.0,
                 "h2hMatches": 8,
                 "h2hPct": 50.0,
                 "components": {
-                  "homeOverall": 47.3,
-                  "homeRole": 42.1,
+                  "homeOverall": 45.6,
+                  "homeRole": 40.6,
                   "awayOverall": 45.6,
                   "awayRole": 46.3,
                   "h2h": 50.0
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/2 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "28.10.2026",
@@ -544843,21 +544846,21 @@
                 "away": "Ostersund",
                 "played": false,
                 "dataSource": null,
-                "homeOverallPct": 47.4,
+                "homeOverallPct": 45.8,
                 "homePct": 45.3,
                 "awayOverallPct": 42.0,
                 "awayPct": 36.8,
-                "prob": 41.6,
+                "prob": 41.3,
                 "h2hMatches": 12,
                 "h2hPct": 50.0,
                 "components": {
-                  "homeOverall": 47.4,
+                  "homeOverall": 45.8,
                   "homeRole": 45.3,
                   "awayOverall": 42.0,
                   "awayRole": 36.8,
                   "h2h": 50.0
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/2 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "28.10.2026",
@@ -544953,19 +544956,19 @@
                 "home": "AIK",
                 "away": "Leksand",
                 "played": false,
-                "prob": 35.3,
-                "homePct": 42.1,
+                "prob": 34.6,
+                "homePct": 40.6,
                 "awayPct": 0.0,
-                "homeOverallPct": 47.3,
+                "homeOverallPct": 45.6,
                 "awayOverallPct": 50.0,
                 "components": {
-                  "homeOverall": 47.3,
-                  "homeRole": 42.1,
+                  "homeOverall": 45.6,
+                  "homeRole": 40.6,
                   "awayOverall": 50.0,
                   "awayRole": 0.0,
                   "h2h": null
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/2 meczów gospodarz/gość) + sezony historyczne",
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne",
                 "dataSource": null
               },
               {
@@ -545046,19 +545049,19 @@
                 "dataSource": null,
                 "homeOverallPct": 49.4,
                 "homePct": 46.0,
-                "awayOverallPct": 47.4,
-                "awayPct": 47.7,
-                "prob": 44.5,
+                "awayOverallPct": 45.8,
+                "awayPct": 46.1,
+                "prob": 43.9,
                 "h2hMatches": 12,
                 "h2hPct": 50.0,
                 "components": {
                   "homeOverall": 49.4,
                   "homeRole": 46.0,
-                  "awayOverall": 47.4,
-                  "awayRole": 47.7,
+                  "awayOverall": 45.8,
+                  "awayRole": 46.1,
                   "h2h": 50.0
                 },
-                "modelBasis": "Model ważony: bieżący sezon (2/1 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "30.10.2026",
@@ -545113,19 +545116,19 @@
                 "dataSource": null,
                 "homeOverallPct": 43.5,
                 "homePct": 49.2,
-                "awayOverallPct": 47.3,
+                "awayOverallPct": 45.6,
                 "awayPct": 54.4,
-                "prob": 45.5,
+                "prob": 45.1,
                 "h2hMatches": 12,
                 "h2hPct": 25.0,
                 "components": {
                   "homeOverall": 43.5,
                   "homeRole": 49.2,
-                  "awayOverall": 47.3,
+                  "awayOverall": 45.6,
                   "awayRole": 54.4,
                   "h2h": 25.0
                 },
-                "modelBasis": "Model ważony: bieżący sezon (2/1 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "31.10.2026",
@@ -545224,21 +545227,21 @@
                 "away": "Vimmerby",
                 "played": false,
                 "dataSource": null,
-                "homeOverallPct": 47.4,
+                "homeOverallPct": 45.8,
                 "homePct": 45.3,
                 "awayOverallPct": 45.6,
                 "awayPct": 46.3,
-                "prob": 49.3,
+                "prob": 48.9,
                 "h2hMatches": 8,
                 "h2hPct": 62.5,
                 "components": {
-                  "homeOverall": 47.4,
+                  "homeOverall": 45.8,
                   "homeRole": 45.3,
                   "awayOverall": 45.6,
                   "awayRole": 46.3,
                   "h2h": 62.5
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/2 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "07.11.2026",
@@ -545313,19 +545316,19 @@
                 "home": "Kalmar",
                 "away": "Visby Roma",
                 "played": false,
-                "prob": 71.7,
+                "prob": 71.3,
                 "homePct": 45.3,
                 "awayPct": 100.0,
-                "homeOverallPct": 47.4,
+                "homeOverallPct": 45.8,
                 "awayOverallPct": 100.0,
                 "components": {
-                  "homeOverall": 47.4,
+                  "homeOverall": 45.8,
                   "homeRole": 45.3,
                   "awayOverall": 100.0,
                   "awayRole": 100.0,
                   "h2h": null
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/2 meczów gospodarz/gość) + sezony historyczne",
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne",
                 "dataSource": null
               },
               {
@@ -545334,19 +545337,19 @@
                 "home": "Leksand",
                 "away": "AIK",
                 "played": false,
-                "prob": 57.8,
+                "prob": 57.4,
                 "homePct": 100.0,
                 "awayPct": 54.4,
                 "homeOverallPct": 50.0,
-                "awayOverallPct": 47.3,
+                "awayOverallPct": 45.6,
                 "components": {
                   "homeOverall": 50.0,
                   "homeRole": 100.0,
-                  "awayOverall": 47.3,
+                  "awayOverall": 45.6,
                   "awayRole": 54.4,
                   "h2h": null
                 },
-                "modelBasis": "Model ważony: bieżący sezon (2/1 meczów gospodarz/gość) + sezony historyczne",
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne",
                 "dataSource": null
               },
               {
@@ -545427,19 +545430,19 @@
                 "dataSource": null,
                 "homeOverallPct": 45.5,
                 "homePct": 41.2,
-                "awayOverallPct": 47.3,
+                "awayOverallPct": 45.6,
                 "awayPct": 54.4,
-                "prob": 42.1,
+                "prob": 41.7,
                 "h2hMatches": 12,
                 "h2hPct": 50.0,
                 "components": {
                   "homeOverall": 45.5,
                   "homeRole": 41.2,
-                  "awayOverall": 47.3,
+                  "awayOverall": 45.6,
                   "awayRole": 54.4,
                   "h2h": 50.0
                 },
-                "modelBasis": "Model ważony: bieżący sezon (2/1 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "13.11.2026",
@@ -545473,19 +545476,19 @@
                 "dataSource": null,
                 "homeOverallPct": 40.2,
                 "homePct": 47.2,
-                "awayOverallPct": 47.4,
-                "awayPct": 47.7,
-                "prob": 47.5,
+                "awayOverallPct": 45.8,
+                "awayPct": 46.1,
+                "prob": 46.8,
                 "h2hMatches": 12,
                 "h2hPct": 66.7,
                 "components": {
                   "homeOverall": 40.2,
                   "homeRole": 47.2,
-                  "awayOverall": 47.4,
-                  "awayRole": 47.7,
+                  "awayOverall": 45.8,
+                  "awayRole": 46.1,
                   "h2h": 66.7
                 },
-                "modelBasis": "Model ważony: bieżący sezon (2/1 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "13.11.2026",
@@ -545628,21 +545631,21 @@
                 "away": "Sodertalje",
                 "played": false,
                 "dataSource": null,
-                "homeOverallPct": 47.4,
+                "homeOverallPct": 45.8,
                 "homePct": 45.3,
                 "awayOverallPct": 43.9,
                 "awayPct": 43.4,
-                "prob": 44.2,
+                "prob": 43.9,
                 "h2hMatches": 12,
                 "h2hPct": 50.0,
                 "components": {
-                  "homeOverall": 47.4,
+                  "homeOverall": 45.8,
                   "homeRole": 45.3,
                   "awayOverall": 43.9,
                   "awayRole": 43.4,
                   "h2h": 50.0
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/2 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "15.11.2026",
@@ -545674,21 +545677,21 @@
                 "away": "Oskarshamn",
                 "played": false,
                 "dataSource": null,
-                "homeOverallPct": 47.3,
-                "homePct": 42.1,
+                "homeOverallPct": 45.6,
+                "homePct": 40.6,
                 "awayOverallPct": 52.8,
                 "awayPct": 49.9,
-                "prob": 49.2,
+                "prob": 48.5,
                 "h2hMatches": 8,
                 "h2hPct": 75.0,
                 "components": {
-                  "homeOverall": 47.3,
-                  "homeRole": 42.1,
+                  "homeOverall": 45.6,
+                  "homeRole": 40.6,
                   "awayOverall": 52.8,
                   "awayRole": 49.9,
                   "h2h": 75.0
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/2 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "16.11.2026",
@@ -545785,19 +545788,19 @@
                 "dataSource": null,
                 "homeOverallPct": 39.3,
                 "homePct": 38.5,
-                "awayOverallPct": 47.4,
-                "awayPct": 47.7,
-                "prob": 36.8,
+                "awayOverallPct": 45.8,
+                "awayPct": 46.1,
+                "prob": 36.2,
                 "h2hMatches": 4,
                 "h2hPct": 0.0,
                 "components": {
                   "homeOverall": 39.3,
                   "homeRole": 38.5,
-                  "awayOverall": 47.4,
-                  "awayRole": 47.7,
+                  "awayOverall": 45.8,
+                  "awayRole": 46.1,
                   "h2h": 0.0
                 },
-                "modelBasis": "Model ważony: bieżący sezon (2/1 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "18.11.2026",
@@ -545852,21 +545855,21 @@
                 "away": "Sodertalje",
                 "played": false,
                 "dataSource": null,
-                "homeOverallPct": 47.3,
-                "homePct": 42.1,
+                "homeOverallPct": 45.6,
+                "homePct": 40.6,
                 "awayOverallPct": 43.9,
                 "awayPct": 43.4,
-                "prob": 44.0,
+                "prob": 43.4,
                 "h2hMatches": 12,
                 "h2hPct": 58.3,
                 "components": {
-                  "homeOverall": 47.3,
-                  "homeRole": 42.1,
+                  "homeOverall": 45.6,
+                  "homeRole": 40.6,
                   "awayOverall": 43.9,
                   "awayRole": 43.4,
                   "h2h": 58.3
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/2 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "20.11.2026",
@@ -545875,21 +545878,21 @@
                 "away": "Almtuna",
                 "played": false,
                 "dataSource": null,
-                "homeOverallPct": 47.4,
+                "homeOverallPct": 45.8,
                 "homePct": 45.3,
                 "awayOverallPct": 43.5,
                 "awayPct": 37.7,
-                "prob": 44.5,
+                "prob": 44.1,
                 "h2hMatches": 12,
                 "h2hPct": 41.7,
                 "components": {
-                  "homeOverall": 47.4,
+                  "homeOverall": 45.8,
                   "homeRole": 45.3,
                   "awayOverall": 43.5,
                   "awayRole": 37.7,
                   "h2h": 41.7
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/2 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "20.11.2026",
@@ -546032,21 +546035,21 @@
                 "away": "AIK",
                 "played": false,
                 "dataSource": null,
-                "homeOverallPct": 47.4,
+                "homeOverallPct": 45.8,
                 "homePct": 45.3,
-                "awayOverallPct": 47.3,
+                "awayOverallPct": 45.6,
                 "awayPct": 54.4,
-                "prob": 44.2,
+                "prob": 43.5,
                 "h2hMatches": 12,
                 "h2hPct": 41.7,
                 "components": {
-                  "homeOverall": 47.4,
+                  "homeOverall": 45.8,
                   "homeRole": 45.3,
-                  "awayOverall": 47.3,
+                  "awayOverall": 45.6,
                   "awayRole": 54.4,
                   "h2h": 41.7
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/1 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "25.11.2026",
@@ -546218,19 +546221,19 @@
                 "dataSource": null,
                 "homeOverallPct": 52.8,
                 "homePct": 55.6,
-                "awayOverallPct": 47.4,
-                "awayPct": 47.7,
-                "prob": 47.3,
+                "awayOverallPct": 45.8,
+                "awayPct": 46.1,
+                "prob": 46.7,
                 "h2hMatches": 8,
                 "h2hPct": 37.5,
                 "components": {
                   "homeOverall": 52.8,
                   "homeRole": 55.6,
-                  "awayOverall": 47.4,
-                  "awayRole": 47.7,
+                  "awayOverall": 45.8,
+                  "awayRole": 46.1,
                   "h2h": 37.5
                 },
-                "modelBasis": "Model ważony: bieżący sezon (2/1 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "27.11.2026",
@@ -546283,19 +546286,19 @@
                 "dataSource": null,
                 "homeOverallPct": 49.4,
                 "homePct": 46.0,
-                "awayOverallPct": 47.3,
+                "awayOverallPct": 45.6,
                 "awayPct": 54.4,
-                "prob": 45.0,
+                "prob": 44.7,
                 "h2hMatches": 12,
                 "h2hPct": 50.0,
                 "components": {
                   "homeOverall": 49.4,
                   "homeRole": 46.0,
-                  "awayOverall": 47.3,
+                  "awayOverall": 45.6,
                   "awayRole": 54.4,
                   "h2h": 50.0
                 },
-                "modelBasis": "Model ważony: bieżący sezon (2/1 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "29.11.2026",
@@ -546327,21 +546330,21 @@
                 "away": "Nybro",
                 "played": false,
                 "dataSource": null,
-                "homeOverallPct": 47.3,
-                "homePct": 42.1,
+                "homeOverallPct": 45.6,
+                "homePct": 40.6,
                 "awayOverallPct": 40.2,
                 "awayPct": 33.2,
-                "prob": 43.3,
+                "prob": 42.7,
                 "h2hMatches": 12,
                 "h2hPct": 66.7,
                 "components": {
-                  "homeOverall": 47.3,
-                  "homeRole": 42.1,
+                  "homeOverall": 45.6,
+                  "homeRole": 40.6,
                   "awayOverall": 40.2,
                   "awayRole": 33.2,
                   "h2h": 66.7
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/2 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "02.12.2026",
@@ -546371,21 +546374,21 @@
                 "away": "BIK Karlskoga",
                 "played": false,
                 "dataSource": null,
-                "homeOverallPct": 47.4,
+                "homeOverallPct": 45.8,
                 "homePct": 45.3,
                 "awayOverallPct": 45.5,
                 "awayPct": 46.2,
-                "prob": 43.0,
+                "prob": 42.7,
                 "h2hMatches": 12,
                 "h2hPct": 58.3,
                 "components": {
-                  "homeOverall": 47.4,
+                  "homeOverall": 45.8,
                   "homeRole": 45.3,
                   "awayOverall": 45.5,
                   "awayRole": 46.2,
                   "h2h": 58.3
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/2 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "02.12.2026",
@@ -546509,19 +546512,19 @@
                 "dataSource": null,
                 "homeOverallPct": 42.2,
                 "homePct": 32.5,
-                "awayOverallPct": 47.4,
-                "awayPct": 47.7,
-                "prob": 41.3,
+                "awayOverallPct": 45.8,
+                "awayPct": 46.1,
+                "prob": 40.6,
                 "h2hMatches": 12,
                 "h2hPct": 41.7,
                 "components": {
                   "homeOverall": 42.2,
                   "homeRole": 32.5,
-                  "awayOverall": 47.4,
-                  "awayRole": 47.7,
+                  "awayOverall": 45.8,
+                  "awayRole": 46.1,
                   "h2h": 41.7
                 },
-                "modelBasis": "Model ważony: bieżący sezon (2/1 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "04.12.2026",
@@ -546596,19 +546599,19 @@
                 "home": "Visby Roma",
                 "away": "AIK",
                 "played": false,
-                "prob": 72.8,
+                "prob": 72.4,
                 "homePct": null,
                 "awayPct": 54.4,
                 "homeOverallPct": 100.0,
-                "awayOverallPct": 47.3,
+                "awayOverallPct": 45.6,
                 "components": {
                   "homeOverall": 100.0,
                   "homeRole": null,
-                  "awayOverall": 47.3,
+                  "awayOverall": 45.6,
                   "awayRole": 54.4,
                   "h2h": null
                 },
-                "modelBasis": "Model ważony: bieżący sezon (2/1 meczów gospodarz/gość) + sezony historyczne",
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne",
                 "dataSource": null
               },
               {
@@ -546729,21 +546732,21 @@
                 "away": "Ostersund",
                 "played": false,
                 "dataSource": null,
-                "homeOverallPct": 47.4,
+                "homeOverallPct": 45.8,
                 "homePct": 45.3,
                 "awayOverallPct": 42.0,
                 "awayPct": 36.8,
-                "prob": 41.6,
+                "prob": 41.3,
                 "h2hMatches": 12,
                 "h2hPct": 50.0,
                 "components": {
-                  "homeOverall": 47.4,
+                  "homeOverall": 45.8,
                   "homeRole": 45.3,
                   "awayOverall": 42.0,
                   "awayRole": 36.8,
                   "h2h": 50.0
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/2 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "06.12.2026",
@@ -546752,21 +546755,21 @@
                 "away": "Almtuna",
                 "played": false,
                 "dataSource": null,
-                "homeOverallPct": 47.3,
-                "homePct": 42.1,
+                "homeOverallPct": 45.6,
+                "homePct": 40.6,
                 "awayOverallPct": 43.5,
                 "awayPct": 37.7,
-                "prob": 41.3,
+                "prob": 40.6,
                 "h2hMatches": 12,
                 "h2hPct": 25.0,
                 "components": {
-                  "homeOverall": 47.3,
-                  "homeRole": 42.1,
+                  "homeOverall": 45.6,
+                  "homeRole": 40.6,
                   "awayOverall": 43.5,
                   "awayRole": 37.7,
                   "h2h": 25.0
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/2 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "08.12.2026",
@@ -546821,19 +546824,19 @@
                 "dataSource": null,
                 "homeOverallPct": 42.2,
                 "homePct": 32.5,
-                "awayOverallPct": 47.3,
+                "awayOverallPct": 45.6,
                 "awayPct": 54.4,
-                "prob": 41.8,
+                "prob": 41.4,
                 "h2hMatches": 12,
                 "h2hPct": 41.7,
                 "components": {
                   "homeOverall": 42.2,
                   "homeRole": 32.5,
-                  "awayOverall": 47.3,
+                  "awayOverall": 45.6,
                   "awayRole": 54.4,
                   "h2h": 41.7
                 },
-                "modelBasis": "Model ważony: bieżący sezon (2/1 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "09.12.2026",
@@ -546844,19 +546847,19 @@
                 "dataSource": null,
                 "homeOverallPct": 43.9,
                 "homePct": 44.5,
-                "awayOverallPct": 47.4,
-                "awayPct": 47.7,
-                "prob": 44.8,
+                "awayOverallPct": 45.8,
+                "awayPct": 46.1,
+                "prob": 44.2,
                 "h2hMatches": 12,
                 "h2hPct": 50.0,
                 "components": {
                   "homeOverall": 43.9,
                   "homeRole": 44.5,
-                  "awayOverall": 47.4,
-                  "awayRole": 47.7,
+                  "awayOverall": 45.8,
+                  "awayRole": 46.1,
                   "h2h": 50.0
                 },
-                "modelBasis": "Model ważony: bieżący sezon (2/1 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "09.12.2026",
@@ -546955,19 +546958,19 @@
                 "dataSource": null,
                 "homeOverallPct": 39.3,
                 "homePct": 38.5,
-                "awayOverallPct": 47.4,
-                "awayPct": 47.7,
-                "prob": 36.8,
+                "awayOverallPct": 45.8,
+                "awayPct": 46.1,
+                "prob": 36.2,
                 "h2hMatches": 4,
                 "h2hPct": 0.0,
                 "components": {
                   "homeOverall": 39.3,
                   "homeRole": 38.5,
-                  "awayOverall": 47.4,
-                  "awayRole": 47.7,
+                  "awayOverall": 45.8,
+                  "awayRole": 46.1,
                   "h2h": 0.0
                 },
-                "modelBasis": "Model ważony: bieżący sezon (2/1 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "11.12.2026",
@@ -547064,21 +547067,21 @@
                 "away": "Sodertalje",
                 "played": false,
                 "dataSource": null,
-                "homeOverallPct": 47.3,
-                "homePct": 42.1,
+                "homeOverallPct": 45.6,
+                "homePct": 40.6,
                 "awayOverallPct": 43.9,
                 "awayPct": 43.4,
-                "prob": 44.0,
+                "prob": 43.4,
                 "h2hMatches": 12,
                 "h2hPct": 58.3,
                 "components": {
-                  "homeOverall": 47.3,
-                  "homeRole": 42.1,
+                  "homeOverall": 45.6,
+                  "homeRole": 40.6,
                   "awayOverall": 43.9,
                   "awayRole": 43.4,
                   "h2h": 58.3
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/2 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "16.12.2026",
@@ -547110,21 +547113,21 @@
                 "away": "Mora",
                 "played": false,
                 "dataSource": null,
-                "homeOverallPct": 47.4,
+                "homeOverallPct": 45.8,
                 "homePct": 45.3,
                 "awayOverallPct": 42.2,
                 "awayPct": 51.9,
-                "prob": 44.3,
+                "prob": 43.9,
                 "h2hMatches": 12,
                 "h2hPct": 41.7,
                 "components": {
-                  "homeOverall": 47.4,
+                  "homeOverall": 45.8,
                   "homeRole": 45.3,
                   "awayOverall": 42.2,
                   "awayRole": 51.9,
                   "h2h": 41.7
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/2 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "16.12.2026",
@@ -547158,19 +547161,19 @@
                 "dataSource": null,
                 "homeOverallPct": 40.2,
                 "homePct": 47.2,
-                "awayOverallPct": 47.3,
+                "awayOverallPct": 45.6,
                 "awayPct": 54.4,
-                "prob": 48.0,
+                "prob": 47.6,
                 "h2hMatches": 12,
                 "h2hPct": 66.7,
                 "components": {
                   "homeOverall": 40.2,
                   "homeRole": 47.2,
-                  "awayOverall": 47.3,
+                  "awayOverall": 45.6,
                   "awayRole": 54.4,
                   "h2h": 66.7
                 },
-                "modelBasis": "Model ważony: bieżący sezon (2/1 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "16.12.2026",
@@ -547267,21 +547270,21 @@
                 "away": "Vasteras",
                 "played": false,
                 "dataSource": null,
-                "homeOverallPct": 47.3,
-                "homePct": 42.1,
+                "homeOverallPct": 45.6,
+                "homePct": 40.6,
                 "awayOverallPct": 49.4,
                 "awayPct": 52.8,
-                "prob": 44.1,
+                "prob": 43.4,
                 "h2hMatches": 12,
                 "h2hPct": 50.0,
                 "components": {
-                  "homeOverall": 47.3,
-                  "homeRole": 42.1,
+                  "homeOverall": 45.6,
+                  "homeRole": 40.6,
                   "awayOverall": 49.4,
                   "awayRole": 52.8,
                   "h2h": 50.0
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/2 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "18.12.2026",
@@ -547292,19 +547295,19 @@
                 "dataSource": null,
                 "homeOverallPct": 43.5,
                 "homePct": 49.2,
-                "awayOverallPct": 47.4,
-                "awayPct": 47.7,
-                "prob": 46.9,
+                "awayOverallPct": 45.8,
+                "awayPct": 46.1,
+                "prob": 46.3,
                 "h2hMatches": 12,
                 "h2hPct": 41.7,
                 "components": {
                   "homeOverall": 43.5,
                   "homeRole": 49.2,
-                  "awayOverall": 47.4,
-                  "awayRole": 47.7,
+                  "awayOverall": 45.8,
+                  "awayRole": 46.1,
                   "h2h": 41.7
                 },
-                "modelBasis": "Model ważony: bieżący sezon (2/1 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "18.12.2026",
@@ -547426,21 +547429,21 @@
                 "away": "Vimmerby",
                 "played": false,
                 "dataSource": null,
-                "homeOverallPct": 47.4,
+                "homeOverallPct": 45.8,
                 "homePct": 45.3,
                 "awayOverallPct": 45.6,
                 "awayPct": 46.3,
-                "prob": 49.3,
+                "prob": 48.9,
                 "h2hMatches": 8,
                 "h2hPct": 62.5,
                 "components": {
-                  "homeOverall": 47.4,
+                  "homeOverall": 45.8,
                   "homeRole": 45.3,
                   "awayOverall": 45.6,
                   "awayRole": 46.3,
                   "h2h": 62.5
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/2 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "27.12.2026",
@@ -547561,19 +547564,19 @@
                 "home": "AIK",
                 "away": "Leksand",
                 "played": false,
-                "prob": 35.3,
-                "homePct": 42.1,
+                "prob": 34.6,
+                "homePct": 40.6,
                 "awayPct": 0.0,
-                "homeOverallPct": 47.3,
+                "homeOverallPct": 45.6,
                 "awayOverallPct": 50.0,
                 "components": {
-                  "homeOverall": 47.3,
-                  "homeRole": 42.1,
+                  "homeOverall": 45.6,
+                  "homeRole": 40.6,
                   "awayOverall": 50.0,
                   "awayRole": 0.0,
                   "h2h": null
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/2 meczów gospodarz/gość) + sezony historyczne",
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne",
                 "dataSource": null
               },
               {
@@ -547608,19 +547611,19 @@
                 "dataSource": null,
                 "homeOverallPct": 45.5,
                 "homePct": 41.2,
-                "awayOverallPct": 47.4,
-                "awayPct": 47.7,
-                "prob": 42.6,
+                "awayOverallPct": 45.8,
+                "awayPct": 46.1,
+                "prob": 41.9,
                 "h2hMatches": 12,
                 "h2hPct": 58.3,
                 "components": {
                   "homeOverall": 45.5,
                   "homeRole": 41.2,
-                  "awayOverall": 47.4,
-                  "awayRole": 47.7,
+                  "awayOverall": 45.8,
+                  "awayRole": 46.1,
                   "h2h": 58.3
                 },
-                "modelBasis": "Model ważony: bieżący sezon (2/1 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "29.12.2026",
@@ -547675,19 +547678,19 @@
                 "dataSource": null,
                 "homeOverallPct": 45.6,
                 "homePct": 44.9,
-                "awayOverallPct": 47.3,
+                "awayOverallPct": 45.6,
                 "awayPct": 54.4,
-                "prob": 48.5,
+                "prob": 48.1,
                 "h2hMatches": 8,
                 "h2hPct": 50.0,
                 "components": {
                   "homeOverall": 45.6,
                   "homeRole": 44.9,
-                  "awayOverall": 47.3,
+                  "awayOverall": 45.6,
                   "awayRole": 54.4,
                   "h2h": 50.0
                 },
-                "modelBasis": "Model ważony: bieżący sezon (2/1 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "29.12.2026",
@@ -547742,19 +547745,19 @@
                 "dataSource": null,
                 "homeOverallPct": 42.2,
                 "homePct": 32.5,
-                "awayOverallPct": 47.3,
+                "awayOverallPct": 45.6,
                 "awayPct": 54.4,
-                "prob": 41.8,
+                "prob": 41.4,
                 "h2hMatches": 12,
                 "h2hPct": 41.7,
                 "components": {
                   "homeOverall": 42.2,
                   "homeRole": 32.5,
-                  "awayOverall": 47.3,
+                  "awayOverall": 45.6,
                   "awayRole": 54.4,
                   "h2h": 41.7
                 },
-                "modelBasis": "Model ważony: bieżący sezon (2/1 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "04.01.2027",
@@ -547807,19 +547810,19 @@
                 "dataSource": null,
                 "homeOverallPct": 39.3,
                 "homePct": 38.5,
-                "awayOverallPct": 47.3,
+                "awayOverallPct": 45.6,
                 "awayPct": 54.4,
-                "prob": 43.3,
+                "prob": 43.0,
                 "h2hMatches": 4,
                 "h2hPct": 50.0,
                 "components": {
                   "homeOverall": 39.3,
                   "homeRole": 38.5,
-                  "awayOverall": 47.3,
+                  "awayOverall": 45.6,
                   "awayRole": 54.4,
                   "h2h": 50.0
                 },
-                "modelBasis": "Model ważony: bieżący sezon (2/1 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "06.01.2027",
@@ -547853,19 +547856,19 @@
                 "dataSource": null,
                 "homeOverallPct": 40.2,
                 "homePct": 47.2,
-                "awayOverallPct": 47.4,
-                "awayPct": 47.7,
-                "prob": 47.5,
+                "awayOverallPct": 45.8,
+                "awayPct": 46.1,
+                "prob": 46.8,
                 "h2hMatches": 12,
                 "h2hPct": 66.7,
                 "components": {
                   "homeOverall": 40.2,
                   "homeRole": 47.2,
-                  "awayOverall": 47.4,
-                  "awayRole": 47.7,
+                  "awayOverall": 45.8,
+                  "awayRole": 46.1,
                   "h2h": 66.7
                 },
-                "modelBasis": "Model ważony: bieżący sezon (2/1 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "06.01.2027",
@@ -547940,19 +547943,19 @@
                 "home": "AIK",
                 "away": "Visby Roma",
                 "played": false,
-                "prob": 70.3,
-                "homePct": 42.1,
+                "prob": 69.6,
+                "homePct": 40.6,
                 "awayPct": 100.0,
-                "homeOverallPct": 47.3,
+                "homeOverallPct": 45.6,
                 "awayOverallPct": 100.0,
                 "components": {
-                  "homeOverall": 47.3,
-                  "homeRole": 42.1,
+                  "homeOverall": 45.6,
+                  "homeRole": 40.6,
                   "awayOverall": 100.0,
                   "awayRole": 100.0,
                   "h2h": null
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/2 meczów gospodarz/gość) + sezony historyczne",
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne",
                 "dataSource": null
               },
               {
@@ -547985,21 +547988,21 @@
                 "away": "Vasteras",
                 "played": false,
                 "dataSource": null,
-                "homeOverallPct": 47.4,
+                "homeOverallPct": 45.8,
                 "homePct": 45.3,
                 "awayOverallPct": 49.4,
                 "awayPct": 52.8,
-                "prob": 45.3,
+                "prob": 44.9,
                 "h2hMatches": 12,
                 "h2hPct": 50.0,
                 "components": {
-                  "homeOverall": 47.4,
+                  "homeOverall": 45.8,
                   "homeRole": 45.3,
                   "awayOverall": 49.4,
                   "awayRole": 52.8,
                   "h2h": 50.0
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/2 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "08.01.2027",
@@ -548121,21 +548124,21 @@
                 "away": "Kalmar",
                 "played": false,
                 "dataSource": null,
-                "homeOverallPct": 47.3,
-                "homePct": 42.1,
-                "awayOverallPct": 47.4,
-                "awayPct": 47.7,
-                "prob": 42.5,
+                "homeOverallPct": 45.6,
+                "homePct": 40.6,
+                "awayOverallPct": 45.8,
+                "awayPct": 46.1,
+                "prob": 41.2,
                 "h2hMatches": 12,
                 "h2hPct": 41.7,
                 "components": {
-                  "homeOverall": 47.3,
-                  "homeRole": 42.1,
-                  "awayOverall": 47.4,
-                  "awayRole": 47.7,
+                  "homeOverall": 45.6,
+                  "homeRole": 40.6,
+                  "awayOverall": 45.8,
+                  "awayRole": 46.1,
                   "h2h": 41.7
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/1 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "13.01.2027",
@@ -548303,19 +548306,19 @@
                 "dataSource": null,
                 "homeOverallPct": 45.5,
                 "homePct": 41.2,
-                "awayOverallPct": 47.3,
+                "awayOverallPct": 45.6,
                 "awayPct": 54.4,
-                "prob": 42.1,
+                "prob": 41.7,
                 "h2hMatches": 12,
                 "h2hPct": 50.0,
                 "components": {
                   "homeOverall": 45.5,
                   "homeRole": 41.2,
-                  "awayOverall": 47.3,
+                  "awayOverall": 45.6,
                   "awayRole": 54.4,
                   "h2h": 50.0
                 },
-                "modelBasis": "Model ważony: bieżący sezon (2/1 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "15.01.2027",
@@ -548323,19 +548326,19 @@
                 "home": "Kalmar",
                 "away": "Visby Roma",
                 "played": false,
-                "prob": 71.7,
+                "prob": 71.3,
                 "homePct": 45.3,
                 "awayPct": 100.0,
-                "homeOverallPct": 47.4,
+                "homeOverallPct": 45.8,
                 "awayOverallPct": 100.0,
                 "components": {
-                  "homeOverall": 47.4,
+                  "homeOverall": 45.8,
                   "homeRole": 45.3,
                   "awayOverall": 100.0,
                   "awayRole": 100.0,
                   "h2h": null
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/2 meczów gospodarz/gość) + sezony historyczne",
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne",
                 "dataSource": null
               },
               {
@@ -548411,19 +548414,19 @@
                 "home": "Kalmar",
                 "away": "Leksand",
                 "played": false,
-                "prob": 36.7,
+                "prob": 36.3,
                 "homePct": 45.3,
                 "awayPct": 0.0,
-                "homeOverallPct": 47.4,
+                "homeOverallPct": 45.8,
                 "awayOverallPct": 50.0,
                 "components": {
-                  "homeOverall": 47.4,
+                  "homeOverall": 45.8,
                   "homeRole": 45.3,
                   "awayOverall": 50.0,
                   "awayRole": 0.0,
                   "h2h": null
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/2 meczów gospodarz/gość) + sezony historyczne",
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne",
                 "dataSource": null
               },
               {
@@ -548458,19 +548461,19 @@
                 "dataSource": null,
                 "homeOverallPct": 52.8,
                 "homePct": 55.6,
-                "awayOverallPct": 47.3,
+                "awayOverallPct": 45.6,
                 "awayPct": 54.4,
-                "prob": 52.4,
+                "prob": 52.0,
                 "h2hMatches": 8,
                 "h2hPct": 75.0,
                 "components": {
                   "homeOverall": 52.8,
                   "homeRole": 55.6,
-                  "awayOverall": 47.3,
+                  "awayOverall": 45.6,
                   "awayRole": 54.4,
                   "h2h": 75.0
                 },
-                "modelBasis": "Model ważony: bieżący sezon (2/1 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "20.01.2027",
@@ -548568,19 +548571,19 @@
                 "home": "Leksand",
                 "away": "Kalmar",
                 "played": false,
-                "prob": 57.2,
+                "prob": 56.5,
                 "homePct": 100.0,
-                "awayPct": 47.7,
+                "awayPct": 46.1,
                 "homeOverallPct": 50.0,
-                "awayOverallPct": 47.4,
+                "awayOverallPct": 45.8,
                 "components": {
                   "homeOverall": 50.0,
                   "homeRole": 100.0,
-                  "awayOverall": 47.4,
-                  "awayRole": 47.7,
+                  "awayOverall": 45.8,
+                  "awayRole": 46.1,
                   "h2h": null
                 },
-                "modelBasis": "Model ważony: bieżący sezon (2/1 meczów gospodarz/gość) + sezony historyczne",
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne",
                 "dataSource": null
               },
               {
@@ -548590,21 +548593,21 @@
                 "away": "Ostersund",
                 "played": false,
                 "dataSource": null,
-                "homeOverallPct": 47.3,
-                "homePct": 42.1,
+                "homeOverallPct": 45.6,
+                "homePct": 40.6,
                 "awayOverallPct": 42.0,
                 "awayPct": 36.8,
-                "prob": 42.4,
+                "prob": 41.8,
                 "h2hMatches": 12,
                 "h2hPct": 66.7,
                 "components": {
-                  "homeOverall": 47.3,
-                  "homeRole": 42.1,
+                  "homeOverall": 45.6,
+                  "homeRole": 40.6,
                   "awayOverall": 42.0,
                   "awayRole": 36.8,
                   "h2h": 66.7
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/2 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "22.01.2027",
@@ -548655,21 +548658,21 @@
                 "away": "Oskarshamn",
                 "played": false,
                 "dataSource": null,
-                "homeOverallPct": 47.4,
+                "homeOverallPct": 45.8,
                 "homePct": 45.3,
                 "awayOverallPct": 52.8,
                 "awayPct": 49.9,
-                "prob": 45.9,
+                "prob": 45.5,
                 "h2hMatches": 8,
                 "h2hPct": 37.5,
                 "components": {
-                  "homeOverall": 47.4,
+                  "homeOverall": 45.8,
                   "homeRole": 45.3,
                   "awayOverall": 52.8,
                   "awayRole": 49.9,
                   "h2h": 37.5
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/2 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "22.01.2027",
@@ -548770,21 +548773,21 @@
                 "away": "AIK",
                 "played": false,
                 "dataSource": null,
-                "homeOverallPct": 47.4,
+                "homeOverallPct": 45.8,
                 "homePct": 45.3,
-                "awayOverallPct": 47.3,
+                "awayOverallPct": 45.6,
                 "awayPct": 54.4,
-                "prob": 44.2,
+                "prob": 43.5,
                 "h2hMatches": 12,
                 "h2hPct": 41.7,
                 "components": {
-                  "homeOverall": 47.4,
+                  "homeOverall": 45.8,
                   "homeRole": 45.3,
-                  "awayOverall": 47.3,
+                  "awayOverall": 45.6,
                   "awayRole": 54.4,
                   "h2h": 41.7
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/1 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "27.01.2027",
@@ -548971,19 +548974,19 @@
                 "dataSource": null,
                 "homeOverallPct": 42.0,
                 "homePct": 46.3,
-                "awayOverallPct": 47.4,
-                "awayPct": 47.7,
-                "prob": 43.7,
+                "awayOverallPct": 45.8,
+                "awayPct": 46.1,
+                "prob": 43.1,
                 "h2hMatches": 12,
                 "h2hPct": 50.0,
                 "components": {
                   "homeOverall": 42.0,
                   "homeRole": 46.3,
-                  "awayOverall": 47.4,
-                  "awayRole": 47.7,
+                  "awayOverall": 45.8,
+                  "awayRole": 46.1,
                   "h2h": 50.0
                 },
-                "modelBasis": "Model ważony: bieżący sezon (2/1 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "29.01.2027",
@@ -548994,19 +548997,19 @@
                 "dataSource": null,
                 "homeOverallPct": 43.9,
                 "homePct": 44.5,
-                "awayOverallPct": 47.3,
+                "awayOverallPct": 45.6,
                 "awayPct": 54.4,
-                "prob": 46.4,
+                "prob": 46.0,
                 "h2hMatches": 12,
                 "h2hPct": 58.3,
                 "components": {
                   "homeOverall": 43.9,
                   "homeRole": 44.5,
-                  "awayOverall": 47.3,
+                  "awayOverall": 45.6,
                   "awayRole": 54.4,
                   "h2h": 58.3
                 },
-                "modelBasis": "Model ważony: bieżący sezon (2/1 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "29.01.2027",
@@ -549061,21 +549064,21 @@
                 "away": "Mora",
                 "played": false,
                 "dataSource": null,
-                "homeOverallPct": 47.3,
-                "homePct": 42.1,
+                "homeOverallPct": 45.6,
+                "homePct": 40.6,
                 "awayOverallPct": 42.2,
                 "awayPct": 51.9,
-                "prob": 43.1,
+                "prob": 42.4,
                 "h2hMatches": 12,
                 "h2hPct": 41.7,
                 "components": {
-                  "homeOverall": 47.3,
-                  "homeRole": 42.1,
+                  "homeOverall": 45.6,
+                  "homeRole": 40.6,
                   "awayOverall": 42.2,
                   "awayRole": 51.9,
                   "h2h": 41.7
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/2 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "03.02.2027",
@@ -549084,21 +549087,21 @@
                 "away": "BIK Karlskoga",
                 "played": false,
                 "dataSource": null,
-                "homeOverallPct": 47.4,
+                "homeOverallPct": 45.8,
                 "homePct": 45.3,
                 "awayOverallPct": 45.5,
                 "awayPct": 46.2,
-                "prob": 43.0,
+                "prob": 42.7,
                 "h2hMatches": 12,
                 "h2hPct": 58.3,
                 "components": {
-                  "homeOverall": 47.4,
+                  "homeOverall": 45.8,
                   "homeRole": 45.3,
                   "awayOverall": 45.5,
                   "awayRole": 46.2,
                   "h2h": 58.3
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/2 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "03.02.2027",
@@ -549308,21 +549311,21 @@
                 "away": "Oskarshamn",
                 "played": false,
                 "dataSource": null,
-                "homeOverallPct": 47.3,
-                "homePct": 42.1,
+                "homeOverallPct": 45.6,
+                "homePct": 40.6,
                 "awayOverallPct": 52.8,
                 "awayPct": 49.9,
-                "prob": 49.2,
+                "prob": 48.5,
                 "h2hMatches": 8,
                 "h2hPct": 75.0,
                 "components": {
-                  "homeOverall": 47.3,
-                  "homeRole": 42.1,
+                  "homeOverall": 45.6,
+                  "homeRole": 40.6,
                   "awayOverall": 52.8,
                   "awayRole": 49.9,
                   "h2h": 75.0
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/2 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "05.02.2027",
@@ -549356,19 +549359,19 @@
                 "dataSource": null,
                 "homeOverallPct": 45.6,
                 "homePct": 44.9,
-                "awayOverallPct": 47.4,
-                "awayPct": 47.7,
-                "prob": 49.5,
+                "awayOverallPct": 45.8,
+                "awayPct": 46.1,
+                "prob": 48.8,
                 "h2hMatches": 8,
                 "h2hPct": 62.5,
                 "components": {
                   "homeOverall": 45.6,
                   "homeRole": 44.9,
-                  "awayOverall": 47.4,
-                  "awayRole": 47.7,
+                  "awayOverall": 45.8,
+                  "awayRole": 46.1,
                   "h2h": 62.5
                 },
-                "modelBasis": "Model ważony: bieżący sezon (2/1 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "06.02.2027",
@@ -549469,19 +549472,19 @@
                 "dataSource": null,
                 "homeOverallPct": 42.0,
                 "homePct": 46.3,
-                "awayOverallPct": 47.3,
+                "awayOverallPct": 45.6,
                 "awayPct": 54.4,
-                "prob": 46.3,
+                "prob": 45.9,
                 "h2hMatches": 12,
                 "h2hPct": 66.7,
                 "components": {
                   "homeOverall": 42.0,
                   "homeRole": 46.3,
-                  "awayOverall": 47.3,
+                  "awayOverall": 45.6,
                   "awayRole": 54.4,
                   "h2h": 66.7
                 },
-                "modelBasis": "Model ważony: bieżący sezon (2/1 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "13.02.2027",
@@ -549557,21 +549560,21 @@
                 "away": "Almtuna",
                 "played": false,
                 "dataSource": null,
-                "homeOverallPct": 47.3,
-                "homePct": 42.1,
+                "homeOverallPct": 45.6,
+                "homePct": 40.6,
                 "awayOverallPct": 43.5,
                 "awayPct": 37.7,
-                "prob": 41.3,
+                "prob": 40.6,
                 "h2hMatches": 12,
                 "h2hPct": 25.0,
                 "components": {
-                  "homeOverall": 47.3,
-                  "homeRole": 42.1,
+                  "homeOverall": 45.6,
+                  "homeRole": 40.6,
                   "awayOverall": 43.5,
                   "awayRole": 37.7,
                   "h2h": 25.0
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/2 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "17.02.2027",
@@ -549626,19 +549629,19 @@
                 "dataSource": null,
                 "homeOverallPct": 42.2,
                 "homePct": 32.5,
-                "awayOverallPct": 47.4,
-                "awayPct": 47.7,
-                "prob": 41.3,
+                "awayOverallPct": 45.8,
+                "awayPct": 46.1,
+                "prob": 40.6,
                 "h2hMatches": 12,
                 "h2hPct": 41.7,
                 "components": {
                   "homeOverall": 42.2,
                   "homeRole": 32.5,
-                  "awayOverall": 47.4,
-                  "awayRole": 47.7,
+                  "awayOverall": 45.8,
+                  "awayRole": 46.1,
                   "h2h": 41.7
                 },
-                "modelBasis": "Model ważony: bieżący sezon (2/1 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "17.02.2027",
@@ -549691,21 +549694,21 @@
                 "away": "Vimmerby",
                 "played": false,
                 "dataSource": null,
-                "homeOverallPct": 47.3,
-                "homePct": 42.1,
+                "homeOverallPct": 45.6,
+                "homePct": 40.6,
                 "awayOverallPct": 45.6,
                 "awayPct": 46.3,
-                "prob": 46.6,
+                "prob": 46.0,
                 "h2hMatches": 8,
                 "h2hPct": 50.0,
                 "components": {
-                  "homeOverall": 47.3,
-                  "homeRole": 42.1,
+                  "homeOverall": 45.6,
+                  "homeRole": 40.6,
                   "awayOverall": 45.6,
                   "awayRole": 46.3,
                   "h2h": 50.0
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/2 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "19.02.2027",
@@ -549760,21 +549763,21 @@
                 "away": "Nybro",
                 "played": false,
                 "dataSource": null,
-                "homeOverallPct": 47.4,
+                "homeOverallPct": 45.8,
                 "homePct": 45.3,
                 "awayOverallPct": 40.2,
                 "awayPct": 33.2,
-                "prob": 44.6,
+                "prob": 44.2,
                 "h2hMatches": 12,
                 "h2hPct": 66.7,
                 "components": {
-                  "homeOverall": 47.4,
+                  "homeOverall": 45.8,
                   "homeRole": 45.3,
                   "awayOverall": 40.2,
                   "awayRole": 33.2,
                   "h2h": 66.7
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/2 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "19.02.2027",
@@ -549870,19 +549873,19 @@
                 "home": "Visby Roma",
                 "away": "AIK",
                 "played": false,
-                "prob": 72.8,
+                "prob": 72.4,
                 "homePct": null,
                 "awayPct": 54.4,
                 "homeOverallPct": 100.0,
-                "awayOverallPct": 47.3,
+                "awayOverallPct": 45.6,
                 "components": {
                   "homeOverall": 100.0,
                   "homeRole": null,
-                  "awayOverall": 47.3,
+                  "awayOverall": 45.6,
                   "awayRole": 54.4,
                   "h2h": null
                 },
-                "modelBasis": "Model ważony: bieżący sezon (2/1 meczów gospodarz/gość) + sezony historyczne",
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne",
                 "dataSource": null
               },
               {
@@ -549892,21 +549895,21 @@
                 "away": "Vasteras",
                 "played": false,
                 "dataSource": null,
-                "homeOverallPct": 47.4,
+                "homeOverallPct": 45.8,
                 "homePct": 45.3,
                 "awayOverallPct": 49.4,
                 "awayPct": 52.8,
-                "prob": 45.3,
+                "prob": 44.9,
                 "h2hMatches": 12,
                 "h2hPct": 50.0,
                 "components": {
-                  "homeOverall": 47.4,
+                  "homeOverall": 45.8,
                   "homeRole": 45.3,
                   "awayOverall": 49.4,
                   "awayRole": 52.8,
                   "h2h": 50.0
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/2 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "21.02.2027",
@@ -549984,21 +549987,21 @@
                 "away": "Nybro",
                 "played": false,
                 "dataSource": null,
-                "homeOverallPct": 47.3,
-                "homePct": 42.1,
+                "homeOverallPct": 45.6,
+                "homePct": 40.6,
                 "awayOverallPct": 40.2,
                 "awayPct": 33.2,
-                "prob": 43.3,
+                "prob": 42.7,
                 "h2hMatches": 12,
                 "h2hPct": 66.7,
                 "components": {
-                  "homeOverall": 47.3,
-                  "homeRole": 42.1,
+                  "homeOverall": 45.6,
+                  "homeRole": 40.6,
                   "awayOverall": 40.2,
                   "awayRole": 33.2,
                   "h2h": 66.7
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/2 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "24.02.2027",
@@ -550009,19 +550012,19 @@
                 "dataSource": null,
                 "homeOverallPct": 43.5,
                 "homePct": 49.2,
-                "awayOverallPct": 47.4,
-                "awayPct": 47.7,
-                "prob": 46.9,
+                "awayOverallPct": 45.8,
+                "awayPct": 46.1,
+                "prob": 46.3,
                 "h2hMatches": 12,
                 "h2hPct": 41.7,
                 "components": {
                   "homeOverall": 43.5,
                   "homeRole": 49.2,
-                  "awayOverall": 47.4,
-                  "awayRole": 47.7,
+                  "awayOverall": 45.8,
+                  "awayRole": 46.1,
                   "h2h": 41.7
                 },
-                "modelBasis": "Model ważony: bieżący sezon (2/1 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "24.02.2027",
@@ -550233,19 +550236,19 @@
                 "dataSource": null,
                 "homeOverallPct": 49.4,
                 "homePct": 46.0,
-                "awayOverallPct": 47.3,
+                "awayOverallPct": 45.6,
                 "awayPct": 54.4,
-                "prob": 45.0,
+                "prob": 44.7,
                 "h2hMatches": 12,
                 "h2hPct": 50.0,
                 "components": {
                   "homeOverall": 49.4,
                   "homeRole": 46.0,
-                  "awayOverall": 47.3,
+                  "awayOverall": 45.6,
                   "awayRole": 54.4,
                   "h2h": 50.0
                 },
-                "modelBasis": "Model ważony: bieżący sezon (2/1 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "26.02.2027",
@@ -550276,19 +550279,19 @@
                 "home": "Visby Roma",
                 "away": "Kalmar",
                 "played": false,
-                "prob": 72.2,
+                "prob": 71.5,
                 "homePct": null,
-                "awayPct": 47.7,
+                "awayPct": 46.1,
                 "homeOverallPct": 100.0,
-                "awayOverallPct": 47.4,
+                "awayOverallPct": 45.8,
                 "components": {
                   "homeOverall": 100.0,
                   "homeRole": null,
-                  "awayOverall": 47.4,
-                  "awayRole": 47.7,
+                  "awayOverall": 45.8,
+                  "awayRole": 46.1,
                   "h2h": null
                 },
-                "modelBasis": "Model ważony: bieżący sezon (2/1 meczów gospodarz/gość) + sezony historyczne",
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne",
                 "dataSource": null
               },
               {
@@ -550298,21 +550301,21 @@
                 "away": "BIK Karlskoga",
                 "played": false,
                 "dataSource": null,
-                "homeOverallPct": 47.3,
-                "homePct": 42.1,
+                "homeOverallPct": 45.6,
+                "homePct": 40.6,
                 "awayOverallPct": 45.5,
                 "awayPct": 46.2,
-                "prob": 40.8,
+                "prob": 40.2,
                 "h2hMatches": 12,
                 "h2hPct": 50.0,
                 "components": {
-                  "homeOverall": 47.3,
-                  "homeRole": 42.1,
+                  "homeOverall": 45.6,
+                  "homeRole": 40.6,
                   "awayOverall": 45.5,
                   "awayRole": 46.2,
                   "h2h": 50.0
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/2 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "28.02.2027",
@@ -550346,19 +550349,19 @@
                 "dataSource": null,
                 "homeOverallPct": 43.9,
                 "homePct": 44.5,
-                "awayOverallPct": 47.4,
-                "awayPct": 47.7,
-                "prob": 44.8,
+                "awayOverallPct": 45.8,
+                "awayPct": 46.1,
+                "prob": 44.2,
                 "h2hMatches": 12,
                 "h2hPct": 50.0,
                 "components": {
                   "homeOverall": 43.9,
                   "homeRole": 44.5,
-                  "awayOverall": 47.4,
-                  "awayRole": 47.7,
+                  "awayOverall": 45.8,
+                  "awayRole": 46.1,
                   "h2h": 50.0
                 },
-                "modelBasis": "Model ważony: bieżący sezon (2/1 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "28.02.2027",
@@ -550478,21 +550481,21 @@
                 "away": "Modo",
                 "played": false,
                 "dataSource": null,
-                "homeOverallPct": 47.4,
+                "homeOverallPct": 45.8,
                 "homePct": 45.3,
                 "awayOverallPct": 39.3,
                 "awayPct": 39.3,
-                "prob": 36.5,
+                "prob": 36.2,
                 "h2hMatches": 4,
                 "h2hPct": 0.0,
                 "components": {
-                  "homeOverall": 47.4,
+                  "homeOverall": 45.8,
                   "homeRole": 45.3,
                   "awayOverall": 39.3,
                   "awayRole": 39.3,
                   "h2h": 0.0
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/2 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "03.03.2027",
@@ -550590,19 +550593,19 @@
                 "home": "Leksand",
                 "away": "AIK",
                 "played": false,
-                "prob": 57.8,
+                "prob": 57.4,
                 "homePct": 100.0,
                 "awayPct": 54.4,
                 "homeOverallPct": 50.0,
-                "awayOverallPct": 47.3,
+                "awayOverallPct": 45.6,
                 "components": {
                   "homeOverall": 50.0,
                   "homeRole": 100.0,
-                  "awayOverall": 47.3,
+                  "awayOverall": 45.6,
                   "awayRole": 54.4,
                   "h2h": null
                 },
-                "modelBasis": "Model ważony: bieżący sezon (2/1 meczów gospodarz/gość) + sezony historyczne",
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne",
                 "dataSource": null
               },
               {
@@ -550656,21 +550659,21 @@
                 "away": "Modo",
                 "played": false,
                 "dataSource": null,
-                "homeOverallPct": 47.3,
-                "homePct": 42.1,
+                "homeOverallPct": 45.6,
+                "homePct": 40.6,
                 "awayOverallPct": 39.3,
                 "awayPct": 39.3,
-                "prob": 41.3,
+                "prob": 40.7,
                 "h2hMatches": 4,
                 "h2hPct": 50.0,
                 "components": {
-                  "homeOverall": 47.3,
-                  "homeRole": 42.1,
+                  "homeOverall": 45.6,
+                  "homeRole": 40.6,
                   "awayOverall": 39.3,
                   "awayRole": 39.3,
                   "h2h": 50.0
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/2 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "05.03.2027",
@@ -550679,21 +550682,21 @@
                 "away": "Oskarshamn",
                 "played": false,
                 "dataSource": null,
-                "homeOverallPct": 47.4,
+                "homeOverallPct": 45.8,
                 "homePct": 45.3,
                 "awayOverallPct": 52.8,
                 "awayPct": 49.9,
-                "prob": 45.9,
+                "prob": 45.5,
                 "h2hMatches": 8,
                 "h2hPct": 37.5,
                 "components": {
-                  "homeOverall": 47.4,
+                  "homeOverall": 45.8,
                   "homeRole": 45.3,
                   "awayOverall": 52.8,
                   "awayRole": 49.9,
                   "h2h": 37.5
                 },
-                "modelBasis": "Model ważony: bieżący sezon (1/2 meczów gospodarz/gość) + sezony historyczne"
+                "modelBasis": "Model ważony: bieżący sezon (2/2 meczów gospodarz/gość) + sezony historyczne"
               },
               {
                 "date": "05.03.2027",
@@ -550769,5 +550772,5 @@
       }
     }
   },
-  "lastUpdated": "21.09.2026 14:08 UTC"
+  "lastUpdated": "22.09.2026 12:36 UTC"
 }
