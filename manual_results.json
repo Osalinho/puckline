@@ -28,5 +28,20 @@
     "p1h": 1,
     "p1a": 2,
     "over15": true
+  },
+  "2026-09-18|SLOVAKIA|Slovan Bratislava|Michalovce": {
+    "p1h": 1,
+    "p1a": 0,
+    "over15": false
+  },
+  "2026-09-20|SLOVAKIA|Liptovsky Mikulas|Dukla Trencin": {
+    "p1h": 2,
+    "p1a": 1,
+    "over15": true
+  },
+  "2026-09-20|SLOVAKIA|Kosice|Slovan Bratislava": {
+    "p1h": 2,
+    "p1a": 2,
+    "over15": true
   }
 }
