@@ -2293,7 +2293,7 @@ document.getElementById('syncModalSave').addEventListener('click', async ()=>{
 
 function showLeagueDiagnostics(){
   const keys = Object.keys(DATA.leagues || {});
-  const expected = 12;
+  const expected = 14;
   if(keys.length >= expected) return; // wszystko OK, nie zaśmiecamy widoku
   const el = document.getElementById("bootError");
   el.style.display = "flex";

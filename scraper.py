@@ -69,12 +69,14 @@ LEAGUES = {
     "DENMARK":     {"path": "denmark/al-bank_ligaen",        "label": "Denmark AL-Bank Ligaen"},
     "FRANCE":      {"path": "france/ligue_magnus",           "label": "France Ligue Magnus"},
     "FINLAND":     {"path": "finland/sm-liiga",               "label": "Finland SM-Liiga"},
+    "FINLAND_MESTIS": {"path": "finland/mestis",               "label": "Finland Mestis"},
     "CANADA_OHL":  {"path": "canada_/ohl",                    "label": "Canada OHL"},
     "GERMANY":     {"path": "germany/del",                    "label": "Germany DEL"},
     "NORWAY":      {"path": "norway/ehl",                     "label": "Norway EHL"},
     "SLOVAKIA":    {"path": "slovakia/st_extraliga",          "label": "Slovakia ST Extraliga"},
     "SWITZERLAND": {"path": "switzerland/nla",                "label": "Switzerland NLA"},
     "SWEDEN":      {"path": "sweden/allsvenskan",             "label": "Sweden Allsvenskan"},
+    "SWEDEN_ELITSERIEN": {"path": "sweden/elitserien",         "label": "Sweden Elitserien"},
 }
 
 FIXTURES_URL_TMPL = "https://en.24score.com/ice_hockey/{path}/{season}/regular_season/fixtures/"
