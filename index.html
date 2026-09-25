@@ -6,10 +6,11 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap');
   :root{
-    --bg:#0A0E1A; --surface:#121826; --surface2:#1A2234; --border:#252E42;
+    --bg:#0D1220; --surface:#161E30; --surface2:#212B40; --border:#2C374E;
     --text:#E8ECF4; --muted:#8893A8; --amber:#F0A830; --amber-dim:#3A2C10;
     --teal:#2FBFA0; --teal-dim:#12312B; --red:#E05A5A; --red-dim:#3A1818; --yellow:#E0C23A; --yellow-dim:#3A3312;
     --orange:#E08A3A; --orange-dim:#3A2812;
+    --green2:#8FBF3A; --green2-dim:#2C3B14; --orange2:#E0793A; --orange2-dim:#3A2412;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
   body{background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; min-height:100vh; -webkit-font-smoothing:antialiased;}
@@ -98,15 +99,17 @@
 
   .prob-badge{font-family:'JetBrains Mono',monospace; font-weight:700; text-align:center; padding:6px 4px; border-radius:7px; width:52px; display:inline-block; font-size:13px;}
   .prob-green{background:var(--teal-dim); color:var(--teal);}
+  .prob-green2{background:var(--green2-dim); color:var(--green2);}
   .prob-yellow{background:var(--yellow-dim); color:var(--yellow);}
   .prob-orange{background:var(--orange-dim); color:var(--orange);}
+  .prob-orange2{background:var(--orange2-dim); color:var(--orange2);}
   .prob-red{background:var(--red-dim); color:var(--red);}
 
   .card{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:4px; overflow:hidden;}
 
   /* --- Terminarz v3 --- */
-  .quick-filters{display:flex; gap:6px; flex-wrap:wrap;}
-  .quick-filters button{background:var(--surface); border:1px solid var(--border); color:var(--muted); font-size:12px; font-weight:600; padding:7px 13px; border-radius:8px; cursor:pointer; font-family:'Space Grotesk',sans-serif;}
+  .quick-filters{display:flex; gap:5px; flex-wrap:wrap;}
+  .quick-filters button{background:var(--surface); border:1px solid var(--border); color:var(--muted); font-size:11px; font-weight:600; padding:6px 10px; border-radius:7px; cursor:pointer; font-family:'Space Grotesk',sans-serif;}
   .quick-filters button.active{background:var(--amber); color:#1A1200; border-color:var(--amber);}
 
   .top5-panel{background:linear-gradient(135deg, #1A1508, var(--surface)); border:1px solid var(--amber-dim); border-radius:12px; padding:16px 18px; margin-bottom:18px;}
@@ -233,6 +236,39 @@
   .h2h-min-filter button.active{background:var(--amber); color:#1A1200; border-color:var(--amber);}
 
   footer{text-align:center; color:var(--muted); font-size:11px; margin-top:24px;}
+
+  .last-updated-banner{display:flex; align-items:center; gap:8px; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:8px 13px; font-size:11.5px; color:var(--muted); margin-bottom:14px; width:fit-content;}
+  .last-updated-banner .dot2{width:7px; height:7px; border-radius:50%; background:var(--teal); flex-shrink:0;}
+  .last-updated-banner b{color:var(--text); font-family:'JetBrains Mono',monospace; font-weight:600;}
+
+  /* --- tabelaryczny uk\u0142ad Terminarza Wszystkiego / Serii \u0141\u0105czonej --- */
+  .cmb-table-header{display:grid; grid-template-columns:64px 1fr 22px 1fr 56px 52px; gap:8px; align-items:center; padding:7px 14px; font-family:'Space Grotesk',sans-serif; font-size:9.5px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; border-bottom:1px solid var(--border);}
+  .cmb-table-header .col-vs, .cmb-table-header .col-date, .cmb-table-header .col-prob{text-align:center;}
+  .cmb-row-grid{display:grid; grid-template-columns:64px 1fr 22px 1fr 56px 52px; gap:8px; align-items:center; padding:10px 14px; border-bottom:1px solid var(--surface2); cursor:pointer; border-left:3px solid transparent;}
+  .cmb-row-grid:hover{background:var(--surface);}
+  .cmb-row-grid.over-hit{border-left-color:var(--teal); background:rgba(47,191,160,0.07);}
+  .cmb-row-grid.over-hit:hover{background:rgba(47,191,160,0.13);}
+  .cmb-row-grid.under-hit{border-left-color:var(--red); background:rgba(224,90,90,0.06);}
+  .cmb-row-grid.under-hit:hover{background:rgba(224,90,90,0.11);}
+  .cmb-row-grid .cmb-league-badge{font-family:'Space Grotesk',sans-serif; font-size:9px; font-weight:700; color:#0A0E1A; border-radius:5px; padding:3px 5px; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .cmb-row-grid .cmb-team{display:flex; align-items:center; gap:7px; min-width:0;}
+  .cmb-row-grid .cmb-team.away{flex-direction:row-reverse; text-align:right;}
+  .cmb-row-grid .cmb-team b{overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:600; font-size:12.5px;}
+  .cmb-row-grid .cmb-team .ft-pct{font-family:'JetBrains Mono',monospace; font-weight:700; font-size:11px; flex-shrink:0; margin-left:auto;}
+  .cmb-row-grid .cmb-team.away .ft-pct{margin-left:0; margin-right:auto;}
+  .cmb-row-grid .cmb-vs{color:var(--muted); font-size:11px; text-align:center; font-weight:700; font-family:'Space Grotesk',sans-serif;}
+  .cmb-row-grid .cmb-date{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); text-align:center;}
+  .cmb-row-grid .cmb-result{font-family:'JetBrains Mono',monospace; font-size:11px; text-align:center; display:flex; flex-direction:column; gap:2px; align-items:center;}
+  .cmb-legend{display:flex; flex-wrap:wrap; gap:14px; font-size:10.5px; color:var(--muted); padding:10px 14px; border-top:1px solid var(--border); margin-top:2px;}
+  .cmb-legend span{display:flex; align-items:center; gap:5px;}
+
+  /* --- Updates / changelog --- */
+  .update-entry{display:flex; gap:14px; padding:14px; border-bottom:1px solid var(--surface2);}
+  .update-entry .u-date{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--amber); white-space:nowrap; flex-shrink:0; width:78px; padding-top:2px;}
+  .update-entry .u-body{flex:1;}
+  .update-entry .u-title{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13.5px; margin-bottom:6px;}
+  .update-entry ul{margin:0; padding-left:18px; color:var(--muted); font-size:12px; line-height:1.7;}
+  .update-entry ul li::marker{color:var(--amber);}
 </style>
 </head>
 <body>
@@ -260,6 +296,8 @@
       <div class="meta-right" id="metaRight"></div>
     </div>
   </header>
+
+  <div class="last-updated-banner" id="lastUpdatedBanner"><span class="dot2"></span>OSTATNIA AKTUALIZACJA DANYCH: <b id="lastUpdatedValue">—</b></div>
 
   <div class="topbar">
     <nav id="mainNav">
@@ -299,6 +337,10 @@
 
   <div id="hot" class="panel">
     <div id="hotContent"></div>
+  </div>
+
+  <div id="updates" class="panel">
+    <div id="updatesContent"></div>
   </div>
 
   <footer>
@@ -380,8 +422,10 @@ function logo(team, league){
 
 function probClass(p){
   if(p>=65) return 'prob-green';
+  if(p>=60) return 'prob-green2';
   if(p>=55) return 'prob-yellow';
   if(p>=50) return 'prob-orange';
+  if(p>=45) return 'prob-orange2';
   return 'prob-red';
 }
 function pctColor(pct){
@@ -440,15 +484,20 @@ function allLeagueMenuItems(){
 }
 
 function renderHeader(){
-  const SPECIAL_TABS = ['__PLAYNOW__', '__WYNIKIALL__', '__HOT__'];
+  const SPECIAL_TABS = ['__PLAYNOW__', '__WYNIKIALL__', '__HOT__', '__UPDATES__'];
   const isLeagueView = !SPECIAL_TABS.includes(currentLeague);
   const currentItem = isLeagueView ? allLeagueMenuItems().find(it=>it.key===currentLeague) : null;
   const krajLabel = currentItem ? `🌍 ${currentItem.country}` : '🌍 Wybierz ligę';
+
+  if(DATA && DATA.lastUpdated){
+    document.getElementById('lastUpdatedValue').textContent = DATA.lastUpdated;
+  }
 
   document.getElementById('leagueSwitch').innerHTML = `
     <button class="${currentLeague==='__PLAYNOW__'?'active':''}" data-league="__PLAYNOW__">🔥 TERMINARZ WSZYSTKIEGO 26/27</button>
     <button class="${currentLeague==='__HOT__'?'active':''}" data-league="__HOT__">🌶️ HOT</button>
     <button class="${currentLeague==='__WYNIKIALL__'?'active':''}" data-league="__WYNIKIALL__">📊 WYNIKI ALL</button>
+    <button class="${currentLeague==='__UPDATES__'?'active':''}" data-league="__UPDATES__">📝 UPDATES</button>
     <button class="${isLeagueView?'active':''}" data-league="__KRAJ__">${krajLabel} ${countryPickerOpen?'▴':'▾'}</button>`;
 
   document.querySelectorAll('#leagueSwitch button').forEach(b=>{
@@ -528,6 +577,16 @@ function renderHeader(){
     document.querySelector('.topbar').style.display = 'none';
     document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
     document.getElementById('hot').classList.add('active');
+    document.getElementById('metaRight').innerHTML = '';
+    return;
+  }
+
+  if(currentLeague === '__UPDATES__'){
+    document.getElementById('subtitle').textContent = 'Historia zmian i poprawek w PUCKLINE';
+    document.getElementById('seasonSwitch').style.display = 'none';
+    document.querySelector('.topbar').style.display = 'none';
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    document.getElementById('updates').classList.add('active');
     document.getElementById('metaRight').innerHTML = '';
     return;
   }
@@ -956,7 +1015,15 @@ function populateFixtures(isInitial){
 
 function teamShort(name){ return name.split(' ').pop(); }
 
+const LEAGUE_COLORS = {
+  NHL: '#5882F6', AHL: '#AB55F7', CZECH: '#22C55E', DENMARK: '#097706',
+  FRANCE: '#8A7F5A', FINLAND: '#6364F1', FINLAND_MESTIS: '#148844',
+  CANADA_OHL: '#647888', GERMANY: '#EAB338', NORWAY: '#F97316',
+  SLOVAKIA: '#EF4444', SWITZERLAND: '#D946EF', SWEDEN: '#4A5568',
+  SWEDEN_ELITSERIEN: '#10B981',
+};
 function leagueColor(lg){
+  if(LEAGUE_COLORS[lg]) return LEAGUE_COLORS[lg];
   let h = 0;
   for(let i=0;i<lg.length;i++){ h = (h*31 + lg.charCodeAt(i)) % 360; }
   return `hsl(${h}, 62%, 52%)`;
@@ -1131,6 +1198,10 @@ function renderAll(){
     renderHot();
     return;
   }
+  if(currentLeague === '__UPDATES__'){
+    renderUpdates();
+    return;
+  }
   if(currentLeague === 'COMBINED'){
     renderCombined();
     return;
@@ -1158,9 +1229,14 @@ function renderPlayNow(){
   if(!playNowLeagueFilter) playNowLeagueFilter = new Set(Object.keys(DATA.leagues));
   const visibleMatches = allMatches.filter(m=>playNowLeagueFilter.has(m.league));
 
+  const leagueChipLabel = lg => {
+    if(lg==='NHL' || lg==='AHL') return lg;
+    const meta = DATA.leagues[lg];
+    return meta ? splitCountryLeague(meta.label).league : lg;
+  };
   const leagueChips = Object.keys(DATA.leagues).map(lg=>{
     const active = playNowLeagueFilter.has(lg);
-    return `<button class="${active?'active':''}" data-toggle-league="${lg}" style="border-color:${leagueColor(lg)}; ${active?`background:${leagueColor(lg)}; color:#0A0E1A;`:''}">${lg}</button>`;
+    return `<button title="${lg}" class="${active?'active':''}" data-toggle-league="${lg}" style="border-color:${leagueColor(lg)}; ${active?`background:${leagueColor(lg)}; color:#0A0E1A;`:''}">${leagueChipLabel(lg)}</button>`;
   }).join('');
 
   if(!allMatches.length){
@@ -1186,6 +1262,7 @@ function renderPlayNow(){
     const playingLeagues = [...new Set(dayMatches.map(m=>leagueShortLabel(m.league)))].join(', ');
     const section = (title, list) => list.length ? `
       <div style="padding:8px 14px 2px; font-family:'Space Grotesk',sans-serif; font-size:10.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em;">${title}</div>
+      ${combinedTableHeaderHtml()}
       ${list.map(m=>combinedRowHtml(m, d, 'pn-row-')).join('')}` : '';
     return `<div class="day-group" id="pn-anchor-${d}">
       <div class="day-header" data-toggle="day">
@@ -1214,7 +1291,13 @@ function renderPlayNow(){
     <div class="legend">🔥 Cały terminarz sezonu 2026/27 — wszystkie ${Object.keys(DATA.leagues).length} lig naraz. Klik w kraj poniżej pokazuje tylko jego mecze.</div>
     <div class="quick-filters" id="playNowLeagueChips" style="margin-bottom:14px;">${leagueChips}</div>
     ${pastSection}
-    <div class="fixtures-scroll">${dates.map(d=>dayGroupHtml(d)).join('') || `<div style="color:var(--muted); font-size:13px; padding:24px; text-align:center;">Brak nadchodzących meczów w tym filtrze.</div>`}</div>`;
+    <div class="fixtures-scroll">${dates.map(d=>dayGroupHtml(d)).join('') || `<div style="color:var(--muted); font-size:13px; padding:24px; text-align:center;">Brak nadchodzących meczów w tym filtrze.</div>`}</div>
+    <div class="cmb-legend">
+      <span><span class="cmb-league-badge" style="background:var(--amber); padding:2px 6px;">LIGA</span> = kolor ligi (identyfikacja)</span>
+      <span>🏒 avatar drużyny (neutralny)</span>
+      <span><span class="ft-pct" style="color:var(--teal)">62.8%</span> = procent drużyny (ten sam kolor co wynik)</span>
+      <span><span class="prob-badge prob-green" style="padding:2px 6px; width:auto;">65%</span> = wynik prognozy (im wyżej, tym większa szansa na Over)</span>
+    </div>`;
 
   content.querySelectorAll('#playNowLeagueChips button').forEach(b=>{
     b.addEventListener('click', ()=>{
@@ -1235,7 +1318,7 @@ function renderPlayNow(){
       if(!wasOpen) group.classList.add('open');
     });
   });
-  content.querySelectorAll('.fixture-row[data-cmb]').forEach(row=>{
+  content.querySelectorAll('[data-cmb]').forEach(row=>{
     row.addEventListener('click', ()=>{
       const m = allMatches.find(x=>x.sortDate+'|'+x.league+'|'+x.home+'|'+x.away === row.dataset.cmbKey);
       toggleFixtureDetails(row, m, m.league);
@@ -1253,6 +1336,66 @@ function renderPlayNow(){
       }
     }
   }
+}
+
+// ---------- Updates / changelog ----------
+const CHANGELOG = [
+  {
+    date: '24.09.2026',
+    title: 'Nowy układ Terminarza Wszystkiego, nagłówek aktualizacji, zakładka Updates',
+    items: [
+      'Terminarz Wszystkiego i Seria Łączona: mecze pokazane w tabeli z wyrównanymi kolumnami (Liga / Gospodarz / vs / Gość / Data / Prognoza) zamiast luźnych kart',
+      'Dodano pasek „Ostatnia aktualizacja danych" widoczny na każdej zakładce',
+      'Dodano tę zakładkę (Updates) z historią zmian',
+      'Lekko rozjaśniony motyw, ciaśniejsze chipy lig (mniej przerw przy zawijaniu)',
+    ],
+  },
+  {
+    date: '23.09.2026',
+    title: 'Dwie nowe ligi: Finlandia Mestis i Szwecja Elitserien',
+    items: [
+      'Dane historyczne (23/24–25/26) wgrane ręcznie z 24score.com, scraper od teraz aktualizuje je automatycznie razem z resztą',
+      'Sezon 26/27 przeliczony chronologicznie — już rozegrane mecze mają zamrożoną prognozę tak, jakby scraper śledził ligę od początku',
+    ],
+  },
+  {
+    date: '23.09.2026',
+    title: 'Poprawka: Terminarz Wszystkiego nie pokazywał wyniku Over/Under',
+    items: [
+      'Naprawiono funkcję renderującą wiersze w głównej zakładce — teraz kolorowanie i wynik 1. tercji pokazują się tam tak samo jak w Terminarzu per-liga',
+    ],
+  },
+  {
+    date: '22.09.2026',
+    title: 'Ręczne wyniki przeliczają prognozy na bieżąco',
+    items: [
+      'Wpisanie wyniku w Wyniki ALL od razu koloruje mecz w Terminarzu i przelicza % dla pozostałych meczów tej ligi',
+      'Ręczny wpis automatycznie ustępuje, gdy scraper potwierdzi oficjalny wynik',
+    ],
+  },
+  {
+    date: '21.09.2026',
+    title: 'Synchronizacja ręcznych wyników przez GitHub',
+    items: [
+      'Wyniki wpisane ręcznie zapisują się do manual_results.json w repo — widoczne na każdym urządzeniu, nie tylko lokalnie w przeglądarce',
+    ],
+  },
+];
+
+function renderUpdates(){
+  const content = document.getElementById('updatesContent');
+  content.innerHTML = `
+    <div class="legend">📝 Historia zmian w serwisie — najnowsze na górze.</div>
+    <div class="card">
+      ${CHANGELOG.map(e => `
+        <div class="update-entry">
+          <div class="u-date">${e.date}</div>
+          <div class="u-body">
+            <div class="u-title">${e.title}</div>
+            <ul>${e.items.map(it=>`<li>${it}</li>`).join('')}</ul>
+          </div>
+        </div>`).join('')}
+    </div>`;
 }
 
 // ---------- Wyniki ALL (czy padł Over 1,5 P1 - niezależnie od %, gramy tylko OVER) ----------
@@ -1869,6 +2012,7 @@ function renderCombined(){
       return `<div class="day-group" id="cmb-anchor-${d}">
         ${topPanel}
         <div class="day-header"><span class="date">${dayMatches[0].date}</span><span class="n">${dayMatches.length} mecz${dayMatches.length===1?'':dayMatches.length<5?'e':'ów'} · NHL + AHL</span><div class="line"></div></div>
+        ${combinedTableHeaderHtml()}
         ${dayMatches.map(m=>combinedRowHtml(m, d)).join('')}
       </div>`;
     }).join('') || `<div style="color:var(--muted); font-size:13px; padding:24px; text-align:center;">Brak danych terminarza.</div>`}</div>`;
@@ -1886,7 +2030,7 @@ function renderCombined(){
       if(target){ target.scrollIntoView({behavior:'smooth', block:'center'}); target.click(); }
     });
   });
-  content.querySelectorAll('.fixture-row[data-cmb]').forEach(row=>{
+  content.querySelectorAll('[data-cmb]').forEach(row=>{
     row.addEventListener('click', ()=>{
       const m = leagueMatches.find(x=>x.sortDate+'|'+x.league+'|'+x.home+'|'+x.away === row.dataset.cmbKey);
       toggleFixtureDetails(row, m, m.league);
@@ -1904,29 +2048,32 @@ function renderCombined(){
   }
 }
 
+function combinedTableHeaderHtml(){
+  return `<div class="cmb-table-header">
+    <div>Liga</div><div>Gospodarz</div><div class="col-vs">vs</div><div>Gość</div><div class="col-date">Data</div><div class="col-prob">Prognoza</div>
+  </div>`;
+}
+
 function combinedRowHtml(m, dayKey, idPrefix){
   const prefix = idPrefix || 'cmb-row-';
   const detailsPrefix = idPrefix ? idPrefix.replace('-row-','-') : 'cmb-';
-  const leagueBadge = `<span style="font-family:'Space Grotesk',sans-serif; font-size:9px; font-weight:700; color:#0A0E1A; background:${leagueColor(m.league)}; border-radius:4px; padding:2px 5px; margin-right:6px; flex-shrink:0;">${m.league}</span>`;
   const combKey = `${m.sortDate}|${m.league}|${m.home}|${m.away}`;
   const rowId = prefix + cssKey(dayKey+'|'+m.league+'|'+m.home+'|'+m.away);
   const hot = findHotInfo(m);
-  const hotBadge = hot ? `<span title="H2H: ${hot.n} meczów, ${hot.pct}% Over 1,5 P1" style="flex-shrink:0; font-size:13px; margin-right:2px;">⚠️</span>` : '';
+  const hotBadge = hot ? `<span title="H2H: ${hot.n} meczów, ${hot.pct}% Over 1,5 P1" style="flex-shrink:0; font-size:11px; margin-left:3px;">⚠️</span>` : '';
   const overHit = m.played && m.over15;
   const underHit = m.played && !m.over15;
   const rowClass = overHit ? ' over-hit' : (underHit ? ' under-hit' : '');
-  const extra = m.played
-    ? `<span style="color:var(--text); font-weight:600;">${m.score || (m.isManual ? '' : '—')}</span><span><span class="dot" style="background:${m.over15?'var(--teal)':'var(--red)'}"></span>${m.p1}${overHit?' <span class="over-check">✔</span>':''}${underHit?' <span class="under-check">✕</span>':''}</span>`
-    : `<span style="opacity:.7;">${m.date.split('.').slice(0,2).join('.')}</span><span>${m.dataSource==='prev_season'?"sezon '25/26":''}</span>`;
-  return `<div class="fixture-row${rowClass}" id="${rowId}" data-cmb data-cmb-key="${combKey}" data-key="${detailsPrefix}${combKey}">
-    ${leagueBadge}${hotBadge}
-    <div class="ft-inline">
-      <span class="ft-side">${logo(m.home, m.league)}<b>${m.home}</b>${m.homePct!=null?`<span class="ft-pct" style="color:${pctColor(m.homePct)}">${m.homePct.toFixed(1)}%</span>`:''}</span>
-      <span class="ft-sep">–</span>
-      <span class="ft-side">${logo(m.away, m.league)}<b>${m.away}</b>${m.awayPct!=null?`<span class="ft-pct" style="color:${pctColor(m.awayPct)}">${m.awayPct.toFixed(1)}%</span>`:''}</span>
-    </div>
-    <div class="fixture-extra">${extra}</div>
-    ${m.prob!==undefined ? `<span class="prob-badge ${probClass(m.prob)}">${m.prob.toFixed(0)}%</span>` : '<span style="color:var(--muted); font-size:11px; width:52px; text-align:center;">brak</span>'}
+  const resultCell = m.played
+    ? `<span style="color:var(--text); font-weight:600;">${m.score || (m.isManual ? '' : '—')}</span><span style="display:flex; align-items:center; gap:3px;"><span class="dot" style="background:${m.over15?'var(--teal)':'var(--red)'}"></span>${m.p1}</span>`
+    : `<span>${m.date.split('.').slice(0,2).join('.')}</span>`;
+  return `<div class="cmb-row-grid${rowClass}" id="${rowId}" data-cmb data-cmb-key="${combKey}" data-key="${detailsPrefix}${combKey}">
+    <div class="cmb-league-badge" style="background:${leagueColor(m.league)}">${m.league}${hotBadge}</div>
+    <div class="cmb-team home">${logo(m.home, m.league)}<b title="${m.home}">${m.home}</b>${m.homePct!=null?`<span class="ft-pct" style="color:${pctColor(m.homePct)}">${m.homePct.toFixed(1)}%</span>`:''}</div>
+    <div class="cmb-vs">vs</div>
+    <div class="cmb-team away">${logo(m.away, m.league)}<b title="${m.away}">${m.away}</b>${m.awayPct!=null?`<span class="ft-pct" style="color:${pctColor(m.awayPct)}">${m.awayPct.toFixed(1)}%</span>`:''}</div>
+    <div class="cmb-result">${resultCell}</div>
+    ${m.prob!==undefined ? `<span class="prob-badge ${probClass(m.prob)}">${m.prob.toFixed(0)}%</span>` : '<span style="color:var(--muted); font-size:10.5px; text-align:center;">brak</span>'}
   </div>
   <div class="details" id="details-${cssKey(detailsPrefix+combKey)}"></div>`;
 }
