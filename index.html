@@ -60,7 +60,7 @@
   .rank{color:var(--muted); font-family:'JetBrains Mono',monospace; width:22px;}
 
   .team-cell{display:flex; align-items:center; gap:8px; font-weight:600;}
-  .logo{width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:8px; font-weight:700; font-family:'Space Grotesk',sans-serif; color:#0A0E1A; flex-shrink:0;}
+  .logo{width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; font-family:'Space Grotesk',sans-serif; color:#0A0E1A; flex-shrink:0;}
   .top-badge{display:inline-block; font-size:9px; font-weight:700; color:#1A1200; background:var(--amber); border-radius:4px; padding:1px 5px; margin-left:6px; font-family:'Space Grotesk',sans-serif;}
 
   .pct-cell{font-family:'JetBrains Mono',monospace; font-weight:700; text-align:right; padding:4px 9px; border-radius:6px; display:inline-block; min-width:48px;}
@@ -79,6 +79,12 @@
 
   .card{background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:4px; overflow:hidden;}
 
+  /* --- Ujednolicony, wyśrodkowany layout treści na wszystkich zakładkach --- */
+  .card, .fixtures-scroll, .matches-list, .top5-panel, .schedule-note, .legend, .toolbar{
+    max-width:1040px; margin-left:auto; margin-right:auto;
+  }
+  .legend{background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:10px 14px; margin-bottom:14px; font-size:12px; color:var(--muted); display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+
   /* --- Terminarz v3 --- */
   .quick-filters{display:flex; gap:6px; flex-wrap:wrap;}
   .quick-filters button{background:var(--surface); border:1px solid var(--border); color:var(--muted); font-size:12px; font-weight:600; padding:7px 13px; border-radius:8px; cursor:pointer; font-family:'Space Grotesk',sans-serif;}
@@ -94,7 +100,7 @@
   .top5-date{font-size:10px; color:var(--muted); margin-bottom:6px;}
 
   .day-group{margin-bottom:4px;}
-  .day-header{display:flex; align-items:center; gap:10px; padding:9px 14px; background:var(--surface2); border-bottom:1px solid var(--border); position:sticky; top:46px; z-index:5; cursor:pointer; user-select:none;}
+  .day-header{display:flex; align-items:center; gap:10px; padding:9px 14px; background:var(--surface2); border-bottom:1px solid var(--border); cursor:pointer; user-select:none;}
   .day-header .caret{margin-left:auto; transition:transform .15s; color:var(--muted); font-size:11px;}
   .day-group.open > .day-header .caret{transform:rotate(180deg);}
   .day-body{display:none;}
@@ -275,6 +281,10 @@
     <div id="hotContent"></div>
   </div>
 
+  <div id="updates" class="panel">
+    <div id="updatesContent"></div>
+  </div>
+
   <footer>
     <div style="font-style:italic; color:var(--text); opacity:.75; margin-bottom:6px;">„Statystyka nie przewiduje przyszłości. Zwiększa jedynie szanse na dobrą decyzję."</div>
     <div>Dane: 24score.com · próg over 1,5 gola w 1. tercji · prognoza to model statystyczny, nie porada bukmacherska</div>
@@ -394,7 +404,7 @@ function allLeagueMenuItems(){
 }
 
 function renderHeader(){
-  const SPECIAL_TABS = ['__PLAYNOW__', '__WYNIKIALL__', '__HOT__'];
+  const SPECIAL_TABS = ['__PLAYNOW__', '__WYNIKIALL__', '__HOT__', '__UPDATES__'];
   const isLeagueView = !SPECIAL_TABS.includes(currentLeague);
   const currentItem = isLeagueView ? allLeagueMenuItems().find(it=>it.key===currentLeague) : null;
   const krajLabel = currentItem ? `🌍 ${currentItem.country}` : '🌍 Wybierz ligę';
@@ -403,6 +413,7 @@ function renderHeader(){
     <button class="${currentLeague==='__PLAYNOW__'?'active':''}" data-league="__PLAYNOW__">🔥 TERMINARZ WSZYSTKIEGO 26/27</button>
     <button class="${currentLeague==='__HOT__'?'active':''}" data-league="__HOT__">🌶️ HOT</button>
     <button class="${currentLeague==='__WYNIKIALL__'?'active':''}" data-league="__WYNIKIALL__">📊 WYNIKI ALL</button>
+    <button class="${currentLeague==='__UPDATES__'?'active':''}" data-league="__UPDATES__">🕘 UPDATES</button>
     <button class="${isLeagueView?'active':''}" data-league="__KRAJ__">${krajLabel} ${countryPickerOpen?'▴':'▾'}</button>`;
 
   document.querySelectorAll('#leagueSwitch button').forEach(b=>{
@@ -482,6 +493,16 @@ function renderHeader(){
     document.querySelector('.topbar').style.display = 'none';
     document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
     document.getElementById('hot').classList.add('active');
+    document.getElementById('metaRight').innerHTML = '';
+    return;
+  }
+
+  if(currentLeague === '__UPDATES__'){
+    document.getElementById('subtitle').textContent = 'Historia zmian w PUCKLINE';
+    document.getElementById('seasonSwitch').style.display = 'none';
+    document.querySelector('.topbar').style.display = 'none';
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    document.getElementById('updates').classList.add('active');
     document.getElementById('metaRight').innerHTML = '';
     return;
   }
@@ -790,41 +811,9 @@ function populateFixtures(isInitial){
     return;
   }
 
-  // Mecze "w trakcie" - data dzisiejsza lub wcześniejsza, ale jeszcze bez wyniku
-  // (scraper jeszcze nie zaktualizował / czeka na ręczny wpis) - te mają swoją
-  // własną zwijaną belkę na samej górze, żeby nie gubiły się w zwykłym terminarzu.
-  const todayKeyFx = todayStr();
-  const isPendingMatch = m => !m.played && m.sortDate <= todayKeyFx;
-  const pendingMatches = matches.filter(isPendingMatch);
-  const scheduledMatches = matches.filter(m=>!isPendingMatch(m));
-
-  const pendingGroupsFx = {};
-  pendingMatches.forEach(m=>{ (pendingGroupsFx[m.sortDate] = pendingGroupsFx[m.sortDate] || []).push(m); });
-  const pendingDateKeysFx = Object.keys(pendingGroupsFx).sort();
-  const pendingSectionHtml = pendingMatches.length ? `<div class="month-group open" id="pending-wrapper-fx">
-    <div class="month-header" data-toggle="month" style="border-left:3px solid var(--yellow);">
-      <span class="name" style="color:var(--yellow);">⏳ W TRAKCIE</span>
-      <span class="n">${pendingMatches.length} mecz${pendingMatches.length===1?'':pendingMatches.length<5?'e':'ów'} bez wyniku · ${pendingDateKeysFx.length} dni</span>
-      <span class="caret">▾</span>
-    </div>
-    <div class="month-body">
-      ${pendingDateKeysFx.map(d=>{
-        const dayMatches = pendingGroupsFx[d];
-        return `<div class="day-group open" id="pending-anchor-fx-${d}">
-          <div class="day-header" data-toggle="day">
-            <span class="date">${dayMatches[0].date}</span>
-            <span class="n">${dayMatches.length} mecz${dayMatches.length===1?'':dayMatches.length<5?'e':'ów'}</span>
-            <span class="caret">▾</span>
-          </div>
-          <div class="day-body">${dayMatches.map(m=>fixtureRowHtml(m)).join('')}</div>
-        </div>`;
-      }).join('')}
-    </div>
-  </div>` : '';
-
-  // grupowanie: miesiąc -> dzień -> mecze (bez tych "w trakcie" - te są wyżej osobno)
+  // grupowanie: miesiąc -> dzień -> mecze
   const monthGroups = {};
-  scheduledMatches.forEach(m=>{
+  matches.forEach(m=>{
     const monthKey = m.sortDate.slice(0,7); // YYYY-MM
     monthGroups[monthKey] = monthGroups[monthKey] || {};
     (monthGroups[monthKey][m.sortDate] = monthGroups[monthKey][m.sortDate] || []).push(m);
@@ -852,7 +841,7 @@ function populateFixtures(isInitial){
         <button id="collapseAllBtn">⊟ Zwiń wszystko</button>
       </div>
     </div>
-    <div class="fixtures-scroll" id="fixturesScroll">${pendingSectionHtml}${monthKeys.map(mk=>{
+    <div class="fixtures-scroll" id="fixturesScroll">${monthKeys.map(mk=>{
     const days = monthGroups[mk];
     const dayKeys = Object.keys(days).sort();
     const [y, mo] = mk.split('-');
@@ -900,7 +889,7 @@ function populateFixtures(isInitial){
         }).join('')}
       </div>
     </div>`;
-  }).join('') || (pendingMatches.length ? '' : `<div style="color:var(--muted); font-size:13px; padding:24px; text-align:center;">Brak meczów w tym oknie czasowym. ${quickFilter!=='all'?'Spróbuj filtra <b style="color:var(--text)">Cały terminarz</b>.':''}</div>`)}</div>`;
+  }).join('') || `<div style="color:var(--muted); font-size:13px; padding:24px; text-align:center;">Brak meczów w tym oknie czasowym. ${quickFilter!=='all'?'Spróbuj filtra <b style="color:var(--text)">Cały terminarz</b>.':''}</div>`}</div>`;
 
   attachRowHandlers(listEl, matches);
   trackScrollPosition(document.getElementById('fixturesScroll'), 'anchor-');
@@ -922,7 +911,7 @@ function populateFixtures(isInitial){
     listEl.querySelectorAll('.month-group, .day-group').forEach(g=>g.classList.remove('open'));
   });
 
-  if(isInitial && monthKeys.length && !pendingMatches.length){
+  if(isInitial && monthKeys.length){
     const allDates = monthKeys.flatMap(mk=>Object.keys(monthGroups[mk]));
     const targetDate = pickScrollTarget(allDates.sort());
     const targetMonth = targetDate ? targetDate.slice(0,7) : null;
@@ -1113,6 +1102,10 @@ function renderAll(){
   }
   if(currentLeague === '__HOT__'){
     renderHot();
+    return;
+  }
+  if(currentLeague === '__UPDATES__'){
+    renderUpdates();
     return;
   }
   if(currentLeague === 'COMBINED'){
@@ -1434,14 +1427,10 @@ function renderWynikiAll(){
     </div>`;
 
   if(isCurrent){
-    const todayKey = todayStr();
-    const isPendingRow = m => !m.played && m.sortDate <= todayKey;
-    const pendingRows = allRows.filter(isPendingRow).sort((a,b)=>a.sortDate.localeCompare(b.sortDate));
-    const restRows = allRows.filter(m=>!isPendingRow(m));
-
     const groups = {};
-    restRows.forEach(m=>{ (groups[m.sortDate] = groups[m.sortDate] || []).push(m); });
+    allRows.forEach(m=>{ (groups[m.sortDate] = groups[m.sortDate] || []).push(m); });
     const allDates = Object.keys(groups).sort((a,b)=>a.localeCompare(b)); // chronologicznie
+    const todayKey = todayStr();
     const pastDates = allDates.filter(d=>d<todayKey);
     const upcomingDates = allDates.filter(d=>d>=todayKey);
     const openTarget = upcomingDates.includes(todayKey) ? todayKey : upcomingDates[0];
@@ -1466,29 +1455,6 @@ function renderWynikiAll(){
       </div>`;
     };
 
-    const pendingGroups = {};
-    pendingRows.forEach(m=>{ (pendingGroups[m.sortDate] = pendingGroups[m.sortDate] || []).push(m); });
-    const pendingDateKeys = Object.keys(pendingGroups).sort((a,b)=>a.localeCompare(b));
-    const pendingSection = pendingRows.length ? `
-      <div class="month-group open" id="wa-pending-wrapper">
-        <div class="month-header" data-toggle="pending" style="border-left:3px solid var(--yellow);">
-          <span class="name" style="color:var(--yellow);">⏳ W TRAKCIE</span>
-          <span class="n">${pendingRows.length} mecz${pendingRows.length===1?'':pendingRows.length<5?'e':'ów'} do wpisania · ${pendingDateKeys.length} dni</span>
-          <span class="caret">▾</span>
-        </div>
-        <div class="month-body">${pendingDateKeys.map(d=>{
-          const dayMatches = pendingGroups[d];
-          return `<div class="day-group open" id="wa-pending-anchor-${d}">
-            <div class="day-header" data-toggle="day">
-              <span class="date">${dayMatches[0].date}</span>
-              <span class="n">${dayMatches.length} mecz${dayMatches.length===1?'':dayMatches.length<5?'e':'ów'} do wpisania</span>
-              <span class="caret">▾</span>
-            </div>
-            <div class="day-body">${dayMatches.map((m,i)=>wynikiRowHtml(m,i)).join('')}</div>
-          </div>`;
-        }).join('')}</div>
-      </div>` : '';
-
     const pastOverTotal = pastDates.reduce((s,d)=>s+groups[d].filter(m=>m.over15).length,0);
     const pastPlayedTotal = pastDates.reduce((s,d)=>s+groups[d].filter(m=>m.played).length,0);
     const pastSection = pastDates.length ? `
@@ -1510,13 +1476,9 @@ function renderWynikiAll(){
           <button id="saveAllBtn">💾 Zapisz wszystko wypełnione</button>
         </div>
       </div>
-      ${pendingSection}
       ${pastSection}
       <div class="fixtures-scroll">${upcomingDates.length ? upcomingDates.map(d=>dayGroupHtml(d)).join('') : `<div style="color:var(--muted); font-size:13px; padding:24px; text-align:center;">Brak nadchodzących meczów w sezonie 2026/27.</div>`}</div>`;
 
-    content.querySelector('.month-header[data-toggle="pending"]')?.addEventListener('click', ()=>{
-      document.getElementById('wa-pending-wrapper').classList.toggle('open');
-    });
     content.querySelector('.month-header[data-toggle="past"]')?.addEventListener('click', ()=>{
       document.getElementById('wa-past-wrapper').classList.toggle('open');
     });
@@ -1818,6 +1780,45 @@ function renderHot(){
   });
 }
 
+
+// ---------- Updates / changelog ----------
+// Lista utrzymywana ręcznie w kodzie — nowy wpis dochodzi tu przy każdej
+// zmianie w aplikacji (nie da się tego wykryć automatycznie z samego JS
+// działającego w przeglądarce, więc to "automatyczny" changelog w tym
+// sensie, że towarzyszy każdej zmianie kodu, a nie że strona sama go pisze).
+const CHANGELOG = [
+  {
+    date: '26.09.2026',
+    items: [
+      'Znacznie powiększone logo drużyn (22px → 36px) we wszystkich zakładkach.',
+      'Ujednolicony, wyśrodkowany layout treści (tabele, listy, karty) na wszystkich zakładkach — Ranking, Terminarz, H2H, HOT, Wyniki ALL.',
+      'Dodano zakładkę Updates z historią zmian.',
+      'Naprawiono "skaczące" górne menu przy przełączaniu na zakładkę HOT (usunięto sztywne pozycjonowanie nagłówków dni, które powodowało przesunięcie).',
+    ],
+  },
+];
+
+function renderUpdates(){
+  const content = document.getElementById('updatesContent');
+  content.innerHTML = `
+    <div class="legend">🕘 Historia zmian w PUCKLINE — nowy wpis pojawia się tu przy każdej zmianie w aplikacji.</div>
+    <div class="fixtures-scroll">${CHANGELOG.map((entry,i)=>`
+      <div class="day-group${i===0?' open':''}">
+        <div class="day-header" data-toggle="day">
+          <span class="date">${entry.date}</span>
+          <span class="n">${entry.items.length} zmian${entry.items.length===1?'a':''}</span>
+          <span class="caret">▾</span>
+        </div>
+        <div class="day-body">
+          <ul style="list-style:none; padding:10px 16px 14px; margin:0; display:flex; flex-direction:column; gap:8px;">
+            ${entry.items.map(txt=>`<li style="font-size:12.5px; color:var(--text); display:flex; gap:8px; align-items:flex-start;"><span style="color:var(--amber); flex-shrink:0;">●</span><span>${txt}</span></li>`).join('')}
+          </ul>
+        </div>
+      </div>`).join('')}</div>`;
+  content.querySelectorAll('.day-header[data-toggle="day"]').forEach(h=>{
+    h.addEventListener('click', ()=>{ h.closest('.day-group').classList.toggle('open'); });
+  });
+}
 
 let h2hAllSeasons = false;
 
