@@ -65,7 +65,11 @@ CURRENT_WEIGHT_MAX = 0.9
 LEAGUES = {
     "NHL":         {"path": "usa/nhl",                       "label": None},
     "AHL":         {"path": "usa/ahl",                       "label": None},
+    "AUSTRIA":     {"path": "austria/erste_bank_eishockey_liga", "label": "Austria Erste Bank Eishockey Liga"},
+    "AUSTRIA":     {"path": "austria/erste_bank_eishockey_liga", "label": "Austria Erste Bank Eishockey Liga"},
     "CZECH":       {"path": "czech_republic/extraliga",      "label": "Czech Republic Extraliga"},
+    "CZECH_1LIGA": {"path": "czech_republic/1st_liga",        "label": "Czech Republic 1st Liga"},
+    "CZECH_1ST_LIGA": {"path": "czech_republic/1st_liga",    "label": "Czech Republic 1st Liga"},
     "DENMARK":     {"path": "denmark/al-bank_ligaen",        "label": "Denmark AL-Bank Ligaen"},
     "FRANCE":      {"path": "france/ligue_magnus",           "label": "France Ligue Magnus"},
     "FINLAND":     {"path": "finland/sm-liiga",               "label": "Finland SM-Liiga"},

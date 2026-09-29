@@ -1343,6 +1343,17 @@ function renderPlayNow(){
 // ---------- Updates / changelog ----------
 const CHANGELOG = [
   {
+    date: '27.09.2026',
+    title: 'NHL Presezon 2026 dograny + dwie nowe ligi: Austria i Czechy 1st Liga',
+    items: [
+      'NHL: dograno 63 rozegrane mecze presezonu (20-27.09) do istniejącego terminarza presezonu — nic nie zastąpione, dane się uzupełniły',
+      'Nowa liga: Austria Erste Bank Eishockey Liga (sezony 23/24-26/27)',
+      'Nowa liga: Czechy 1st Liga, druga liga czeska obok Extraligi (sezony 23/24-26/27)',
+      'Sezon 26/27 obu nowych lig przeliczony chronologicznie — rozegrane mecze mają zamrożoną prognozę tak, jakby scraper śledził je od początku',
+      'Wagi i formuła modelu NIE zostały ruszone w tej zmianie — korekta zaplanowana osobno',
+    ],
+  },
+  {
     date: '26.09.2026',
     title: 'Większe logo, wyśrodkowana i ujednolicona tabela, naprawiony skok menu na HOT',
     items: [
@@ -2452,7 +2463,7 @@ document.getElementById('syncModalSave').addEventListener('click', async ()=>{
 
 function showLeagueDiagnostics(){
   const keys = Object.keys(DATA.leagues || {});
-  const expected = 14;
+  const expected = 16;
   if(keys.length >= expected) return; // wszystko OK, nie zaśmiecamy widoku
   const el = document.getElementById("bootError");
   el.style.display = "flex";
