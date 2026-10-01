@@ -256,6 +256,9 @@
   .cmb-row-grid .cmb-team.away{flex-direction:row-reverse; text-align:right;}
   .cmb-row-grid .cmb-team b{overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:600; font-size:12.5px; flex-shrink:1;}
   .cmb-row-grid .cmb-team .ft-pct{font-family:'JetBrains Mono',monospace; font-weight:700; font-size:11px; flex-shrink:0;}
+  .p1-badge{font-family:'JetBrains Mono',monospace; font-weight:800; font-size:12.5px; padding:3px 7px; border-radius:6px; display:inline-block;}
+  .p1-badge.p1-over{background:var(--teal-dim); color:var(--teal);}
+  .p1-badge.p1-under{background:var(--red-dim); color:var(--red);}
   .cmb-row-grid .cmb-vs{color:var(--muted); font-size:11px; text-align:center; font-weight:700; font-family:'Space Grotesk',sans-serif;}
   .cmb-row-grid .cmb-date{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); text-align:center;}
   .cmb-row-grid .cmb-result{font-family:'JetBrains Mono',monospace; font-size:11px; text-align:center; display:flex; flex-direction:column; gap:2px; align-items:center;}
@@ -494,7 +497,7 @@ function renderHeader(){
   }
 
   document.getElementById('leagueSwitch').innerHTML = `
-    <button class="${currentLeague==='__PLAYNOW__'?'active':''}" data-league="__PLAYNOW__">🔥 TERMINARZ WSZYSTKIEGO 26/27</button>
+    <button class="${currentLeague==='__PLAYNOW__'?'active':''}" data-league="__PLAYNOW__">🔥 TERMINARZ 26/27</button>
     <button class="${currentLeague==='__HOT__'?'active':''}" data-league="__HOT__">🌶️ HOT</button>
     <button class="${currentLeague==='__WYNIKIALL__'?'active':''}" data-league="__WYNIKIALL__">📊 WYNIKI ALL</button>
     <button class="${currentLeague==='__UPDATES__'?'active':''}" data-league="__UPDATES__">📝 UPDATES</button>
@@ -850,39 +853,7 @@ function populateFixtures(isInitial){
   document.getElementById('matchCount').textContent = matches.length + ' meczów';
 
   const withProb = matches.filter(m=>m.prob!==undefined);
-
-  // TOP wg prognozy - ZAWSZE tylko z najbliższych 7 dni (nie z całego przefiltrowanego terminarza),
-  // żeby nie podpowiadać "top" meczów z odległej przyszłości gdy przeglądasz cały sezon.
-  const nearTermPool = matches.filter(m=>m.prob!==undefined && within7days(m.sortDate));
-  const top5 = [...nearTermPool].sort((a,b)=>b.prob-a.prob).slice(0,5);
-  const top5Box = document.getElementById('top5Container');
-  if(top5.length>=3){
-    top5Box.innerHTML = `<div class="top5-panel">
-      <div class="top5-title">🔥 TOP ${top5.length} najbliższych meczów według modelu</div>
-      <div class="top5-grid">
-        ${top5.map((m,i)=>`
-          <div class="top5-item" data-jump="${m.date}|${m.home}|${m.away}">
-            <div class="top5-rank">#${i+1}</div>
-            <div class="top5-teams">${teamShort(m.home)}<br><span style="color:var(--muted); font-weight:400;">–</span> ${teamShort(m.away)}</div>
-            <div class="top5-date">${m.date}</div>
-            <span class="prob-badge ${probClass(m.prob)}">${m.prob.toFixed(0)}%</span>
-          </div>`).join('')}
-      </div>
-    </div>`;
-    top5Box.querySelectorAll('.top5-item').forEach(el=>{
-      el.addEventListener('click', ()=>{
-        const [date,home,away] = el.dataset.jump.split('|');
-        const target = document.querySelector(`.fixture-row[data-key="${date}|${home}|${away}"]`);
-        if(target){
-          const dayGroup = target.closest('.day-group'); if(dayGroup) dayGroup.classList.add('open');
-          const monthGroup = target.closest('.month-group'); if(monthGroup) monthGroup.classList.add('open');
-          target.scrollIntoView({behavior:'smooth', block:'center'}); target.click();
-        }
-      });
-    });
-  } else {
-    top5Box.innerHTML = '';
-  }
+  document.getElementById('top5Container').innerHTML = '';
 
   const dateStripBox = document.getElementById('dateStripContainer');
   const listEl = document.getElementById('fixturesList');
@@ -890,7 +861,7 @@ function populateFixtures(isInitial){
   if(quickFilter==='top'){
     dateStripBox.innerHTML = '';
     const sorted = [...withProb].sort((a,b)=>b.prob-a.prob);
-    listEl.innerHTML = `<div class="fixtures-scroll">${sorted.map(m=>fixtureRowHtml(m)).join('')}</div>`;
+    listEl.innerHTML = `<div class="fixtures-scroll">${fixtureTableHeaderHtml()}${sorted.map(m=>fixtureRowHtml(m)).join('')}</div>`;
     attachRowHandlers(listEl, sorted);
     return;
   }
@@ -968,6 +939,7 @@ function populateFixtures(isInitial){
               <span class="caret">▾</span>
             </div>
             <div class="day-body">
+              ${fixtureTableHeaderHtml()}
               ${dayMatches.map(m=>fixtureRowHtml(m)).join('')}
               ${summary}
             </div>
@@ -1034,30 +1006,35 @@ function leagueShortLabel(lg){
   return meta ? splitCountryLeague(meta.label).country : lg;
 }
 
+function fixtureTableHeaderHtml(){
+  return `<div class="cmb-table-header" style="grid-template-columns:22px 1fr 22px 1fr 56px 52px;">
+    <div></div><div>Gospodarz</div><div class="col-vs">vs</div><div>Gość</div><div class="col-date">Wynik/Data</div><div class="col-prob">Prognoza</div>
+  </div>`;
+}
+
 function fixtureRowHtml(m){
   const key = `${m.date}|${m.home}|${m.away}`;
   const overHit = m.played && m.over15;
   const underHit = m.played && !m.over15;
   const rowClass = overHit ? ' over-hit' : (underHit ? ' under-hit' : '');
   const extra = m.played
-    ? `<span style="color:var(--text); font-weight:600;">${m.score || (m.isManual ? '' : '—')}</span><span><span class="dot" style="background:${m.over15?'var(--teal)':'var(--red)'}"></span>${m.p1}${overHit?' <span class="over-check">✔</span>':''}${underHit?' <span class="under-check">✕</span>':''}</span>`
+    ? `<span class="p1-badge ${m.over15?'p1-over':'p1-under'}">${m.p1}</span><span style="font-size:10px; color:var(--muted);">${m.score || (m.isManual ? '(ręcznie)' : '—')}</span>`
     : `<span style="opacity:.7;">${m.date.split('.').slice(0,2).join('.')}</span><span>${m.dataSource==='prev_season'?"sezon '25/26":''}</span>`;
-  return `<div class="fixture-row${rowClass}" data-key="${key}">
-    ${findHotInfo({...m, league: currentLeague}) ? `<span title="Silna historia H2H Over 1,5 P1" style="flex-shrink:0; font-size:13px;">⚠️</span>` : ''}
-    <div class="ft-inline">
-      <span class="ft-side">${logo(m.home)}<b>${m.home}</b>${m.homePct!=null?`<span class="ft-pct" style="color:${pctColor(m.homePct)}">${m.homePct.toFixed(1)}%</span>`:''}</span>
-      <span class="ft-sep">–</span>
-      <span class="ft-side">${logo(m.away)}<b>${m.away}</b>${m.awayPct!=null?`<span class="ft-pct" style="color:${pctColor(m.awayPct)}">${m.awayPct.toFixed(1)}%</span>`:''}</span>
-    </div>
-    <div class="fixture-extra">${extra}</div>
-    ${m.prob!==undefined ? `<span class="prob-badge ${probClass(m.prob)}">${m.prob.toFixed(0)}%</span>` : '<span style="color:var(--muted); font-size:11px; width:52px; text-align:center;">brak</span>'}
+  const hotBadge = findHotInfo({...m, league: currentLeague}) ? `<span title="Silna historia H2H Over 1,5 P1" style="font-size:13px;">⚠️</span>` : '';
+  return `<div class="cmb-row-grid${rowClass}" style="grid-template-columns:22px 1fr 22px 1fr 56px 52px;" data-key="${key}">
+    <div>${hotBadge}</div>
+    <div class="cmb-team home">${logo(m.home)}<b>${m.home}</b>${m.homePct!=null?`<span class="ft-pct" style="color:${pctColor(m.homePct)}">${m.homePct.toFixed(1)}%</span>`:''}</div>
+    <div class="cmb-vs">vs</div>
+    <div class="cmb-team away">${logo(m.away)}<b>${m.away}</b>${m.awayPct!=null?`<span class="ft-pct" style="color:${pctColor(m.awayPct)}">${m.awayPct.toFixed(1)}%</span>`:''}</div>
+    <div class="cmb-result">${extra}</div>
+    ${m.prob!==undefined ? `<span class="prob-badge ${probClass(m.prob)}">${m.prob.toFixed(0)}%</span>` : '<span style="color:var(--muted); font-size:10.5px; text-align:center;">brak</span>'}
   </div>
   <div class="details" id="details-${cssKey(key)}"></div>`;
 }
 function cssKey(k){ return k.replace(/[^a-zA-Z0-9]/g,'_'); }
 
 function attachRowHandlers(container, matches){
-  container.querySelectorAll('.fixture-row').forEach(row=>{
+  container.querySelectorAll('.cmb-row-grid').forEach(row=>{
     row.addEventListener('click', ()=>{
       const key = row.dataset.key;
       const [date,home,away] = key.split('|');
@@ -1811,7 +1788,7 @@ function wynikiRowHtml(m, i){
     </div>
     ${teamsLine}
     <div style="font-size:10.5px; color:var(--muted); display:flex; align-items:center; gap:6px;">
-      <span class="dot" style="background:${m.over15?'var(--teal)':'var(--red)'}"></span>P1: ${m.p1}
+      P1: <span class="p1-badge ${m.over15?'p1-over':'p1-under'}">${m.p1}</span>
       ${m.isManual?'<a href="#" data-delete-manual style="color:var(--red); margin-left:auto; text-decoration:underline;">usuń wpis</a>':''}
     </div>
   </div>
@@ -2088,7 +2065,7 @@ function combinedRowHtml(m, dayKey, idPrefix){
   const underHit = m.played && !m.over15;
   const rowClass = overHit ? ' over-hit' : (underHit ? ' under-hit' : '');
   const resultCell = m.played
-    ? `<span style="color:var(--text); font-weight:600;">${m.score || (m.isManual ? '' : '—')}</span><span style="display:flex; align-items:center; gap:3px;"><span class="dot" style="background:${m.over15?'var(--teal)':'var(--red)'}"></span>${m.p1}</span>`
+    ? `<span class="p1-badge ${m.over15?'p1-over':'p1-under'}">${m.p1}</span><span style="font-size:10px; color:var(--muted);">${m.score || (m.isManual ? '(ręcznie)' : '—')}</span>`
     : `<span>${m.date.split('.').slice(0,2).join('.')}</span>`;
   return `<div class="cmb-row-grid${rowClass}" id="${rowId}" data-cmb data-cmb-key="${combKey}" data-key="${detailsPrefix}${combKey}">
     <div class="cmb-league-badge" style="background:${leagueColor(m.league)}">${m.league}${hotBadge}</div>
