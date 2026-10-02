@@ -424,11 +424,12 @@ function logo(team, league){
 }
 
 function probClass(p){
-  if(p>=65) return 'prob-green';
-  if(p>=60) return 'prob-green2';
-  if(p>=55) return 'prob-yellow';
-  if(p>=50) return 'prob-orange';
-  if(p>=45) return 'prob-orange2';
+  // progi dobrane do rozkładu prognozy po kalibracji modelu v2 (zakres ok. 40-65%)
+  if(p>=58) return 'prob-green';
+  if(p>=56) return 'prob-green2';
+  if(p>=54) return 'prob-yellow';
+  if(p>=51) return 'prob-orange';
+  if(p>=48) return 'prob-orange2';
   return 'prob-red';
 }
 function pctColor(pct){
@@ -1059,9 +1060,9 @@ function getH2HHistoryAcrossCompleted(a, b, league){
 }
 
 function verdictFor(p){
-  if(p>=65) return {emoji:'🟢', text:'Wysoka szansa'};
-  if(p>=55) return {emoji:'🟡', text:'Umiarkowana szansa'};
-  if(p>=50) return {emoji:'🟠', text:'Lekka przewaga overu'};
+  if(p>=58) return {emoji:'🟢', text:'Wysoka szansa (górne ok. 5% prognoz)'};
+  if(p>=54) return {emoji:'🟡', text:'Podwyższona szansa'};
+  if(p>=51) return {emoji:'🟠', text:'Lekka przewaga overu'};
   return {emoji:'🔴', text:'Niska szansa'};
 }
 
@@ -1088,7 +1089,7 @@ function toggleFixtureDetails(row, m, league){
     ['Overall gościa', c.awayOverall],
     ['Away gościa', c.awayRole],
   ];
-  if(c.h2h !== null && c.h2h !== undefined) rows.push(['H2H', c.h2h]);
+  if(c.h2h !== null && c.h2h !== undefined) rows.push(['H2H (informacyjnie)', c.h2h]);
 
   const history = !m.played ? getH2HHistoryAcrossCompleted(m.home, m.away, lg) : [];
   let historyBlock = '';
@@ -1139,6 +1140,8 @@ function toggleFixtureDetails(row, m, league){
       ${rows.map(([label,val])=>`
         <div class="details-row"><span>${label}</span><span>${val!==null&&val!==undefined?val.toFixed(1)+'%':'—'}</span></div>
       `).join('')}
+      ${c.expGoals!=null?`<div class="details-row"><span>Oczekiwane gole w P1 (obie drużyny)</span><span>${c.expGoals.toFixed(2)}</span></div>`:''}
+      ${c.rawProb!=null?`<div class="details-row"><span>Prognoza przed kalibracją</span><span>${c.rawProb.toFixed(1)}%</span></div>`:''}
       <div style="display:flex; align-items:center; gap:8px; margin-top:12px; padding-top:10px; border-top:1px solid var(--border);">
         <span style="font-size:10.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em;">Ocena modelu</span>
         <span style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13px;">${v.emoji} ${v.text}</span>
@@ -1234,10 +1237,10 @@ function renderPlayNow(){
 
   const dayGroupHtml = (d) => {
     const dayMatches = [...groups[d]].sort((a,b)=>(b.prob??-1)-(a.prob??-1));
-    const strongCount = dayMatches.filter(m=>m.prob!==undefined && m.prob>=65).length;
+    const strongCount = dayMatches.filter(m=>m.prob!==undefined && m.prob>=56).length;
     const euroMatches = dayMatches.filter(m=>!NA_LEAGUES.includes(m.league));
     const naMatches = dayMatches.filter(m=>NA_LEAGUES.includes(m.league));
-    const intensityTag = strongCount>0 ? ` · <span style="color:var(--teal)">🔥 ${strongCount} mocnych typów (≥65%)</span>` : '';
+    const intensityTag = strongCount>0 ? ` · <span style="color:var(--teal)">🔥 ${strongCount} mocnych typów (≥56%)</span>` : '';
     const playingLeagues = [...new Set(dayMatches.map(m=>leagueShortLabel(m.league)))].join(', ');
     const section = (title, list) => list.length ? `
       <div style="padding:8px 14px 2px; font-family:'Space Grotesk',sans-serif; font-size:10.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em;">${title}</div>
@@ -1275,7 +1278,7 @@ function renderPlayNow(){
       <span><span class="cmb-league-badge" style="background:var(--amber); padding:2px 6px;">LIGA</span> = kolor ligi (identyfikacja)</span>
       <span>🏒 avatar drużyny (neutralny)</span>
       <span><span class="ft-pct" style="color:var(--teal)">62.8%</span> = procent drużyny (ten sam kolor co wynik)</span>
-      <span><span class="prob-badge prob-green" style="padding:2px 6px; width:auto;">65%</span> = wynik prognozy (im wyżej, tym większa szansa na Over)</span>
+      <span><span class="prob-badge prob-green" style="padding:2px 6px; width:auto;">58%</span> = wynik prognozy (im wyżej, tym większa szansa na Over)</span>
     </div>`;
 
   content.querySelectorAll('#playNowLeagueChips button').forEach(b=>{
@@ -1319,6 +1322,18 @@ function renderPlayNow(){
 
 // ---------- Updates / changelog ----------
 const CHANGELOG = [
+  {
+    date: '02.10.2026',
+    title: 'Nowy model prognozy v2: Over + tempo goli, skalibrowany',
+    items: [
+      'Prognoza = 50% wskaźnik Over (Overall / Dom-Wyjazd / forma EWMA) + 50% model tempa goli (oczekiwane gole w P1 -> Poisson)',
+      'H2H wyłączone z prognozy meczu (w backteście lekko szkodziło) — zostaje w zakładce HOT i w historii pary',
+      'Kalibracja: stary model był zbyt pewny siebie (65% realnie ok. 60%) — teraz % są bliższe rzeczywistości, zakres ok. 40-65%',
+      'Nowe progi kolorów: zielony >=58%, jasnozielony >=56%, żółty >=54%, pomarańczowy >=51%',
+      'Zwalidowane walk-forward na ok. 12 tys. meczów z sezonów 24/25 i 25/26; mecze już rozegrane zachowują starą, zamrożoną prognozę',
+      'W szczegółach meczu: oczekiwane gole w P1 oraz prognoza przed kalibracją',
+    ],
+  },
   {
     date: '27.09.2026',
     title: 'NHL Presezon 2026 dograny + dwie nowe ligi: Austria i Czechy 1st Liga',
@@ -1550,26 +1565,22 @@ function completedSeasonKeysForLeague(lg){
   return Object.keys(DATA.leagues[lg].seasons).filter(k=>DATA.leagues[lg].seasons[k].status==='completed');
 }
 
-function historicalBlendForTeam(lg, team, statKey){
-  const completed = completedSeasonKeysForLeague(lg).slice().sort().reverse(); // najnowszy najpierw
-  let totalW = 0, acc = 0, found = false;
-  completed.forEach((sk,i)=>{
-    const season = DATA.leagues[lg].seasons[sk];
-    const row = (season.teams||[]).find(t=>t.name===team);
-    if(!row) return;
-    let val;
-    if(statKey==='recent5Pct'){
-      const trend = row.trend5 || [];
-      val = trend.length ? (trend.filter(x=>x==='O').length/trend.length*100) : row.overallPct;
-    } else {
-      val = row[statKey];
-    }
-    if(val===undefined || val===null) return;
-    const w = Math.pow(HIST_DECAY, i);
-    totalW += w; acc += w*val; found = true;
-  });
-  return found ? acc/totalW : null;
+// ===== MODEL v2 (02.10.2026) — identyczny z scraper.py =====
+// ensemble: wskaźnik Over (0,4 Overall + 0,4 Rola + 0,2 Forma-EWMA, bez H2H)
+//         + tempo goli (Poisson z lambdy), 50/50, potem kalibracja Platta.
+const EWMA_HALF_LIFE = 5;
+const CAL_INTERCEPT = 0.014432;
+const CAL_SLOPE = 0.607177;
+let HIST_INDEX_CACHE = {};
+
+function ewmaOf(vals, hl){
+  hl = hl || EWMA_HALF_LIFE;
+  if(!vals.length) return null;
+  const n = vals.length; let num = 0, den = 0;
+  vals.forEach((v,i)=>{ const w = Math.pow(0.5, (n-1-i)/hl); num += w*v; den += w; });
+  return num/den;
 }
+function meanOf(vals){ return vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : null; }
 
 function blendedStat(currentVal, n, histVal){
   if(histVal===null || histVal===undefined) return currentVal;
@@ -1578,39 +1589,89 @@ function blendedStat(currentVal, n, histVal){
   return cw*currentVal + (1-cw)*histVal;
 }
 
+// Statystyki bieżącego sezonu per drużyna: n, over (0-1), tempo (śr. goli łącznie w P1),
+// to samo osobno dla roli H/A, oraz EWMA formy (over i tempo).
 function aggregateCurrentSeasonStats(playedMatches){
   const per = {};
-  const ensure = name=>{ if(!per[name]) per[name] = {matches:0, overs:0, homeMatches:0, homeOvers:0, awayMatches:0, awayOvers:0, chrono:[]}; return per[name]; };
   playedMatches.slice().sort((a,b)=>a.sortDate.localeCompare(b.sortDate)).forEach(m=>{
-    const over = !!m.over15;
-    const h = ensure(m.home), a = ensure(m.away);
-    h.matches++; h.homeMatches++; a.matches++; a.awayMatches++;
-    if(over){ h.overs++; h.homeOvers++; a.overs++; a.awayOvers++; }
-    h.chrono.push(over); a.chrono.push(over);
+    if(!m.p1) return;
+    const [hg,ag] = m.p1.split(':').map(Number);
+    const tot = hg+ag, over = tot>=2 ? 1 : 0;
+    (per[m.home] = per[m.home] || []).push(['H', over, tot]);
+    (per[m.away] = per[m.away] || []).push(['A', over, tot]);
   });
   const out = {};
-  Object.entries(per).forEach(([name,s])=>{
-    const last5 = s.chrono.slice(-5);
+  Object.entries(per).forEach(([name, rows])=>{
+    const roleStats = role => {
+      const rr = rows.filter(r=>r[0]===role);
+      return {over: meanOf(rr.map(r=>r[1])), tempo: meanOf(rr.map(r=>r[2]))};
+    };
     out[name] = {
-      n: s.matches,
-      overallPct: s.matches ? s.overs/s.matches*100 : null,
-      homePct: s.homeMatches ? s.homeOvers/s.homeMatches*100 : null,
-      awayPct: s.awayMatches ? s.awayOvers/s.awayMatches*100 : null,
-      recent5Pct: last5.length ? last5.filter(Boolean).length/last5.length*100 : null,
+      n: rows.length,
+      over: meanOf(rows.map(r=>r[1])),
+      tempo: meanOf(rows.map(r=>r[2])),
+      H: roleStats('H'), A: roleStats('A'),
+      ewOver: ewmaOf(rows.map(r=>r[1])),
+      ewTempo: ewmaOf(rows.map(r=>r[2])),
     };
   });
   return out;
 }
 
-function buildTeamBlend(lg, team, cur){
-  const c = cur || {n:0, overallPct:null, homePct:null, awayPct:null, recent5Pct:null};
-  const blend = {n: c.n};
-  ['overallPct','homePct','awayPct','recent5Pct'].forEach(key=>{
-    const hist = historicalBlendForTeam(lg, team, key);
-    blend[key] = blendedStat(c[key], c.n, hist);
+// Historia z zakończonych sezonów liczona z meczów (p1), ważona HIST_DECAY^i (najnowszy = 1).
+function buildHistIndex(lg){
+  const completed = completedSeasonKeysForLeague(lg).slice().sort().reverse();
+  const perSeason = completed.map(sk=>{
+    const agg = {};
+    (DATA.leagues[lg].seasons[sk].matches||[]).forEach(m=>{
+      if(!m.p1) return;
+      const [hg,ag] = m.p1.split(':').map(Number);
+      const tot = hg+ag, ov = tot>=2 ? 1 : 0;
+      (agg[m.home] = agg[m.home] || []).push(['H', ov, tot]);
+      (agg[m.away] = agg[m.away] || []).push(['A', ov, tot]);
+    });
+    return agg;
   });
-  blend.hasAnyData = ['overallPct','homePct','awayPct','recent5Pct'].some(k=>blend[k]!==null && blend[k]!==undefined);
-  return blend;
+  const teams = new Set();
+  perSeason.forEach(a=>Object.keys(a).forEach(t=>teams.add(t)));
+  const idx = {};
+  teams.forEach(t=>{
+    const res = {};
+    [['all',null],['H','H'],['A','A']].forEach(([key,role])=>{
+      let accO=0, accT=0, wsum=0;
+      perSeason.forEach((agg,i)=>{
+        const rows = agg[t]; if(!rows) return;
+        const rr = rows.filter(r=>role===null || r[0]===role); if(!rr.length) return;
+        const w = Math.pow(HIST_DECAY, i);
+        accO += w*rr.reduce((s,r)=>s+r[1],0)/rr.length;
+        accT += w*rr.reduce((s,r)=>s+r[2],0)/rr.length;
+        wsum += w;
+      });
+      res[key] = wsum ? [accO/wsum, accT/wsum] : [null, null];
+    });
+    idx[t] = res;
+  });
+  return idx;
+}
+function histIndex(lg){
+  if(!HIST_INDEX_CACHE[lg]) HIST_INDEX_CACHE[lg] = buildHistIndex(lg);
+  return HIST_INDEX_CACHE[lg];
+}
+
+function teamComponents(hidx, name, role, cur){
+  const h = hidx[name] || {all:[null,null], H:[null,null], A:[null,null]};
+  const n = cur ? cur.n : 0;
+  const [ho, ht] = h.all, [hro, hrt] = h[role];
+  const cRole = cur ? cur[role] : {over:null, tempo:null};
+  const o = blendedStat(cur?cur.over:null, n, ho);
+  const t = blendedStat(cur?cur.tempo:null, n, ht);
+  if(o===null || o===undefined || t===null || t===undefined) return null; // brak danych -> "brak"
+  const r  = blendedStat(cRole.over, n, hro);
+  const e  = blendedStat(cur?cur.ewOver:null, n, ho);
+  const rt = blendedStat(cRole.tempo, n, hrt);
+  const et = blendedStat(cur?cur.ewTempo:null, n, ht);
+  const nz = (v,f)=> (v===null || v===undefined) ? f : v;
+  return {n, o, t, r: nz(r,o), e: nz(e,o), rt: nz(rt,t), et: nz(et,t)};
 }
 
 function h2hPctForPair(lg, home, away){
@@ -1620,47 +1681,46 @@ function h2hPctForPair(lg, home, away){
   return {pct: overs/games.length*100, n: games.length};
 }
 
-function safeStat(blend, key){
-  // odpowiednik safe_stat() z Pythona: brakujący pojedynczy wskaźnik (np. homePct)
-  // zastępujemy overallPct jako rozsądnym przybliżeniem zamiast cichego zera.
-  const v = blend[key];
-  if(v!==null && v!==undefined) return v;
-  if(blend.overallPct!==null && blend.overallPct!==undefined) return blend.overallPct;
-  return 0;
-}
-
 function predictMatchModel(lg, home, away, currentStatsMap){
-  const homeBlend = buildTeamBlend(lg, home, currentStatsMap[home]);
-  const awayBlend = buildTeamBlend(lg, away, currentStatsMap[away]);
-  if(!homeBlend.hasAnyData || !awayBlend.hasAnyData) return null;
+  const hidx = histIndex(lg);
+  const h = teamComponents(hidx, home, 'H', currentStatsMap[home]);
+  const a = teamComponents(hidx, away, 'A', currentStatsMap[away]);
+  if(!h || !a) return null;
 
-  const base = 0.5*(0.4*safeStat(homeBlend,'overallPct') + 0.4*safeStat(homeBlend,'homePct') + 0.2*safeStat(homeBlend,'recent5Pct'))
-             + 0.5*(0.4*safeStat(awayBlend,'overallPct') + 0.4*safeStat(awayBlend,'awayPct') + 0.2*safeStat(awayBlend,'recent5Pct'));
+  const sideOver  = x => 0.4*x.o + 0.4*x.r + 0.2*x.e;
+  const sideTempo = x => 0.4*x.t + 0.3*x.rt + 0.3*x.et;
+  const pOver = 0.5*sideOver(h) + 0.5*sideOver(a);
+  const lam = 0.5*sideTempo(h) + 0.5*sideTempo(a);
+  const pGoals = 1 - Math.exp(-lam)*(1+lam);
 
-  const h2h = h2hPctForPair(lg, home, away);
-  const prob = h2h.pct!==null ? (1-H2H_WEIGHT)*base + H2H_WEIGHT*h2h.pct : base;
+  const raw = 0.5*pOver + 0.5*pGoals;
+  const rc = Math.min(Math.max(raw, 0.01), 0.99);
+  const z = Math.log(rc/(1-rc));
+  const prob = 100/(1+Math.exp(-(CAL_INTERCEPT + CAL_SLOPE*z)));
 
   const hN = (currentStatsMap[home] && currentStatsMap[home].n) || 0;
   const aN = (currentStatsMap[away] && currentStatsMap[away].n) || 0;
   const bothFresh = hN===0 && aN===0;
-  const r1 = v => v===null || v===undefined ? null : Math.round(v*10)/10;
+  const r1 = v => Math.round(v*10)/10;
 
   return {
-    prob: Math.max(0, Math.min(100, Math.round(prob*10)/10)),
-    homePct: r1(homeBlend.homePct),
-    awayPct: r1(awayBlend.awayPct),
-    homeOverallPct: r1(homeBlend.overallPct),
-    awayOverallPct: r1(awayBlend.overallPct),
+    prob: Math.max(0, Math.min(100, r1(prob))),
+    homePct: r1(h.r*100),
+    awayPct: r1(a.r*100),
+    homeOverallPct: r1(h.o*100),
+    awayOverallPct: r1(a.o*100),
     components: {
-      homeOverall: r1(homeBlend.overallPct),
-      homeRole: r1(homeBlend.homePct),
-      awayOverall: r1(awayBlend.overallPct),
-      awayRole: r1(awayBlend.awayPct),
-      h2h: r1(h2h.pct),
+      homeOverall: r1(h.o*100),
+      homeRole: r1(h.r*100),
+      awayOverall: r1(a.o*100),
+      awayRole: r1(a.r*100),
+      h2h: null,
+      expGoals: Math.round(lam*100)/100,
+      rawProb: r1(raw*100),
     },
     modelBasis: bothFresh
-      ? 'Model startowy: brak jeszcze meczów bieżącego sezonu, prognoza w 100% na bazie sezonów historycznych'
-      : `Model ważony: bieżący sezon (${hN}/${aN} meczów gospodarz/gość) + sezony historyczne`,
+      ? 'Model v2: brak jeszcze meczów bieżącego sezonu, prognoza w 100% na bazie sezonów historycznych (Over + tempo goli, skalibrowane)'
+      : `Model v2 (Over + tempo goli, skalibrowany): bieżący sezon (${hN}/${aN} meczów gospodarz/gość) + sezony historyczne`,
     dataSource: bothFresh ? 'prev_season' : undefined,
   };
 }

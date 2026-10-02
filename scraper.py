@@ -386,70 +386,129 @@ def current_weight(n: int) -> float:
     return CURRENT_WEIGHT_MAX * (1 - math.exp(-n / CURRENT_WEIGHT_TAU))
 
 
+# ----------------------------------------------------------------------------
+# MODEL v2 (02.10.2026) — ensemble: wskaźnik Over + model tempa goli, skalibrowany
+# ----------------------------------------------------------------------------
+# Zwalidowany walk-forward na ~12 tys. meczów (sezony 24/25 i 25/26), kontrola na 26/27.
+# 1) "wskaźnik Over":  0,4*Overall + 0,4*Rola(dom/wyjazd) + 0,2*Forma(EWMA)   (bez H2H)
+# 2) "tempo goli":     lambda = średnia (0,4*tempo + 0,3*tempo_rola + 0,3*tempo_EWMA) obu drużyn,
+#                      P(Over 1,5) = 1 - e^-lambda * (1 + lambda)   (Poisson)
+# 3) surowo = 0,5*(1) + 0,5*(2), potem kalibracja Platta (surowy model był zbyt pewny siebie).
+# Każdy składnik to mieszanka: bieżący sezon (waga rośnie z n) + historia z zanikiem.
+EWMA_HALF_LIFE = 5.0
+CAL_INTERCEPT = 0.014432
+CAL_SLOPE = 0.607177
+
+_HIST_CACHE = {}
+
+
+def _ewma(vals, hl=EWMA_HALF_LIFE):
+    if not vals:
+        return None
+    n = len(vals)
+    num = den = 0.0
+    for i, v in enumerate(vals):
+        w = 0.5 ** ((n - 1 - i) / hl)
+        num += w * v
+        den += w
+    return num / den
+
+
+def _mean(vals):
+    return sum(vals) / len(vals) if vals else None
+
+
 def aggregate_current_season_stats(played_matches):
     """
-    Buduje per-drużynowe statystyki bieżącego sezonu (mecze rozegrane do tej pory)
-    potrzebne do ważenia modelu: matches, overallPct, homePct, awayPct, recent5Pct.
+    Statystyki bieżącego sezonu per drużyna z rozegranych meczów (chronologicznie):
+    n, over (ułamek 0-1), tempo (średnia goli łącznie w P1 w meczach drużyny),
+    to samo osobno dla roli H (dom) i A (wyjazd), oraz EWMA formy (over i tempo).
+    Zachowane też stare klucze procentowe (overallPct/homePct/awayPct/recent5Pct).
     """
-    per_team = {}
-
-    def bucket(name):
-        if name not in per_team:
-            per_team[name] = {"matches": 0, "overs": 0,
-                               "homeMatches": 0, "homeOvers": 0,
-                               "awayMatches": 0, "awayOvers": 0,
-                               "chrono": []}
-        return per_team[name]
-
+    per = {}
     for m in sorted(played_matches, key=lambda x: x["sortDate"]):
-        over = m["over15"]
-        h = bucket(m["home"]); a = bucket(m["away"])
-        h["matches"] += 1; h["homeMatches"] += 1
-        a["matches"] += 1; a["awayMatches"] += 1
-        if over:
-            h["overs"] += 1; h["homeOvers"] += 1
-            a["overs"] += 1; a["awayOvers"] += 1
-        h["chrono"].append(over)
-        a["chrono"].append(over)
+        if not m.get("p1"):
+            continue
+        hg, ag = (int(x) for x in m["p1"].split(":"))
+        tot = hg + ag
+        over = 1.0 if tot >= 2 else 0.0
+        per.setdefault(m["home"], []).append(("H", over, tot))
+        per.setdefault(m["away"], []).append(("A", over, tot))
 
     out = {}
-    for name, s in per_team.items():
-        last5 = s["chrono"][-5:]
-        out[name] = {
-            "n": s["matches"],
-            "overallPct": (s["overs"] / s["matches"] * 100) if s["matches"] else None,
-            "homePct": (s["homeOvers"] / s["homeMatches"] * 100) if s["homeMatches"] else None,
-            "awayPct": (s["awayOvers"] / s["awayMatches"] * 100) if s["awayMatches"] else None,
-            "recent5Pct": (sum(last5) / len(last5) * 100) if last5 else None,
+    for name, rows in per.items():
+        def role_stats(role):
+            rr = [r for r in rows if r[0] == role]
+            return {"over": _mean([r[1] for r in rr]), "tempo": _mean([r[2] for r in rr])}
+        last5 = [r[1] for r in rows[-5:]]
+        st = {
+            "n": len(rows),
+            "over": _mean([r[1] for r in rows]),
+            "tempo": _mean([r[2] for r in rows]),
+            "H": role_stats("H"),
+            "A": role_stats("A"),
+            "ewOver": _ewma([r[1] for r in rows]),
+            "ewTempo": _ewma([r[2] for r in rows]),
         }
+        st["overallPct"] = st["over"] * 100 if st["over"] is not None else None
+        st["homePct"] = st["H"]["over"] * 100 if st["H"]["over"] is not None else None
+        st["awayPct"] = st["A"]["over"] * 100 if st["A"]["over"] is not None else None
+        st["recent5Pct"] = (sum(last5) / len(last5) * 100) if last5 else None
+        out[name] = st
     return out
 
 
-def historical_blend_for_team(league_data, team_name, stat_key):
-    """Ważona (HIST_DECAY) średnia danej statystyki z zakończonych sezonów, najnowszy = waga 1."""
+def build_hist_index(league_data):
+    """
+    Historia z ZAKOŃCZONYCH sezonów liczona z meczów (p1): dla każdej drużyny
+    (over, tempo) ogółem oraz w roli H i A; sezony ważone HIST_DECAY**i (najnowszy = 1).
+    """
     completed = sorted(
         [k for k, v in league_data["seasons"].items() if v.get("status") == "completed"],
         reverse=True,
     )
-    weights, values = [], []
-    for i, sk in enumerate(completed):
-        season = league_data["seasons"][sk]
-        team_row = next((t for t in season.get("teams", []) if t["name"] == team_name), None)
-        if not team_row:
-            continue
-        if stat_key == "recent5Pct":
-            trend = team_row.get("trend5") or []
-            val = (trend.count("O") / len(trend) * 100) if trend else team_row.get("overallPct", 0)
-        else:
-            val = team_row.get(stat_key)
-        if val is None:
-            continue
-        weights.append(HIST_DECAY ** i)
-        values.append(val)
-    if not weights:
-        return None
-    total_w = sum(weights)
-    return sum(w * v for w, v in zip(weights, values)) / total_w
+    per_season = []
+    for sk in completed:
+        agg = {}
+        for m in league_data["seasons"][sk].get("matches", []):
+            if not m.get("p1"):
+                continue
+            hg, ag = (int(x) for x in m["p1"].split(":"))
+            tot = hg + ag
+            ov = 1.0 if tot >= 2 else 0.0
+            agg.setdefault(m["home"], []).append(("H", ov, tot))
+            agg.setdefault(m["away"], []).append(("A", ov, tot))
+        per_season.append(agg)
+
+    teams = set()
+    for a in per_season:
+        teams |= set(a)
+    idx = {}
+    for t in teams:
+        res = {}
+        for key, role in (("all", None), ("H", "H"), ("A", "A")):
+            acc_o = acc_t = wsum = 0.0
+            for i, agg in enumerate(per_season):
+                rows = agg.get(t)
+                if not rows:
+                    continue
+                rr = [r for r in rows if role is None or r[0] == role]
+                if not rr:
+                    continue
+                w = HIST_DECAY ** i
+                acc_o += w * sum(r[1] for r in rr) / len(rr)
+                acc_t += w * sum(r[2] for r in rr) / len(rr)
+                wsum += w
+            res[key] = (acc_o / wsum, acc_t / wsum) if wsum else (None, None)
+        idx[t] = res
+    return idx
+
+
+def _hist_index(league_data):
+    key = id(league_data)
+    if key not in _HIST_CACHE:
+        _HIST_CACHE[key] = build_hist_index(league_data)
+    return _HIST_CACHE[key]
 
 
 def blended_stat(current_val, n, hist_val):
@@ -462,16 +521,32 @@ def blended_stat(current_val, n, hist_val):
     return cw * current_val + (1 - cw) * hist_val
 
 
-def build_team_blend(league_data, team_name, current_stats_for_team):
-    cur = current_stats_for_team or {"n": 0, "overallPct": None, "homePct": None, "awayPct": None, "recent5Pct": None}
-    n = cur["n"]
-    blend = {}
-    for key in ("overallPct", "homePct", "awayPct", "recent5Pct"):
-        hist = historical_blend_for_team(league_data, team_name, key)
-        blend[key] = blended_stat(cur[key], n, hist)
-    blend["n"] = n
-    blend["hasAnyData"] = any(blend[k] is not None for k in ("overallPct", "homePct", "awayPct", "recent5Pct"))
-    return blend
+def team_components(hist_idx, name, role, cur):
+    h = hist_idx.get(name) or {"all": (None, None), "H": (None, None), "A": (None, None)}
+    n = cur["n"] if cur else 0
+    ho, ht = h["all"]
+    hro, hrt = h[role]
+    c_over = cur["over"] if cur else None
+    c_tempo = cur["tempo"] if cur else None
+    c_role = cur[role] if cur else {"over": None, "tempo": None}
+    c_ewo = cur["ewOver"] if cur else None
+    c_ewt = cur["ewTempo"] if cur else None
+
+    o = blended_stat(c_over, n, ho)
+    t = blended_stat(c_tempo, n, ht)
+    if o is None or t is None:
+        return None  # brak danych -> "brak" w UI
+    r = blended_stat(c_role["over"], n, hro)
+    e = blended_stat(c_ewo, n, ho)
+    rt = blended_stat(c_role["tempo"], n, hrt)
+    et = blended_stat(c_ewt, n, ht)
+    return {
+        "n": n, "o": o, "t": t,
+        "r": o if r is None else r,
+        "e": o if e is None else e,
+        "rt": t if rt is None else rt,
+        "et": t if et is None else et,
+    }
 
 
 def h2h_lookup(league_data, home, away):
@@ -489,56 +564,49 @@ def h2h_lookup(league_data, home, away):
     return (overs / len(games) * 100), len(games)
 
 
-def safe_stat(blend, key):
-    """
-    Bezpieczny odczyt statystyki z blendu: jeśli akurat tej jednej (np. homePct)
-    brakuje, a drużyna ogólnie ma jakieś dane (hasAnyData=True), używamy
-    overallPct jako rozsądnego przybliżenia zamiast wywalać się na None*float.
-    """
-    val = blend.get(key)
-    if val is not None:
-        return val
-    if blend.get("overallPct") is not None:
-        return blend["overallPct"]
-    return 0.0
-
-
 def predict_match(league_data, home, away, current_stats):
-    home_blend = build_team_blend(league_data, home, current_stats.get(home))
-    away_blend = build_team_blend(league_data, away, current_stats.get(away))
+    idx = _hist_index(league_data)
+    h = team_components(idx, home, "H", current_stats.get(home))
+    a = team_components(idx, away, "A", current_stats.get(away))
+    if h is None or a is None:
+        return None
 
-    if not home_blend["hasAnyData"] or not away_blend["hasAnyData"]:
-        return None  # brak wystarczających danych -> "brak" w UI
+    side_over = lambda x: 0.4 * x["o"] + 0.4 * x["r"] + 0.2 * x["e"]
+    side_tempo = lambda x: 0.4 * x["t"] + 0.3 * x["rt"] + 0.3 * x["et"]
 
-    base_prob = 0.5 * (0.4 * safe_stat(home_blend, "overallPct") + 0.4 * safe_stat(home_blend, "homePct") + 0.2 * safe_stat(home_blend, "recent5Pct")) \
-              + 0.5 * (0.4 * safe_stat(away_blend, "overallPct") + 0.4 * safe_stat(away_blend, "awayPct") + 0.2 * safe_stat(away_blend, "recent5Pct"))
+    p_over = 0.5 * side_over(h) + 0.5 * side_over(a)
+    lam = 0.5 * side_tempo(h) + 0.5 * side_tempo(a)
+    p_goals = 1 - math.exp(-lam) * (1 + lam)
 
-    h2h_pct, h2h_n = h2h_lookup(league_data, home, away)
-    if h2h_pct is not None:
-        prob = (1 - H2H_WEIGHT) * base_prob + H2H_WEIGHT * h2h_pct
-    else:
-        prob = base_prob
+    raw = 0.5 * p_over + 0.5 * p_goals
+    rc = min(max(raw, 0.01), 0.99)
+    z = math.log(rc / (1 - rc))
+    prob = 100 / (1 + math.exp(-(CAL_INTERCEPT + CAL_SLOPE * z)))
 
-    both_fresh = (current_stats.get(home, {}).get("n", 0) == 0 and current_stats.get(away, {}).get("n", 0) == 0)
+    hn = current_stats.get(home, {}).get("n", 0)
+    an = current_stats.get(away, {}).get("n", 0)
+    both_fresh = (hn == 0 and an == 0)
+    r1 = lambda v: round(v, 1)
 
     return {
         "prob": round(max(0, min(100, prob)), 1),
-        "homePct": round(home_blend["homePct"], 1) if home_blend["homePct"] is not None else None,
-        "awayPct": round(away_blend["awayPct"], 1) if away_blend["awayPct"] is not None else None,
-        "homeOverallPct": round(home_blend["overallPct"], 1) if home_blend["overallPct"] is not None else None,
-        "awayOverallPct": round(away_blend["overallPct"], 1) if away_blend["overallPct"] is not None else None,
+        "homePct": r1(h["r"] * 100),
+        "awayPct": r1(a["r"] * 100),
+        "homeOverallPct": r1(h["o"] * 100),
+        "awayOverallPct": r1(a["o"] * 100),
         "components": {
-            "homeOverall": round(home_blend["overallPct"], 1) if home_blend["overallPct"] is not None else None,
-            "homeRole": round(home_blend["homePct"], 1) if home_blend["homePct"] is not None else None,
-            "awayOverall": round(away_blend["overallPct"], 1) if away_blend["overallPct"] is not None else None,
-            "awayRole": round(away_blend["awayPct"], 1) if away_blend["awayPct"] is not None else None,
-            "h2h": round(h2h_pct, 1) if h2h_pct is not None else None,
+            "homeOverall": r1(h["o"] * 100),
+            "homeRole": r1(h["r"] * 100),
+            "awayOverall": r1(a["o"] * 100),
+            "awayRole": r1(a["r"] * 100),
+            "h2h": None,
+            "expGoals": round(lam, 2),
+            "rawProb": r1(raw * 100),
         },
-        "modelBasis": ("Model startowy: brak jeszcze meczów bieżącego sezonu, "
-                        "prognoza w 100% na bazie sezonów historycznych"
+        "modelBasis": ("Model v2: brak jeszcze meczów bieżącego sezonu, "
+                        "prognoza w 100% na bazie sezonów historycznych (Over + tempo goli, skalibrowane)"
                         if both_fresh else
-                        f"Model ważony: bieżący sezon ({current_stats.get(home, {}).get('n', 0)}/"
-                        f"{current_stats.get(away, {}).get('n', 0)} meczów gospodarz/gość) + sezony historyczne"),
+                        f"Model v2 (Over + tempo goli, skalibrowany): bieżący sezon ({hn}/{an} meczów gospodarz/gość) + sezony historyczne"),
         "dataSource": "prev_season" if both_fresh else None,
     }
 
@@ -554,6 +622,7 @@ def merge_league_current_season(league_data, fresh_matches):
     dotyczy — podział zostaje taki, jaki już jest zapisany w data.json, wg
     progu daty NHL: 06.10.2026, dla pozostałych lig brak podziału).
     """
+    _HIST_CACHE.pop(id(league_data), None)
     season = league_data["seasons"].get(CURRENT_SEASON_KEY)
     if season is None:
         raise RuntimeError(f"Brak sezonu {CURRENT_SEASON_KEY} w istniejącym data.json dla tej ligi.")
