@@ -38,5 +38,15 @@
     "p1h": 2,
     "p1a": 2,
     "over15": true
+  },
+  "2026-09-24|NHL|Vegas Golden Knights|Utah Mammoth": {
+    "p1h": 1,
+    "p1a": 2,
+    "over15": true
+  },
+  "2026-09-25|CZECH|Mountfield HK|Liberec": {
+    "p1h": 1,
+    "p1a": 0,
+    "over15": false
   }
 }
