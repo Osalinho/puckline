@@ -287,6 +287,21 @@
   .top5-breakdown{display:flex; flex-wrap:wrap; gap:14px; padding:2px 14px 9px 17px; max-width:900px; margin:0 auto; border-bottom:1px solid var(--surface2); font-size:10.5px; color:var(--muted);}
   .top5-breakdown b{color:var(--text); font-family:'JetBrains Mono',monospace;}
   .top5-rank-tag{font-family:'JetBrains Mono',monospace; font-weight:800; font-size:10px; color:#0A0E1A; margin-right:3px; background:rgba(255,255,255,.55); border-radius:3px; padding:0 3px;}
+  /* --- v2.2: wiarygodność lig, kursy, panel skuteczności, mobile --- */
+  .rel-dot{display:inline-block; width:7px; height:7px; border-radius:50%; margin-left:4px; vertical-align:middle; flex-shrink:0;}
+  .rel-ok{background:var(--teal);} .rel-mid{background:var(--yellow);} .rel-weak{background:var(--red);}
+  .perf-h{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:14px; margin:18px 0 8px;}
+  .perf-note{font-size:11px; color:var(--muted); line-height:1.5; margin:6px 2px 10px;}
+  .perf-table td,.perf-table th{padding:7px 9px;}
+  .perf-table td.l,.perf-table th.l{text-align:left;}
+  .perf-small{color:var(--muted); font-size:10.5px;}
+  .more-btn{display:block; margin:12px auto; background:var(--surface); border:1px solid var(--border); color:var(--text); font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:12px; padding:9px 18px; border-radius:8px; cursor:pointer;}
+  @media (max-width:640px){
+    .wrap{padding:16px 12px 48px;}
+    .league-chips{flex-wrap:nowrap !important; overflow-x:auto; padding-bottom:6px; -webkit-overflow-scrolling:touch;}
+    .league-chips button{flex-shrink:0; white-space:nowrap;}
+    .perf-table{font-size:11.5px;}
+  }
 </style>
 </head>
 <body>
@@ -355,6 +370,10 @@
 
   <div id="hot" class="panel">
     <div id="hotContent"></div>
+  </div>
+
+  <div id="perf" class="panel">
+    <div id="perfContent"></div>
   </div>
 
   <div id="updates" class="panel">
@@ -503,7 +522,7 @@ function allLeagueMenuItems(){
 }
 
 function renderHeader(){
-  const SPECIAL_TABS = ['__PLAYNOW__', '__WYNIKIALL__', '__HOT__', '__UPDATES__'];
+  const SPECIAL_TABS = ['__PLAYNOW__', '__WYNIKIALL__', '__HOT__', '__PERF__', '__UPDATES__'];
   const isLeagueView = !SPECIAL_TABS.includes(currentLeague);
   const currentItem = isLeagueView ? allLeagueMenuItems().find(it=>it.key===currentLeague) : null;
   const krajLabel = currentItem ? `🌍 ${currentItem.country}` : '🌍 Wybierz ligę';
@@ -516,6 +535,7 @@ function renderHeader(){
     <button class="${currentLeague==='__PLAYNOW__'?'active':''}" data-league="__PLAYNOW__">🔥 TERMINARZ 26/27</button>
     <button class="${currentLeague==='__HOT__'?'active':''}" data-league="__HOT__">🌶️ HOT</button>
     <button class="${currentLeague==='__WYNIKIALL__'?'active':''}" data-league="__WYNIKIALL__">📊 WYNIKI</button>
+    <button class="${currentLeague==='__PERF__'?'active':''}" data-league="__PERF__">📈 SKUTECZNOŚĆ</button>
     <button class="${currentLeague==='__UPDATES__'?'active':''}" data-league="__UPDATES__">📝 UPDATES</button>
     <button class="${isLeagueView?'active':''}" data-league="__KRAJ__">${krajLabel} ${countryPickerOpen?'▴':'▾'}</button>`;
 
@@ -576,6 +596,16 @@ function renderHeader(){
     document.querySelector('.topbar').style.display = 'none';
     document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
     document.getElementById('playnow').classList.add('active');
+    document.getElementById('metaRight').innerHTML = '';
+    return;
+  }
+
+  if(currentLeague === '__PERF__'){
+    document.getElementById('subtitle').textContent = 'Czy model działa? Skuteczność prognoz i TOP 5 w trwającym sezonie 2026/27';
+    document.getElementById('seasonSwitch').style.display = 'none';
+    document.querySelector('.topbar').style.display = 'none';
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    document.getElementById('perf').classList.add('active');
     document.getElementById('metaRight').innerHTML = '';
     return;
   }
@@ -1082,6 +1112,20 @@ const LEAGUE_COLORS = {
   SLOVAKIA: '#EF4444', SWITZERLAND: '#D946EF', SWEDEN: '#4A5568',
   SWEDEN_ELITSERIEN: '#10B981',
 };
+const LEAGUE_REL = {"NORWAY": {"auc": 0.557, "n": 444, "tier": "ok"}, "CZECH_1LIGA": {"auc": 0.538, "n": 722, "tier": "ok"}, "SWEDEN_ELITSERIEN": {"auc": 0.536, "n": 722, "tier": "ok"}, "FINLAND_MESTIS": {"auc": 0.534, "n": 488, "tier": "ok"}, "CANADA_OHL": {"auc": 0.531, "n": 1353, "tier": "ok"}, "DENMARK": {"auc": 0.53, "n": 432, "tier": "mid"}, "SWITZERLAND": {"auc": 0.525, "n": 728, "tier": "mid"}, "AUSTRIA": {"auc": 0.513, "n": 621, "tier": "mid"}, "SLOVAKIA": {"auc": 0.511, "n": 642, "tier": "mid"}, "NHL": {"auc": 0.506, "n": 1312, "tier": "mid"}, "AHL": {"auc": 0.504, "n": 1151, "tier": "mid"}, "FRANCE": {"auc": 0.495, "n": 528, "tier": "weak"}, "SWEDEN": {"auc": 0.486, "n": 716, "tier": "weak"}, "FINLAND": {"auc": 0.482, "n": 957, "tier": "weak"}, "GERMANY": {"auc": 0.478, "n": 724, "tier": "weak"}, "CZECH": {"auc": 0.459, "n": 728, "tier": "weak"}};
+// Wiarygodność prognozy per liga: AUC modelu v2 liczone walk-forward na sezonach 24/25 i 25/26
+// (0,50 = rzut monetą). 'ok' >= 0,53 | 'mid' 0,50-0,53 | 'weak' < 0,50. Próbki 400-1300 meczów, więc różnice rzędu
+// ±0,03 mieszczą się w szumie — to wskazówka, nie wyrok. Do przeliczenia w listopadzie.
+const REL_LABEL = {ok:'ślad (model lekko działa)', mid:'neutralnie (niewiele ponad rzut monetą)', weak:'słaby ślad (model nie lepszy od rzutu monetą)'};
+function relInfo(lg){ return LEAGUE_REL[lg] || null; }
+function relDotHtml(lg){
+  const r = relInfo(lg); if(!r) return '';
+  return `<span class="rel-dot rel-${r.tier}" title="Wiarygodność modelu w tej lidze: ${REL_LABEL[r.tier]} · AUC ${r.auc.toFixed(2)} (historia, ${r.n} meczów)"></span>`;
+}
+
+// Kurs break-even = 100 / prognoza (pokazywany pasywnie, bez wpisywania czegokolwiek)
+function breakEven(prob){ return prob>0 ? 100/prob : null; }
+
 function leagueColor(lg){
   if(LEAGUE_COLORS[lg]) return LEAGUE_COLORS[lg];
   let h = 0;
@@ -1261,6 +1305,10 @@ function renderAll(){
     renderWynikiAll();
     return;
   }
+  if(currentLeague === '__PERF__'){
+    renderPerf();
+    return;
+  }
   if(currentLeague === '__HOT__'){
     renderHot();
     return;
@@ -1284,6 +1332,17 @@ let playNowLeagueFilter = null; // null = wszystkie; inaczej Set aktywnych klucz
 let pnView = 'all';   // 'all' = wszystkie mecze | 'top5' = TOP 5 Zakładów
 let pnSort = 'prob';  // 'time' | 'prob'
 
+// Leniwe wypełnianie dni: do DOM trafia nagłówek, a wiersze dopiero po otwarciu dnia (setki dni × kilkanaście meczów
+// naraz mulą telefon). LAZY[id grupy] = funkcja zwracająca HTML ciała dnia.
+const LAZY = {};
+function fillLazyDay(group){
+  if(!group) return;
+  const body = group.querySelector(':scope > .day-body');
+  if(body && body.dataset.lazy==='1' && !body.dataset.filled){
+    const fn = LAZY[group.id];
+    if(fn){ body.innerHTML = fn(); body.dataset.filled = '1'; }
+  }
+}
 function ensureLeagueFilter(){
   if(!playNowLeagueFilter) playNowLeagueFilter = new Set(Object.keys(DATA.leagues));
 }
@@ -1298,7 +1357,8 @@ function leagueChipsHtml(){
   ensureLeagueFilter();
   return `<div class="quick-filters league-chips" style="margin-bottom:14px;">${Object.keys(DATA.leagues).map(lg=>{
     const active = playNowLeagueFilter.has(lg);
-    return `<button title="${lg}" class="${active?'active':''}" data-toggle-league="${lg}" style="border-color:${leagueColor(lg)}; ${active?`background:${leagueColor(lg)}; color:#0A0E1A;`:''}">${leagueChipLabel(lg)}</button>`;
+    const r = relInfo(lg);
+    return `<button title="${lg}${r?` · wiarygodność modelu: ${REL_LABEL[r.tier]}`:''}" class="${active?'active':''}" data-toggle-league="${lg}" style="border-color:${leagueColor(lg)}; ${active?`background:${leagueColor(lg)}; color:#0A0E1A;`:''}">${leagueChipLabel(lg)}${relDotHtml(lg)}</button>`;
   }).join('')}</div>`;
 }
 function bindLeagueChips(root, rerender){
@@ -1475,17 +1535,14 @@ function renderPlayNow(opts){
     const strongCount = dayMatches.filter(m=>m.prob!==undefined && m.prob>=56).length;
     const intensityTag = strongCount>0 ? ` · <span style="color:var(--teal)">🔥 ${strongCount} mocnych typów (≥56%)</span>` : '';
     const playingLeagues = [...new Set(dayMatches.map(m=>leagueShortLabel(m.league)))].join(', ');
-    const body = combinedTableHeaderHtml('Data') + dayMatches.map(m=>combinedRowHtml(m, d, 'pn-row-')).join('');
+    LAZY['pn-anchor-'+d] = () => sortToggleHtml(hasTimes) + combinedTableHeaderHtml('Data') + dayMatches.map(m=>combinedRowHtml(m, d, 'pn-row-')).join('');
     return `<div class="day-group" id="pn-anchor-${d}">
       <div class="day-header" data-toggle="day">
         <span class="date">${dayMatches[0].date}</span>
         <span class="n">${dayMatches.length} mecz${dayMatches.length===1?'':dayMatches.length<5?'e':'ów'} · ${playingLeagues}${intensityTag}</span>
         <span class="caret">▾</span>
       </div>
-      <div class="day-body">
-        ${sortToggleHtml(hasTimes)}
-        ${body}
-      </div>
+      <div class="day-body" data-lazy="1"></div>
     </div>`;
   };
 
@@ -1493,29 +1550,33 @@ function renderPlayNow(opts){
   const picksFor = d => picksCache[d] || (picksCache[d] = pickTop5(groups[d], d));
 
   const top5GroupHtml = (d) => {
-    const picks = picksFor(d);
-    const playedPicks = picks.filter(p=>p.m.played);
+    const isPastDay = d<today;
+    const picks = isPastDay ? picksFor(d) : null;   // dla dni nadchodzących typy liczone dopiero po otwarciu dnia
+    const playedPicks = picks ? picks.filter(p=>p.m.played) : [];
     const overPicks = playedPicks.filter(p=>p.m.over15).length;
-    const rowsHtml = picks.map((p,i)=>{
-      const c = p.c;
-      const badge = `<span class="prob-badge ${top5Class(c.idx)}" title="Indeks TOP 5 (50 = przeciętny mecz)">${c.idx}</span>`;
-      const breakdown = `<div class="top5-breakdown">
+    LAZY['pn-anchor-'+d] = () => {
+      const pk = picksFor(d);
+      const rowsHtml = pk.map((p,i)=>{
+        const c = p.c;
+        const badge = `<span class="prob-badge ${top5Class(c.idx)}" title="Indeks TOP 5 (50 = przeciętny mecz)">${c.idx}</span>`;
+        const breakdown = `<div class="top5-breakdown">
           <span>Forma (ost. ${TOP5_N}): <b>${(c.F*100).toFixed(0)}%</b></span>
           <span>H2H: <b>${(c.H*100).toFixed(0)}%</b> (${c.h2hN} mecz.)</span>
           <span>Gole z tabeli: <b>${c.T.toFixed(1)}</b>/mecz → P1 <b>${(c.G*100).toFixed(0)}%</b></span>
         </div>`;
-      return combinedRowHtml(p.m, d, 'pn-row-', {badgeHtml: badge, afterRowHtml: breakdown, rankTag: i+1});
-    }).join('');
+        return combinedRowHtml(p.m, d, 'pn-row-', {badgeHtml: badge, afterRowHtml: breakdown, rankTag: i+1});
+      }).join('');
+      return pk.length ? combinedTableHeaderHtml(isPastDay?'Wynik P1':'Data', 'Indeks') + rowsHtml : '<div style="color:var(--muted); font-size:12.5px; padding:16px 14px;">Za mało danych historycznych, żeby wytypować mecze tego dnia.</div>';
+    };
     const resultTag = playedPicks.length ? ' · ' + overBadgeHtml(overPicks, playedPicks.length) : '';
+    const headTxt = picks ? `⭐ TOP ${picks.length} z ${groups[d].length} mecz${groups[d].length===1?'':groups[d].length<5?'e':'ów'}` : `⭐ TOP 5 z ${groups[d].length} mecz${groups[d].length===1?'':groups[d].length<5?'e':'ów'}`;
     return `<div class="day-group" id="pn-anchor-${d}">
       <div class="day-header" data-toggle="day">
         <span class="date">${groups[d][0].date}</span>
-        <span class="n">⭐ TOP ${picks.length} z ${groups[d].length} mecz${groups[d].length===1?'':groups[d].length<5?'e':'ów'}${resultTag}</span>
+        <span class="n">${headTxt}${resultTag}</span>
         <span class="caret">▾</span>
       </div>
-      <div class="day-body">
-        ${picks.length ? combinedTableHeaderHtml(d<today?'Wynik P1':'Data', 'Indeks') + rowsHtml : '<div style="color:var(--muted); font-size:12.5px; padding:16px 14px;">Za mało danych historycznych, żeby wytypować mecze tego dnia.</div>'}
-      </div>
+      <div class="day-body" data-lazy="1"></div>
     </div>`;
   };
 
@@ -1562,6 +1623,7 @@ function renderPlayNow(opts){
     ${listHtml}
     <div class="cmb-legend">
       <span><span class="cmb-league-badge" style="background:var(--amber); padding:2px 6px;">LIGA</span> = kolor ligi (identyfikacja)</span>
+      <span><span class="rel-dot rel-ok"></span><span class="rel-dot rel-mid"></span><span class="rel-dot rel-weak"></span> = wiarygodność modelu w lidze (historia): ślad / neutralnie / słaby — zob. SKUTECZNOŚĆ</span>
       <span>🏒 avatar drużyny (neutralny)</span>
       <span><span class="ft-pct" style="color:var(--teal)">62.8%</span> = procent drużyny (ten sam kolor co wynik)</span>
       <span><span class="prob-badge prob-green" style="padding:2px 6px; width:auto;">${pnView==='all'?'58%':'65'}</span> = ${pnView==='all'?'wynik prognozy (im wyżej, tym większa szansa na Over)':'indeks TOP 5 (im wyżej, tym mocniejszy typ)'}</span>
@@ -1572,12 +1634,23 @@ function renderPlayNow(opts){
     scroll: (content.querySelector('.fixtures-scroll')||{}).scrollTop || 0,
     past: !!document.getElementById('pn-past-wrapper')?.classList.contains('open'),
   });
+  content._pn = {allMatches, keepState};
+  if(!content._pnBound){
+    content._pnBound = true;
+    // delegacja: wiersze i przełączniki sortowania powstają leniwie, po otwarciu dnia
+    content.addEventListener('click', (ev)=>{
+      const sb = ev.target.closest('[data-sort-toggle] button');
+      if(sb && content.contains(sb)){ ev.stopPropagation(); pnSort = sb.dataset.sort; renderPlayNow(content._pn.keepState()); return; }
+      const row = ev.target.closest('[data-cmb]');
+      if(row && content.contains(row)){
+        const m = content._pn.allMatches.find(x=>x.sortDate+'|'+x.league+'|'+x.home+'|'+x.away === row.dataset.cmbKey);
+        if(m) toggleFixtureDetails(row, m, m.league);
+      }
+    });
+  }
   bindLeagueChips(content, ()=>renderPlayNow());
   content.querySelectorAll('#pnViewFilter button').forEach(b=>{
     b.addEventListener('click', ()=>{ pnView = b.dataset.view; renderPlayNow(); });
-  });
-  content.querySelectorAll('[data-sort-toggle] button').forEach(b=>{
-    b.addEventListener('click', (ev)=>{ ev.stopPropagation(); pnSort = b.dataset.sort; renderPlayNow(keepState()); });
   });
   content.querySelector('.month-header[data-toggle="past"]')?.addEventListener('click', ()=>{
     document.getElementById('pn-past-wrapper').classList.toggle('open');
@@ -1587,33 +1660,145 @@ function renderPlayNow(opts){
       const group = h.closest('.day-group');
       const wasOpen = group.classList.contains('open');
       content.querySelectorAll('.day-group.open').forEach(g=>g.classList.remove('open'));
-      if(!wasOpen) group.classList.add('open');
-    });
-  });
-  content.querySelectorAll('[data-cmb]').forEach(row=>{
-    row.addEventListener('click', ()=>{
-      const m = allMatches.find(x=>x.sortDate+'|'+x.league+'|'+x.home+'|'+x.away === row.dataset.cmbKey);
-      toggleFixtureDetails(row, m, m.league);
+      if(!wasOpen){ group.classList.add('open'); fillLazyDay(group); }
     });
   });
 
   // otwarcie dnia + przewinięcie TYLKO wewnątrz kontenera terminarza (nie całej strony!)
   const scrollBox = content.querySelector('.fixtures-scroll');
   if(opts.open && opts.open.length){
-    opts.open.forEach(id=>document.getElementById(id)?.classList.add('open'));
+    opts.open.forEach(id=>{ const el = document.getElementById(id); if(el){ el.classList.add('open'); fillLazyDay(el); } });
     if(opts.past) document.getElementById('pn-past-wrapper')?.classList.add('open');
     if(scrollBox) requestAnimationFrame(()=>{ scrollBox.scrollTop = opts.scroll || 0; });
   } else if(dates.length){
     const el = document.getElementById('pn-anchor-'+dates[0]);
     if(el){
-      el.classList.add('open');
+      el.classList.add('open'); fillLazyDay(el);
       if(scrollBox) requestAnimationFrame(()=>{ scrollBox.scrollTop = el.offsetTop - scrollBox.offsetTop; });
     }
   }
 }
 
+// ---------- SKUTECZNOŚĆ: czy model faktycznie działa w trwającym sezonie ----------
+let PERF_CACHE = null;
+// Prognoza modelu v2 liczona wstecz (walk-forward) dla każdego rozegranego meczu 2026/27 ze stanu sprzed jego dnia —
+// dzięki temu skala jest spójna, a mecz nie "widzi" własnego wyniku.
+function perfRows(){
+  if(PERF_CACHE) return PERF_CACHE;
+  const rows = [];
+  Object.keys(DATA.leagues).forEach(lg=>{
+    const s = DATA.leagues[lg].seasons['2026-27']; if(!s) return;
+    const pool = [...(s.preseason?.matches||[]), ...(s.mainSeason?.matches||[])].filter(m=>m.played && m.p1).sort((a,b)=>a.sortDate.localeCompare(b.sortDate));
+    const byDay = {}; pool.forEach(m=>(byDay[m.sortDate] = byDay[m.sortDate] || []).push(m));
+    let soFar = [];
+    Object.keys(byDay).sort().forEach(dt=>{
+      const stats = aggregateCurrentSeasonStats(soFar);
+      byDay[dt].forEach(m=>{
+        const pr = predictMatchModel(lg, m.home, m.away, stats);
+        const [g1,g2] = m.p1.split(':').map(Number);
+        if(pr) rows.push({lg, date:dt, prob:pr.prob, over:(g1+g2)>=2, key:`${m.sortDate}|${lg}|${m.home}|${m.away}`});
+      });
+      soFar = soFar.concat(byDay[dt]);
+    });
+  });
+  return PERF_CACHE = rows;
+}
+function ci95pp(p, n){ return n ? 1.96*Math.sqrt(p*(1-p)/n)*100 : 0; }
+function hitCell(hits, n, base){
+  if(!n) return '<td class="num">—</td><td class="num">—</td>';
+  const p = hits/n, d = (p-base)*100;
+  const col = d>=0 ? 'var(--teal)' : 'var(--red)';
+  return `<td class="num" style="color:${col}; font-weight:700;">${(p*100).toFixed(1)}% <span class="perf-small">±${ci95pp(p,n).toFixed(0)}</span></td>
+          <td class="num" style="color:${col};">${d>=0?'+':''}${d.toFixed(1)} pp</td>`;
+}
+function top5PastRecord(){
+  const byDate = {};
+  Object.keys(DATA.leagues).forEach(lg=>{
+    const s = DATA.leagues[lg].seasons['2026-27']; if(!s) return;
+    [...(s.preseason?.matches||[]), ...(s.mainSeason?.matches||[])].forEach(m=>{ (byDate[m.sortDate] = byDate[m.sortDate] || []).push({...m, league: lg}); });
+  });
+  const today = todayStr();
+  return Object.keys(byDate).filter(d=>d<today).sort().map(d=>{
+    const picks = pickTop5(byDate[d], d).filter(p=>p.m.played);
+    const all = byDate[d].filter(m=>m.played);
+    return {d, date: byDate[d][0].date, n: picks.length, over: picks.filter(p=>p.m.over15).length, baseN: all.length, baseOver: all.filter(m=>m.over15).length};
+  }).filter(x=>x.n>0);
+}
+
+function renderPerf(){
+  const content = document.getElementById('perfContent');
+  const rows = perfRows();
+  const N = rows.length;
+  if(N < 20){
+    content.innerHTML = `<div class="schedule-note">📈 <span>Za mało rozegranych meczów 2026/27 z prognozą (${N}), żeby ocenić skuteczność. Panel wypełni się po wczytaniu większej liczby wyników.</span></div>`;
+    return;
+  }
+  const base = rows.filter(r=>r.over).length / N;
+  const sorted = [...rows].sort((a,b)=>b.prob-a.prob);
+  const seg = (from, to) => { const sl = sorted.slice(Math.round(N*from), Math.round(N*to)); return {n: sl.length, hits: sl.filter(r=>r.over).length, avg: sl.length ? sl.reduce((s,r)=>s+r.prob,0)/sl.length : 0}; };
+  const segs = [['Top 10% prognoz', seg(0,.1)], ['Top 20%', seg(0,.2)], ['Top 50%', seg(0,.5)], ['Dolne 50%', seg(.5,1)], ['Dolne 20%', seg(.8,1)]];
+  const segRows = segs.map(([label, sg])=>`<tr><td class="l">${label}</td><td class="num">${sg.n}</td>${hitCell(sg.hits, sg.n, base)}<td class="num">${sg.hits ? (sg.n/sg.hits).toFixed(2) : '—'}</td></tr>`).join('');
+
+  const buckets = [[0,48,'poniżej 48%'],[48,51,'48–51%'],[51,54,'51–54%'],[54,57,'54–57%'],[57,101,'57% i więcej']];
+  const calRows = buckets.map(([lo,hi,label])=>{
+    const sl = rows.filter(r=>r.prob>=lo && r.prob<hi); const n = sl.length; const hits = sl.filter(r=>r.over).length;
+    const avg = n ? sl.reduce((s,r)=>s+r.prob,0)/n : 0;
+    return `<tr><td class="l">${label}</td><td class="num">${n}</td><td class="num">${n? avg.toFixed(1)+'%' : '—'}</td>${hitCell(hits, n, avg/100).replace(/<td class="num" style="[^"]*">/,'<td class="num" style="font-weight:700;">').replace(/(<td class="num" style="color:[^"]*">)([+-])/,'$1$2')}</tr>`;
+  }).join('');
+
+  // TOP 5 — bilans
+  const rec = top5PastRecord();
+  const sum = list => list.reduce((a,x)=>({n:a.n+x.n, over:a.over+x.over, baseN:a.baseN+x.baseN, baseOver:a.baseOver+x.baseOver}), {n:0,over:0,baseN:0,baseOver:0});
+  const winRow = (label, list)=>{ const t = sum(list); return t.n ? `<tr><td class="l">${label}</td><td class="num">${list.length}</td><td class="num">${t.over}/${t.n}</td>${hitCell(t.over, t.n, t.baseOver/(t.baseN||1))}</tr>` : ''; };
+  const dayChips = rec.slice(-14).reverse().map(x=>`<span style="background:var(--surface2); border-radius:7px; padding:4px 9px; font-size:11px; display:inline-block; margin:0 6px 6px 0;"><span style="color:var(--muted)">${x.date.slice(0,5)}</span> <b style="color:${x.over*2>=x.n?'var(--teal)':'var(--red)'}">${x.over}/${x.n}</b></span>`).join('');
+
+  // per liga
+  const leagueAgg = {};
+  rows.forEach(r=>{ const a = leagueAgg[r.lg] = leagueAgg[r.lg] || {n:0, over:0, probSum:0}; a.n++; if(r.over) a.over++; a.probSum += r.prob; });
+  const tierOrder = {ok:0, mid:1, weak:2};
+  const lgRows = Object.entries(leagueAgg).sort((a,b)=>{ const ra = relInfo(a[0]), rb = relInfo(b[0]); return ((ra?tierOrder[ra.tier]:3)-(rb?tierOrder[rb.tier]:3)) || (b[1].n-a[1].n); }).map(([lg, a])=>{
+    const r = relInfo(lg); const p = a.over/a.n;
+    return `<tr><td class="l"><b style="color:${leagueColor(lg)}">${lg}</b></td>
+      <td class="l">${r ? `<span class="rel-dot rel-${r.tier}" style="margin:0 5px 0 0;"></span>${REL_LABEL[r.tier].split(' (')[0]} <span class="perf-small">AUC ${r.auc.toFixed(2)}</span>` : '<span class="perf-small">brak historii</span>'}</td>
+      <td class="num">${a.n}</td><td class="num">${(p*100).toFixed(0)}%</td><td class="num">${(a.probSum/a.n).toFixed(0)}%</td></tr>`;
+  }).join('');
+
+  content.innerHTML = `
+    <div class="legend">📈 Czy model faktycznie działa? Prognozy liczone wstecz modelem v2 dla ${N} rozegranych meczów sezonu 2026/27 (każdy ze stanu sprzed swojego dnia). Przedział ± to 95% niepewności z samej wielkości próbki.</div>
+    <div class="top5-panel">
+      <div class="top5-title">Baza: Over 1,5 w P1 pada w ${(base*100).toFixed(1)}% meczów (${rows.filter(r=>r.over).length}/${N})</div>
+      <div class="perf-note" style="margin:0;">Prognoza ma sens tylko wtedy, gdy mecze z wysoką prognozą wchodzą częściej niż baza. Różnica „vs baza” poniżej to ten zysk w punktach procentowych.</div>
+    </div>
+
+    <div class="perf-h">Czy wyższa prognoza = częstszy Over?</div>
+    <div class="card"><table class="perf-table"><thead><tr><th class="l">Segment</th><th class="num">Mecze</th><th class="num">Padł Over</th><th class="num">vs baza</th><th class="num">Kurs break-even</th></tr></thead><tbody>${segRows}</tbody></table></div>
+    <div class="perf-note">Kurs break-even = 1 / realny odsetek. Zakład na Over ma sens, jeśli kurs jest wyższy niż w tej kolumnie (i próbka jest wystarczająco duża).</div>
+
+    <div class="perf-h">Kalibracja: czy 55% to naprawdę ok. 55%?</div>
+    <div class="card"><table class="perf-table"><thead><tr><th class="l">Prognoza</th><th class="num">Mecze</th><th class="num">Śr. prognoza</th><th class="num">Realny Over</th><th class="num">Różnica</th></tr></thead><tbody>${calRows}</tbody></table></div>
+
+    <div class="perf-h">⭐ TOP 5 Zakładów — bilans</div>
+    ${rec.length ? `<div class="card"><table class="perf-table"><thead><tr><th class="l">Okres</th><th class="num">Dni</th><th class="num">Trafione</th><th class="num">Skuteczność</th><th class="num">vs baza dni</th></tr></thead><tbody>
+      ${winRow('Ostatnie 7 dni', rec.slice(-7))}${winRow('Ostatnie 14 dni', rec.slice(-14))}${winRow('Cały sezon', rec)}</tbody></table></div>
+      <div style="margin-top:10px;">${dayChips}</div>` : '<div class="perf-note">Brak zakończonych dni z wynikami TOP 5.</div>'}
+
+    <div class="perf-h">Wiarygodność modelu w ligach</div>
+    <div class="card"><table class="perf-table"><thead><tr><th class="l">Liga</th><th class="l">Historia (24/25–25/26)</th><th class="num">Mecze 26/27</th><th class="num">Over</th><th class="num">Śr. prognoza</th></tr></thead><tbody>${lgRows}</tbody></table></div>
+    <div class="perf-note">Wiarygodność = siła rozróżniania meczów (AUC) modelu v2 w poprzednich sezonach: 0,50 to rzut monetą. W większości lig jest ona niewielka, a w NHL i AHL praktycznie żadna (0,50–0,51) — tam prognoza bardziej porządkuje mecze niż je przewiduje. Próbki to 400–1300 meczów na ligę, więc różnice rzędu ±0,03 to szum.</div>`;
+}
+
 // ---------- Updates / changelog ----------
 const CHANGELOG = [
+  {
+    date: '09.10.2026',
+    title: 'SKUTECZNOŚĆ, kursy break-even, wiarygodność lig i szybszy start',
+    items: [
+      'Nowa zakładka „SKUTECZNOŚĆ”: czy mecze z wysoką prognozą wchodzą częściej (z przedziałami błędu), kalibracja, bilans TOP 5 (7/14 dni, sezon), skuteczność per liga',
+      'Kurs break-even przy każdej prognozie (w dymku nad % oraz w tabeli SKUTECZNOŚĆ) — bez wpisywania czegokolwiek ręcznie',
+      'Kropki wiarygodności modelu przy ligach (ślad / neutralnie / słaby) — w NHL i AHL model historycznie niemal nie odróżnia meczów',
+      'Wydajność: dni w TERMINARZU, TOP 5 i WYNIKACH ładują wiersze dopiero po otwarciu; lista „Wszystkie sezony” w porcjach po 300; dane odświeżane przez ETag zamiast pełnego pobrania; chipy lig przewijane poziomo na telefonie',
+    ],
+  },
   {
     date: '08.10.2026',
     title: 'TERMINARZ: jedna lista dnia, noc USA na początku',
@@ -2096,7 +2281,7 @@ function rebuildCurrentSeasonModel(lg){
       delete m.prob; delete m.homePct; delete m.awayPct; delete m.homeOverallPct; delete m.awayOverallPct; delete m.components; delete m.modelBasis; delete m.dataSource;
     }
   });
-  TOP5_IDX = {}; TOP5_CUR = {};
+  TOP5_IDX = {}; TOP5_CUR = {}; PERF_CACHE = null;
 }
 
 function collectPlayedWithProb(scope){
@@ -2151,13 +2336,14 @@ function wynikiRowHtml(m, i){
   return combinedRowHtml(m, m.sortDate, 'wa-row-', {afterRowHtml: strip, showDate: wynikiScope==='all', seasonLabel: m.seasonLabel});
 }
 
+let wyLimit = 300; // w widoku 'Wszystkie sezony i ligi' renderujemy porcjami
 function rerenderWynikiPreserveScroll(){
   const scroller = document.querySelector('#wynikiallContent .fixtures-scroll') || document.querySelector('#wynikiallContent .matches-list');
   const scrollTop = scroller ? scroller.scrollTop : 0;
   const openIds = [...document.querySelectorAll('#wynikiallContent .day-group.open')].map(g=>g.id);
   const pastOpen = !!document.getElementById('wa-past-wrapper')?.classList.contains('open');
   renderWynikiAll();
-  openIds.forEach(id=>document.getElementById(id)?.classList.add('open'));
+  openIds.forEach(id=>{ const el = document.getElementById(id); if(el){ el.classList.add('open'); fillLazyDay(el); } });
   if(pastOpen) document.getElementById('wa-past-wrapper')?.classList.add('open');
   requestAnimationFrame(()=>{
     const newScroller = document.querySelector('#wynikiallContent .fixtures-scroll') || document.querySelector('#wynikiallContent .matches-list');
@@ -2166,31 +2352,38 @@ function rerenderWynikiPreserveScroll(){
 }
 
 function attachWynikiRowHandlers(listEl, rows){
-  listEl.querySelectorAll('[data-save-result]').forEach(btn=>{
-    btn.addEventListener('click', (ev)=>{
+  listEl._wy = {rows};
+  if(listEl._wyBound) return;
+  listEl._wyBound = true;
+  // delegacja — wiersze dni powstają leniwie po ich otwarciu
+  listEl.addEventListener('click', (ev)=>{
+    const saveBtn = ev.target.closest('[data-save-result]');
+    if(saveBtn && listEl.contains(saveBtn)){
       ev.stopPropagation();
-      const strip = btn.closest('.entry-strip');
+      const strip = saveBtn.closest('.entry-strip');
       const h = +strip.querySelector('[data-p1h]').value || 0;
       const a = +strip.querySelector('[data-p1a]').value || 0;
       saveManualResult(strip.dataset.mkey, h, a);
       rebuildCurrentSeasonModel(strip.dataset.mkey.split('|')[1]);
       rerenderWynikiPreserveScroll();
-    });
-  });
-  listEl.querySelectorAll('[data-delete-manual]').forEach(link=>{
-    link.addEventListener('click', (ev)=>{
+      return;
+    }
+    const del = ev.target.closest('[data-delete-manual]');
+    if(del && listEl.contains(del)){
       ev.preventDefault(); ev.stopPropagation();
-      const strip = link.closest('.entry-strip');
+      const strip = del.closest('.entry-strip');
       deleteManualResult(strip.dataset.mkey);
       rebuildCurrentSeasonModel(strip.dataset.mkey.split('|')[1]);
       rerenderWynikiPreserveScroll();
-    });
-  });
-  listEl.querySelectorAll('[data-cmb]').forEach(row=>{
-    row.addEventListener('click', ()=>{
-      const m = rows.find(x=>(x.key||`${x.sortDate}|${x.league}|${x.home}|${x.away}`)===row.dataset.cmbKey);
+      return;
+    }
+    const more = ev.target.closest('[data-more]');
+    if(more && listEl.contains(more)){ wyLimit += 300; rerenderWynikiPreserveScroll(); return; }
+    const row = ev.target.closest('[data-cmb]');
+    if(row && listEl.contains(row)){
+      const m = listEl._wy.rows.find(x=>(x.key||`${x.sortDate}|${x.league}|${x.home}|${x.away}`)===row.dataset.cmbKey);
       if(m) toggleFixtureDetails(row, m, m.league);
-    });
+    }
   });
 }
 
@@ -2261,6 +2454,7 @@ function renderWynikiAll(){
       const playedDay = dayMatches.filter(m=>m.played);
       const dayOver = playedDay.filter(m=>m.over15).length;
       const pendingCount = dayMatches.length - playedDay.length;
+      LAZY['wa-anchor-'+d] = () => combinedTableHeaderHtml('Wynik P1') + dayMatches.map((m,i)=>wynikiRowHtml(m,i)).join('');
       const statusTxt = [overBadgeHtml(dayOver, playedDay.length), pendingCount ? `<span style="color:var(--muted)">${pendingCount} do wpisania</span>` : ''].filter(Boolean).join(' · ');
       return `<div class="day-group${d===openTarget?' open':''}" id="wa-anchor-${d}">
         <div class="day-header" data-toggle="day">
@@ -2268,10 +2462,7 @@ function renderWynikiAll(){
           <span class="n">${dayMatches.length} mecz${dayMatches.length===1?'':dayMatches.length<5?'e':'ów'}${statusTxt?' · '+statusTxt:''}</span>
           <span class="caret">▾</span>
         </div>
-        <div class="day-body">
-          ${combinedTableHeaderHtml('Wynik P1')}
-          ${dayMatches.map((m,i)=>wynikiRowHtml(m,i)).join('')}
-        </div>
+        <div class="day-body" data-lazy="1"></div>
       </div>`;
     };
 
@@ -2305,8 +2496,9 @@ function renderWynikiAll(){
       document.getElementById('wa-past-wrapper').classList.toggle('open');
     });
     content.querySelectorAll('.day-header[data-toggle="day"]').forEach(h=>{
-      h.addEventListener('click', ()=>{ h.closest('.day-group').classList.toggle('open'); });
+      h.addEventListener('click', ()=>{ const g = h.closest('.day-group'); g.classList.toggle('open'); if(g.classList.contains('open')) fillLazyDay(g); });
     });
+    content.querySelectorAll('.day-group.open').forEach(g=>fillLazyDay(g));
     attachWynikiRowHandlers(content, allRows);
     document.getElementById('saveAllBtn')?.addEventListener('click', ()=>{
       let savedCount = 0;
@@ -2331,7 +2523,7 @@ function renderWynikiAll(){
       ${summaryPanel}
       ${leagueChipsHtml()}
       <div class="matches-list" id="wynikiList" style="max-height:640px;">
-        ${allRows.length ? combinedTableHeaderHtml('Wynik P1') + allRows.map((m,i)=>wynikiRowHtml(m,i)).join('') : `<div style="color:var(--muted); font-size:13px; padding:24px; text-align:center;">Brak danych.</div>`}
+        ${allRows.length ? combinedTableHeaderHtml('Wynik P1') + allRows.slice(0, wyLimit).map((m,i)=>wynikiRowHtml(m,i)).join('') + (allRows.length>wyLimit ? `<button class="more-btn" data-more>Pokaż więcej (${Math.min(300, allRows.length-wyLimit)} z ${allRows.length-wyLimit} pozostałych)</button>` : '') : `<div style="color:var(--muted); font-size:13px; padding:24px; text-align:center;">Brak danych.</div>`}
       </div>
       ${legendBottom}`;
     attachWynikiRowHandlers(content, allRows);
@@ -2340,7 +2532,7 @@ function renderWynikiAll(){
   bindLeagueChips(content, ()=>renderWynikiAll());
   document.querySelectorAll('#wynikiScopeFilter button').forEach(b=>{
     if(b.dataset.scope===wynikiScope) b.classList.add('active');
-    b.addEventListener('click', ()=>{ wynikiScope=b.dataset.scope; renderWynikiAll(); });
+    b.addEventListener('click', ()=>{ wynikiScope=b.dataset.scope; wyLimit = 300; renderWynikiAll(); });
   });
 }
 
@@ -2444,10 +2636,10 @@ function combinedRowHtml(m, dayKey, idPrefix, opts){
     : `<span>${m.time ? m.time : dateTxt}</span>${m.time?`<span style="font-size:9.5px; color:var(--muted);">${dateTxt}</span>`:''}`;
   const probCell = opts.badgeHtml
     ? opts.badgeHtml
-    : (m.prob!==undefined ? `<span class="prob-badge ${probClass(m.prob)}">${m.prob.toFixed(0)}%</span>` : '<span style="color:var(--muted); font-size:10.5px; text-align:center;">brak</span>');
+    : (m.prob!==undefined ? `<span class="prob-badge ${probClass(m.prob)}" title="Kurs break-even: ${breakEven(m.prob).toFixed(2)}">${m.prob.toFixed(0)}%</span>` : '<span style="color:var(--muted); font-size:10.5px; text-align:center;">brak</span>');
   const rankTag = opts.rankTag ? `<span class="top5-rank-tag">#${opts.rankTag}</span>` : '';
   return `<div class="cmb-row-grid${rowClass}" id="${rowId}" data-cmb data-cmb-key="${combKey}" data-key="${detailsPrefix}${combKey}">
-    <div class="cmb-league-badge" style="background:${leagueColor(m.league)}">${rankTag}${m.league}${hotBadge}</div>
+    <div class="cmb-league-badge" style="background:${leagueColor(m.league)}">${rankTag}${m.league}${relDotHtml(m.league)}${hotBadge}</div>
     <div class="cmb-team home">${logo(m.home, m.league)}<b title="${m.home}">${m.home}</b>${m.homePct!=null?`<span class="ft-pct" style="color:${pctColor(m.homePct)}">${m.homePct.toFixed(1)}%</span>`:''}</div>
     <div class="cmb-vs">vs</div>
     <div class="cmb-team away">${logo(m.away, m.league)}<b title="${m.away}">${m.away}</b>${m.awayPct!=null?`<span class="ft-pct" style="color:${pctColor(m.awayPct)}">${m.awayPct.toFixed(1)}%</span>`:''}</div>
@@ -2529,10 +2721,12 @@ function computeHotPairs(){
 
 function hotPairKey(lg, a, b){ return lg+'|||'+[a,b].sort().join('|||'); }
 
+let HOT_INDEX_CACHE = null;
 function getHotPairsIndex(){
+  if(HOT_INDEX_CACHE) return HOT_INDEX_CACHE;
   const idx = {};
   computeHotPairs().forEach(p=>{ idx[hotPairKey(p.league, p.teamA, p.teamB)] = p; });
-  return idx;
+  return HOT_INDEX_CACHE = idx;
 }
 
 function findHotInfo(m){
@@ -2749,10 +2943,11 @@ function populateH2H(){
 
 async function boot(){
   try{
+    try{ localStorage.removeItem('puckline_odds'); }catch(e){}
     GITHUB_SYNC_CONFIG = loadSyncConfig();
     updateSyncStatusUI(GITHUB_SYNC_CONFIG && GITHUB_SYNC_CONFIG.token ? 'idle' : 'no-config');
 
-    const res = await fetch("./data.json?v=" + Date.now());
+    const res = await fetch("./data.json", {cache: "no-cache"}); // rewalidacja ETagiem: 304 gdy plik bez zmian
     if(!res.ok) throw new Error("HTTP " + res.status);
     DATA = await res.json();
 
