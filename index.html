@@ -1316,9 +1316,10 @@ function overBadgeHtml(x, y){
   return `<span class="over-badge">${x}/${y} Over</span> <span class="over-pct">(${Math.round(x/y*100)}%)</span>`;
 }
 
-// Sortowanie meczów w dniu. W danych NIE MA jeszcze godzin rozpoczęcia (m.time) — dopóki ich nie ma,
-// "Czas" = kolejność stref (Europa przed USA/Kanadą), potem liga. Gdy scraper zacznie dostarczać
-// m.time ('HH:MM'), sortowanie po czasie zadziała automatycznie.
+// Sortowanie meczów w dniu. Daty w danych są w czasie polskim, więc mecze USA/Kanady (NHL, AHL, OHL) danego dnia
+// lecą w nocy ok. 01-04 i są PIERWSZE, a dopiero potem zaczyna się Europa. W danych NIE MA jeszcze godzin
+// rozpoczęcia (m.time) — dopóki ich nie ma, "Czas" = noc USA/Kanada -> Europa, potem liga.
+// Gdy scraper zacznie dostarczać m.time ('HH:MM'), sortowanie po czasie zadziała automatycznie.
 function sortDayMatches(list, mode){
   const arr = [...list];
   if(mode==='prob') return arr.sort((a,b)=>(b.prob??-1)-(a.prob??-1));
@@ -1326,7 +1327,7 @@ function sortDayMatches(list, mode){
   return arr.sort((a,b)=>{
     const ta = a.time || '99:99', tb = b.time || '99:99';
     if(ta!==tb) return ta<tb ? -1 : 1;
-    if(na(a)!==na(b)) return na(a)-na(b);
+    if(na(a)!==na(b)) return na(b)-na(a);   // USA/Kanada (noc) przed Europą
     return a.league.localeCompare(b.league);
   });
 }
@@ -1464,7 +1465,7 @@ function renderPlayNow(opts){
       <span class="sort-label">Sortuj</span>
       <button data-sort="time" class="${pnSort==='time'?'active':''}">Czas</button>
       <button data-sort="prob" class="${pnSort==='prob'?'active':''}">% Prognozy</button>
-      ${pnSort==='time' && !hasTimes ? '<span class="sort-note">brak godzin w danych — kolejność: Europa → USA/Kanada, potem liga</span>' : ''}
+      ${pnSort==='time' && !hasTimes ? '<span class="sort-note">brak godzin w danych — kolejność: noc USA/Kanada (ok. 01–04) → Europa, potem liga</span>' : ''}
     </div>`;
 
   const dayGroupHtml = (d) => {
@@ -1474,17 +1475,7 @@ function renderPlayNow(opts){
     const strongCount = dayMatches.filter(m=>m.prob!==undefined && m.prob>=56).length;
     const intensityTag = strongCount>0 ? ` · <span style="color:var(--teal)">🔥 ${strongCount} mocnych typów (≥56%)</span>` : '';
     const playingLeagues = [...new Set(dayMatches.map(m=>leagueShortLabel(m.league)))].join(', ');
-    const section = (title, list) => list.length ? `
-      <div style="padding:8px 14px 2px; font-family:'Space Grotesk',sans-serif; font-size:10.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em;">${title}</div>
-      ${combinedTableHeaderHtml('Data')}
-      ${list.map(m=>combinedRowHtml(m, d, 'pn-row-')).join('')}` : '';
-    let body;
-    if(pnSort==='time' && hasTimes){
-      body = section('🕒 Wg godziny rozpoczęcia', dayMatches);
-    } else {
-      body = section('🌆 Popołudnie / wieczór (Europa)', dayMatches.filter(m=>!NA_LEAGUES.includes(m.league)))
-           + section('🌙 Noc (USA / Kanada)', dayMatches.filter(m=>NA_LEAGUES.includes(m.league)));
-    }
+    const body = combinedTableHeaderHtml('Data') + dayMatches.map(m=>combinedRowHtml(m, d, 'pn-row-')).join('');
     return `<div class="day-group" id="pn-anchor-${d}">
       <div class="day-header" data-toggle="day">
         <span class="date">${dayMatches[0].date}</span>
@@ -1623,6 +1614,15 @@ function renderPlayNow(opts){
 
 // ---------- Updates / changelog ----------
 const CHANGELOG = [
+  {
+    date: '08.10.2026',
+    title: 'TERMINARZ: jedna lista dnia, noc USA na początku',
+    items: [
+      'Koniec podziału na „Europa” i „USA/Kanada” — mecze dnia są w jednej liście',
+      'Mecze USA/Kanady (NHL, AHL, OHL) lecą w nocy (ok. 01–04 czasu polskiego), więc w sortowaniu „Czas” są PRZED Europą',
+      'Sortowanie „% Prognozy” układa wszystkie mecze dnia jednym rankingiem',
+    ],
+  },
   {
     date: '07.10.2026',
     title: 'TOP 5 z historią i tabela drużyn bieżącego sezonu',
