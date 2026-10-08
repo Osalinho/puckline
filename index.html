@@ -627,7 +627,7 @@ function renderHeader(){
     ? `Zbiorczy ranking drużyn ze wszystkich dostępnych sezonów (${completedSeasonKeys().map(k=>DATA.leagues[currentLeague].seasons[k].label).join(', ')})`
     : (DATA.leagues[currentLeague].seasons[currentSeason].status==='completed'
         ? `Analiza over 1,5 gola w 1. tercji · Sezon ${DATA.leagues[currentLeague].seasons[currentSeason].label} (zakończony)`
-        : `Sezon ${DATA.leagues[currentLeague].seasons[currentSeason].label} · harmonogram, statystyki po starcie rozgrywek`);
+        : (()=>{ const n = liveSeasonMatches(currentLeague, currentSeason, 'all').length; const lb = DATA.leagues[currentLeague].seasons[currentSeason].label; return n ? `Sezon ${lb} · tabela drużyn na żywo z rozegranych meczów (${n}) · aktualizuje się po wczytaniu wyników` : `Sezon ${lb} · harmonogram, statystyki po starcie rozgrywek`; })());
 
   const buttons = Object.entries(DATA.leagues[currentLeague].seasons).map(([key,val])=>
     `<button class="${key===currentSeason?'active':''}" data-season="${key}">${val.label}${val.status==='upcoming'?' <span class="new-badge">NOWY</span>':''}</button>`
@@ -642,7 +642,7 @@ function renderHeader(){
   });
 
   if(isAll){
-    const totalMatches = completedSeasonKeys().reduce((sum,k)=>sum+DATA.leagues[currentLeague].seasons[k].matchCount,0);
+    const totalMatches = completedSeasonKeys().reduce((sum,k)=>sum+DATA.leagues[currentLeague].seasons[k].matchCount,0) + Object.keys(DATA.leagues[currentLeague].seasons).reduce((sum,k)=>sum+liveSeasonMatches(currentLeague,k,'all').length,0);
     document.getElementById('metaRight').innerHTML = `Sezony: <b>${completedSeasonKeys().length}</b><br>Łącznie przeanalizowanych meczów: <b>${totalMatches}</b>`;
     return;
   }
@@ -655,6 +655,47 @@ function renderHeader(){
 }
 
 // ---------- Dashboard ----------
+// ---------- Tabela drużyn bieżącego sezonu (na żywo z rozegranych meczów) ----------
+let dashScope = 'all'; // 'all' = presezon + sezon zasadniczy | 'main' = tylko sezon zasadniczy
+function liveSeasonMatches(lg, sk, scope){
+  const s = DATA.leagues[lg].seasons[sk];
+  if(!s || s.status==='completed') return [];
+  const pools = scope==='main' ? [s.mainSeason?.matches||[]] : [s.preseason?.matches||[], s.mainSeason?.matches||[]];
+  return pools.flat().filter(m=>m.played && m.p1);
+}
+function liveSeasonTeams(lg, sk, scope){
+  const ms = liveSeasonMatches(lg, sk, scope).slice().sort((a,b)=>a.sortDate.localeCompare(b.sortDate));
+  const per = {};
+  const ens = n => per[n] || (per[n] = []);
+  ms.forEach(m=>{
+    const [g1,g2] = m.p1.split(':').map(Number);
+    const ov = (g1+g2)>=2;
+    ens(m.home).push({role:'H', ov}); ens(m.away).push({role:'A', ov});
+  });
+  const r1 = v => Math.round(v*10)/10;
+  return Object.entries(per).map(([name, rows])=>{
+    const home = rows.filter(r=>r.role==='H'), away = rows.filter(r=>r.role==='A');
+    const overs = rows.filter(r=>r.ov).length, homeOvers = home.filter(r=>r.ov).length, awayOvers = away.filter(r=>r.ov).length;
+    const seq = rows.map(r=>r.ov ? 'O' : 'U');
+    const last5 = seq.slice(-5);
+    const recent5Pct = last5.length ? last5.filter(x=>x==='O').length/last5.length*100 : 0;
+    const cur = seq[seq.length-1]; let k = 0;
+    for(let i=seq.length-1; i>=0 && seq[i]===cur; i--) k++;
+    const overallPct = r1(overs/rows.length*100);
+    // wskaźnik formy: 40% overall + 30% ostatnie 5 + 30% seria (50 ± 12,5 pkt za każdy mecz serii, max ±4)
+    const streakScore = 50 + (cur==='O' ? 1 : -1) * Math.min(k,4) * 12.5;
+    return {
+      name, matches: rows.length, overs,
+      homeMatches: home.length, homeOvers, awayMatches: away.length, awayOvers,
+      overallPct,
+      homePct: home.length ? r1(homeOvers/home.length*100) : 0,
+      awayPct: away.length ? r1(awayOvers/away.length*100) : 0,
+      recent5Pct: r1(recent5Pct), trend5: last5, streak: cur+k,
+      formScore: r1(0.4*overallPct + 0.3*recent5Pct + 0.3*streakScore),
+    };
+  });
+}
+
 function aggregateAllSeasonsTeams(){
   const map = {};
   completedSeasonKeys().forEach(k=>{
@@ -665,6 +706,16 @@ function aggregateAllSeasonsTeams(){
       a.homeMatches += t.homeMatches; a.homeOvers += t.homeOvers;
       a.awayMatches += t.awayMatches; a.awayOvers += t.awayOvers;
       a.seasons.push(DATA.leagues[currentLeague].seasons[k].label);
+    });
+  });
+  Object.entries(DATA.leagues[currentLeague].seasons).filter(([k,v])=>v.status!=='completed').forEach(([k,v])=>{
+    liveSeasonTeams(currentLeague, k, 'all').forEach(t=>{
+      if(!map[t.name]) map[t.name] = {name:t.name, matches:0, overs:0, homeMatches:0, homeOvers:0, awayMatches:0, awayOvers:0, seasons:[]};
+      const a = map[t.name];
+      a.matches += t.matches; a.overs += t.overs;
+      a.homeMatches += t.homeMatches; a.homeOvers += t.homeOvers;
+      a.awayMatches += t.awayMatches; a.awayOvers += t.awayOvers;
+      a.seasons.push(v.label+' (trwa)');
     });
   });
   return Object.values(map).map(a=>({
@@ -702,12 +753,28 @@ function renderDashboard(){
     return;
   }
   const s = DATA.leagues[currentLeague].seasons[currentSeason];
-  if(s.status !== 'completed'){
+  const isLive = s.status !== 'completed';
+  if(isLive && !liveSeasonMatches(currentLeague, currentSeason, 'all').length){
     content.innerHTML = `<div class="schedule-note">⏳ <span>Sezon <b>${s.label}</b> jeszcze się nie rozpoczął — ranking i statystyki over 1,5 pojawią się automatycznie po rozegraniu pierwszych meczów. Na razie sprawdź zakładkę <b>Terminarz</b>, żeby zobaczyć harmonogram.</span></div>`;
     document.getElementById('teamCount').textContent = '';
     return;
   }
-  content.innerHTML = `<div class="card"><table>
+  const liveBar = isLive ? `<div class="toolbar" style="margin-bottom:10px;">
+      <div class="h2h-min-filter" id="dashScopeFilter">
+        <button data-dscope="all" class="${dashScope==='all'?'active':''}">Presezon + sezon zasadniczy</button>
+        <button data-dscope="main" class="${dashScope==='main'?'active':''}">Tylko sezon zasadniczy</button>
+      </div>
+      <span class="count">tabela na żywo · ${liveSeasonMatches(currentLeague, currentSeason, dashScope).length} rozegranych meczów</span>
+    </div>` : '';
+  if(isLive && !liveSeasonMatches(currentLeague, currentSeason, dashScope).length){
+    content.innerHTML = liveBar + `<div class="schedule-note">⏳ <span>W tym zakresie nie rozegrano jeszcze żadnego meczu — tabela pojawi się automatycznie po pierwszych wynikach. Przełącz na <b>Presezon + sezon zasadniczy</b>, żeby zobaczyć dotychczasowe mecze.</span></div>`;
+    document.getElementById('teamCount').textContent = '';
+    document.querySelectorAll('#dashScopeFilter button').forEach(b=>{
+      b.addEventListener('click', ()=>{ dashScope = b.dataset.dscope; renderDashboard(); });
+    });
+    return;
+  }
+  content.innerHTML = liveBar + `<div class="card"><table>
     <thead><tr>
       <th style="width:22px"></th>
       <th data-sort="name">Drużyna</th>
@@ -730,13 +797,18 @@ function renderDashboard(){
       renderDashboard(); populateTeams();
     });
   });
+  document.querySelectorAll('#dashScopeFilter button').forEach(b=>{
+    b.addEventListener('click', ()=>{ dashScope = b.dataset.dscope; renderDashboard(); });
+  });
   populateTeams();
 }
 function populateTeams(){
   const isAll = currentSeason === 'all';
   const s = isAll ? null : DATA.leagues[currentLeague].seasons[currentSeason];
-  if(!isAll && s.status !== 'completed') return;
-  const allTeams = isAll ? aggregateAllSeasonsTeams() : s.teams;
+  const isLive = !isAll && s.status !== 'completed';
+  const seasonTeams = isAll ? null : (isLive ? liveSeasonTeams(currentLeague, currentSeason, dashScope) : s.teams);
+  if(isLive && !seasonTeams.length) return;
+  const allTeams = isAll ? aggregateAllSeasonsTeams() : seasonTeams;
   const q = document.getElementById('teamSearch').value.trim().toLowerCase();
   let teams = allTeams.filter(t=>t.name.toLowerCase().includes(q));
   teams.sort((a,b)=>{
@@ -762,7 +834,7 @@ function populateTeams(){
     return;
   }
 
-  const top3 = new Set([...s.teams].sort((a,b)=>b.formScore-a.formScore).slice(0,3).map(t=>t.name));
+  const top3 = new Set([...seasonTeams].sort((a,b)=>b.formScore-a.formScore).slice(0,3).map(t=>t.name));
   body.innerHTML = teams.map((t,i)=>{
     const sc = t.streak[0]==='O'?'O':'U';
     return `<tr>
@@ -775,7 +847,7 @@ function populateTeams(){
       <td class="num">${pctCell(t.awayPct)}</td>
       <td><div class="trend">${t.trend5.map(x=>`<span class="${x}">${x}</span>`).join('')}</div></td>
       <td class="num"><span class="streak ${sc}">${t.streak}</span></td>
-      <td class="num" title="40% overall, 30% ostatnie 5 meczów, 20% aktualna seria"><span class="prob-badge ${probClass(t.formScore)}">${t.formScore.toFixed(0)}%</span></td>
+      <td class="num" title="${isLive ? '40% overall, 30% ostatnie 5 meczów, 30% aktualna seria (O podnosi, U obniża; max ±4 mecze)' : '40% overall, 30% ostatnie 5 meczów, 20% aktualna seria'}"><span class="prob-badge ${probClass(t.formScore)}">${t.formScore.toFixed(0)}%</span></td>
     </tr>`;
   }).join('');
 }
@@ -1268,57 +1340,69 @@ function sortDayMatches(list, mode){
 const TOP5_N = 8, TOP5_K = 4, TOP5_SHARE_P1 = 0.2857;
 const TOP5_W = {F:0.2, H:0.2, G:0.6};
 const TOP5_Z = {F:[0.5089,0.137], H:[0.5132,0.1446], G:[0.5102,0.0489]};
-let TOP5_IDX = {};
+let TOP5_IDX = {};   // historia (zakończone sezony) — raz na ligę
+let TOP5_CUR = {};   // bieżący sezon do wybranego dnia — cache "liga|dzień"
 
 function parseScore(sc){
   if(!sc) return null;
   const p = String(sc).split(':').map(Number);
   return (p.length===2 && !p.some(isNaN)) ? p : null;
 }
-function buildTop5Index(lg){
+const top5ByDate = (x,y)=>x.sortDate.localeCompare(y.sortDate);
+function top5PushGame(ix, m){
+  const [g1,g2] = m.p1.split(':').map(Number);
+  const ov = (g1+g2)>=2 ? 1 : 0;
+  (ix.games[m.home] = ix.games[m.home] || []).push(ov);
+  (ix.games[m.away] = ix.games[m.away] || []).push(ov);
+  const pk = [m.home,m.away].sort().join('|||');
+  (ix.pair[pk] = ix.pair[pk] || []).push(ov);
+}
+function top5AddTab(tab, m){
+  const sc = parseScore(m.score); if(!sc) return;
+  const h = tab[m.home] = tab[m.home] || [0,0,0], a = tab[m.away] = tab[m.away] || [0,0,0];
+  h[0]+=sc[0]; h[1]+=sc[1]; h[2]++; a[0]+=sc[1]; a[1]+=sc[0]; a[2]++;
+}
+function top5Base(lg){
+  if(TOP5_IDX[lg]) return TOP5_IDX[lg];
   const L = DATA.leagues[lg];
-  const keys = Object.keys(L.seasons).sort();
-  const games = {}, pair = {}, histTab = {}, curTab = {};
-  const byDate = (x,y)=>x.sortDate.localeCompare(y.sortDate);
-  const pushGame = m=>{
-    const [g1,g2] = m.p1.split(':').map(Number);
-    const ov = (g1+g2)>=2 ? 1 : 0;
-    (games[m.home] = games[m.home] || []).push(ov);
-    (games[m.away] = games[m.away] || []).push(ov);
-    const pk = [m.home,m.away].sort().join('|||');
-    (pair[pk] = pair[pk] || []).push(ov);
-  };
-  const addTab = (tab, m)=>{
-    const sc = parseScore(m.score); if(!sc) return;
-    const h = tab[m.home] = tab[m.home] || [0,0,0], a = tab[m.away] = tab[m.away] || [0,0,0];
-    h[0]+=sc[0]; h[1]+=sc[1]; h[2]++; a[0]+=sc[1]; a[1]+=sc[0]; a[2]++;
-  };
-  keys.filter(k=>L.seasons[k].status==='completed').forEach(sk=>{
+  const ix = {games:{}, pair:{}, histTab:{}};
+  Object.keys(L.seasons).sort().filter(k=>L.seasons[k].status==='completed').forEach(sk=>{
     const tab = {};
-    (L.seasons[sk].matches||[]).filter(m=>m.p1).slice().sort(byDate).forEach(m=>{ pushGame(m); addTab(tab, m); });
-    Object.entries(tab).forEach(([t,[gf,ga,n]])=>{ if(n) (histTab[t] = histTab[t] || []).unshift([gf/n, ga/n]); });
+    (L.seasons[sk].matches||[]).filter(m=>m.p1).slice().sort(top5ByDate).forEach(m=>{ top5PushGame(ix, m); top5AddTab(tab, m); });
+    Object.entries(tab).forEach(([t,[gf,ga,n]])=>{ if(n) (ix.histTab[t] = ix.histTab[t] || []).unshift([gf/n, ga/n]); });
   });
-  keys.filter(k=>L.seasons[k].status!=='completed').forEach(sk=>{
+  return TOP5_IDX[lg] = ix;
+}
+// bieżący sezon: tylko mecze rozegrane PRZED dniem `cutoff` (stan na początek dnia — typy są stabilne przez cały dzień
+// i dla dni zakończonych nie "widzą" wyniku, który mają przewidzieć)
+function top5Cur(lg, cutoff){
+  const eff = cutoff > todayStr() ? '9999-12-31' : cutoff;
+  const key = lg+'|'+eff;
+  if(TOP5_CUR[key]) return TOP5_CUR[key];
+  const L = DATA.leagues[lg];
+  const ix = {games:{}, pair:{}, curTab:{}};
+  Object.keys(L.seasons).sort().filter(k=>L.seasons[k].status!=='completed').forEach(sk=>{
     const s = L.seasons[sk];
     const pool = [...(s.preseason?.matches||[]), ...(s.mainSeason?.matches||[])];
-    pool.filter(m=>m.played && m.p1).slice().sort(byDate).forEach(m=>{ pushGame(m); addTab(curTab, m); });
+    pool.filter(m=>m.played && m.p1 && m.sortDate<eff).slice().sort(top5ByDate).forEach(m=>{ top5PushGame(ix, m); top5AddTab(ix.curTab, m); });
   });
-  return {games, pair, histTab, curTab};
+  return TOP5_CUR[key] = ix;
 }
-function top5Index(lg){ return TOP5_IDX[lg] || (TOP5_IDX[lg] = buildTop5Index(lg)); }
 
-function top5Comps(m){
-  const ix = top5Index(m.league);
-  const gh = ix.games[m.home] || [], ga = ix.games[m.away] || [];
+function top5Comps(m, cutoff){
+  const b = top5Base(m.league), c = top5Cur(m.league, cutoff);
+  const gamesOf = t => (b.games[t]||[]).concat(c.games[t]||[]);
+  const gh = gamesOf(m.home), ga = gamesOf(m.away);
   if(gh.length<3 || ga.length<3) return null;
   const mean = arr=>arr.reduce((s,x)=>s+x,0)/arr.length;
   const F = (mean(gh.slice(-TOP5_N)) + mean(ga.slice(-TOP5_N)))/2;
-  const pr = ix.pair[[m.home,m.away].sort().join('|||')] || [];
+  const pk = [m.home,m.away].sort().join('|||');
+  const pr = (b.pair[pk]||[]).concat(c.pair[pk]||[]);
   const H = (pr.reduce((s,x)=>s+x,0) + TOP5_K*F) / (pr.length + TOP5_K);
   const table = t=>{
-    const [gf,gaa,n] = ix.curTab[t] || [0,0,0];
+    const [gf,gaa,n] = c.curTab[t] || [0,0,0];
     let hw=0, hf=0, ha=0;
-    (ix.histTab[t]||[]).forEach(([f,a],i)=>{ const w=Math.pow(HIST_DECAY,i); hw+=w; hf+=w*f; ha+=w*a; });
+    (b.histTab[t]||[]).forEach(([f,a],i)=>{ const w=Math.pow(HIST_DECAY,i); hw+=w; hf+=w*f; ha+=w*a; });
     const hist = hw ? [hf/hw, ha/hw] : null;
     if(n===0) return hist;
     const cur = [gf/n, gaa/n];
@@ -1343,8 +1427,8 @@ function top5Class(idx){
   if(idx>=45) return 'prob-orange2';
   return 'prob-red';
 }
-function pickTop5(matches){
-  return matches.map(m=>({m, c: top5Comps(m)})).filter(x=>x.c).sort((a,b)=>b.c.S-a.c.S).slice(0,5);
+function pickTop5(matches, cutoff){
+  return matches.map(m=>({m, c: top5Comps(m, cutoff)})).filter(x=>x.c).sort((a,b)=>b.c.S-a.c.S).slice(0,5);
 }
 
 function renderPlayNow(opts){
@@ -1372,7 +1456,7 @@ function renderPlayNow(opts){
   visibleMatches.forEach(m=>{ (groups[m.sortDate] = groups[m.sortDate] || []).push(m); });
   const today = todayStr();
   const allDates = Object.keys(groups).sort();
-  const pastDates = pnView==='all' ? allDates.filter(d=>d<today) : [];
+  const pastDates = allDates.filter(d=>d<today);
   const dates = allDates.filter(d=>d>=today);
 
   const sortToggleHtml = (hasTimes) => `
@@ -1414,8 +1498,13 @@ function renderPlayNow(opts){
     </div>`;
   };
 
+  const picksCache = {};
+  const picksFor = d => picksCache[d] || (picksCache[d] = pickTop5(groups[d], d));
+
   const top5GroupHtml = (d) => {
-    const picks = pickTop5(groups[d]);
+    const picks = picksFor(d);
+    const playedPicks = picks.filter(p=>p.m.played);
+    const overPicks = playedPicks.filter(p=>p.m.over15).length;
     const rowsHtml = picks.map((p,i)=>{
       const c = p.c;
       const badge = `<span class="prob-badge ${top5Class(c.idx)}" title="Indeks TOP 5 (50 = przeciętny mecz)">${c.idx}</span>`;
@@ -1426,19 +1515,20 @@ function renderPlayNow(opts){
         </div>`;
       return combinedRowHtml(p.m, d, 'pn-row-', {badgeHtml: badge, afterRowHtml: breakdown, rankTag: i+1});
     }).join('');
+    const resultTag = playedPicks.length ? ' · ' + overBadgeHtml(overPicks, playedPicks.length) : '';
     return `<div class="day-group" id="pn-anchor-${d}">
       <div class="day-header" data-toggle="day">
         <span class="date">${groups[d][0].date}</span>
-        <span class="n">⭐ TOP ${picks.length} z ${groups[d].length} mecz${groups[d].length===1?'':groups[d].length<5?'e':'ów'}</span>
+        <span class="n">⭐ TOP ${picks.length} z ${groups[d].length} mecz${groups[d].length===1?'':groups[d].length<5?'e':'ów'}${resultTag}</span>
         <span class="caret">▾</span>
       </div>
       <div class="day-body">
-        ${picks.length ? combinedTableHeaderHtml('Data', 'Indeks') + rowsHtml : '<div style="color:var(--muted); font-size:12.5px; padding:16px 14px;">Za mało danych historycznych, żeby wytypować mecze tego dnia.</div>'}
+        ${picks.length ? combinedTableHeaderHtml(d<today?'Wynik P1':'Data', 'Indeks') + rowsHtml : '<div style="color:var(--muted); font-size:12.5px; padding:16px 14px;">Za mało danych historycznych, żeby wytypować mecze tego dnia.</div>'}
       </div>
     </div>`;
   };
 
-  const pastSection = pastDates.length ? `
+  const pastSection = !pastDates.length ? '' : (pnView==='all' ? `
     <div class="month-group" id="pn-past-wrapper">
       <div class="month-header" data-toggle="past">
         <span class="name">📁 ZAKOŃCZONE</span>
@@ -1446,7 +1536,19 @@ function renderPlayNow(opts){
         <span class="caret">▾</span>
       </div>
       <div class="month-body">${pastDates.map(d=>dayGroupHtml(d)).join('')}</div>
-    </div>` : '';
+    </div>` : (()=>{
+      const pp = pastDates.flatMap(d=>picksFor(d).map(p=>p.m)).filter(m=>m.played);
+      const po = pp.filter(m=>m.over15).length;
+      return `
+    <div class="month-group" id="pn-past-wrapper">
+      <div class="month-header" data-toggle="past">
+        <span class="name">📁 ZAKOŃCZONE</span>
+        <span class="n">${pastDates.length} dni · skuteczność TOP 5: ${overBadgeHtml(po, pp.length) || '<span style="color:var(--muted)">brak wyników</span>'}</span>
+        <span class="caret">▾</span>
+      </div>
+      <div class="month-body">${pastDates.map(d=>top5GroupHtml(d)).join('')}</div>
+    </div>`;
+    })());
 
   const viewToggle = `
     <div class="toolbar">
@@ -1457,10 +1559,10 @@ function renderPlayNow(opts){
     </div>`;
   const legendTop = pnView==='all'
     ? `<div class="legend">🔥 Cały terminarz sezonu 2026/27 — wszystkie ${Object.keys(DATA.leagues).length} lig naraz. Klik w kraj poniżej pokazuje tylko jego mecze.</div>`
-    : `<div class="legend">⭐ TOP 5 każdego dnia wg indeksu z trzech wskaźników: forma z ostatnich ${TOP5_N} meczów obu drużyn (20%), H2H (20%) i średnia bramkowa z tabeli ligowej przeliczona na P1 (60%). To nie jest ranking % prognozy — indeks 50 = przeciętny mecz. Statystyka, nie gwarancja.</div>`;
+    : `<div class="legend">⭐ TOP 5 każdego dnia wg indeksu z trzech wskaźników: forma z ostatnich ${TOP5_N} meczów obu drużyn (20%), H2H (20%) i średnia bramkowa z tabeli ligowej przeliczona na P1 (60%). To nie jest ranking % prognozy — indeks 50 = przeciętny mecz. Typy każdego dnia liczone są ze stanu na początek dnia, więc w ZAKOŃCZONE widać uczciwie, jak by trafiły. Statystyka, nie gwarancja.</div>`;
   const listHtml = pnView==='all'
     ? `${pastSection}<div class="fixtures-scroll">${dates.map(d=>dayGroupHtml(d)).join('') || `<div style="color:var(--muted); font-size:13px; padding:24px; text-align:center;">Brak nadchodzących meczów w tym filtrze.</div>`}</div>`
-    : `<div class="fixtures-scroll">${dates.map(d=>top5GroupHtml(d)).join('') || `<div style="color:var(--muted); font-size:13px; padding:24px; text-align:center;">Brak nadchodzących meczów w tym filtrze.</div>`}</div>`;
+    : `${pastSection}<div class="fixtures-scroll">${dates.map(d=>top5GroupHtml(d)).join('') || `<div style="color:var(--muted); font-size:13px; padding:24px; text-align:center;">Brak nadchodzących meczów w tym filtrze.</div>`}</div>`;
 
   content.innerHTML = `
     ${viewToggle}
@@ -1521,6 +1623,16 @@ function renderPlayNow(opts){
 
 // ---------- Updates / changelog ----------
 const CHANGELOG = [
+  {
+    date: '07.10.2026',
+    title: 'TOP 5 z historią i tabela drużyn bieżącego sezonu',
+    items: [
+      'TOP 5 Zakładów: dni zakończone przechodzą do „ZAKOŃCZONE” z wynikami P1, badge „X/Y Over” dla dnia i łączną skutecznością TOP 5 w nagłówku',
+      'Typy TOP 5 liczone są ze stanu na początek dnia (bez wyniku, który mają przewidzieć) — historia jest uczciwa, a nie „z przyszłości”',
+      'Każda liga: „Ranking drużyn” sezonu 2026/27 pokazuje tabelę na żywo (Mecze, Over 1,5, % Overall/Home/Away, Trend, Seria, Wskaźnik formy), aktualizowaną po wczytaniu wyników i po wpisaniu ręcznym',
+      'Przełącznik: presezon + sezon zasadniczy / tylko sezon zasadniczy; „Wszystkie sezony” uwzględnia teraz także trwający sezon',
+    ],
+  },
   {
     date: '02.10.2026',
     title: 'Nawigacja, sortowanie, TOP 5 Zakładów i spójny układ WYNIKÓW',
@@ -1984,7 +2096,7 @@ function rebuildCurrentSeasonModel(lg){
       delete m.prob; delete m.homePct; delete m.awayPct; delete m.homeOverallPct; delete m.awayOverallPct; delete m.components; delete m.modelBasis; delete m.dataSource;
     }
   });
-  TOP5_IDX = {};
+  TOP5_IDX = {}; TOP5_CUR = {};
 }
 
 function collectPlayedWithProb(scope){
