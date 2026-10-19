@@ -179,10 +179,10 @@
 
   .fixture-row{display:flex; align-items:center; gap:12px; padding:11px 14px; border-bottom:1px solid var(--surface2); cursor:pointer; border-left:3px solid transparent;}
   .fixture-row:hover{background:var(--surface);}
-  .fixture-row.over-hit{border-left-color:var(--teal); background:rgba(47,191,160,0.07);}
-  .fixture-row.over-hit:hover{background:rgba(47,191,160,0.13);}
-  .fixture-row.under-hit{border-left-color:var(--red); background:rgba(224,90,90,0.06);}
-  .fixture-row.under-hit:hover{background:rgba(224,90,90,0.11);}
+  .fixture-row.over-hit{border-left:6px solid #22e6a8; background:linear-gradient(90deg, rgba(34,230,168,0.38), rgba(34,230,168,0.14) 55%, rgba(34,230,168,0.08)); box-shadow:inset 0 0 0 1px rgba(34,230,168,0.45), inset 0 0 22px rgba(34,230,168,0.18);}
+  .fixture-row.over-hit:hover{background:linear-gradient(90deg, rgba(34,230,168,0.5), rgba(34,230,168,0.22) 55%, rgba(34,230,168,0.14));}
+  .fixture-row.under-hit{border-left:6px solid #ff4d4d; background:linear-gradient(90deg, rgba(255,77,77,0.40), rgba(255,77,77,0.15) 55%, rgba(255,77,77,0.08)); box-shadow:inset 0 0 0 1px rgba(255,77,77,0.45), inset 0 0 22px rgba(255,77,77,0.2);}
+  .fixture-row.under-hit:hover{background:linear-gradient(90deg, rgba(255,77,77,0.52), rgba(255,77,77,0.24) 55%, rgba(255,77,77,0.14));}
   .over-check{color:var(--teal); font-size:13px; margin-left:4px;}
   .under-check{color:var(--red); font-size:13px; margin-left:4px;}
   .fixture-teams{flex:1; display:flex; flex-direction:column; gap:5px; min-width:0;}
@@ -247,14 +247,46 @@
   .cmb-table-header .col-vs, .cmb-table-header .col-date, .cmb-table-header .col-prob{text-align:center;}
   .cmb-row-grid{display:grid; grid-template-columns:64px 1fr 22px 1fr 56px 52px; gap:8px; align-items:center; padding:10px 14px; border-bottom:1px solid var(--surface2); cursor:pointer; border-left:3px solid transparent; max-width:900px; margin:0 auto;}
   .cmb-row-grid:hover{background:var(--surface);}
-  .cmb-row-grid.over-hit{border-left-color:var(--teal); background:rgba(47,191,160,0.07);}
-  .cmb-row-grid.over-hit:hover{background:rgba(47,191,160,0.13);}
-  .cmb-row-grid.under-hit{border-left-color:var(--red); background:rgba(224,90,90,0.06);}
-  .cmb-row-grid.under-hit:hover{background:rgba(224,90,90,0.11);}
+  .cmb-row-grid.over-hit{border-left:6px solid #22e6a8; background:linear-gradient(90deg, rgba(34,230,168,0.38), rgba(34,230,168,0.14) 55%, rgba(34,230,168,0.08)); box-shadow:inset 0 0 0 1px rgba(34,230,168,0.45), inset 0 0 22px rgba(34,230,168,0.18);}
+  .cmb-row-grid.over-hit:hover{background:linear-gradient(90deg, rgba(34,230,168,0.5), rgba(34,230,168,0.22) 55%, rgba(34,230,168,0.14));}
+  .cmb-row-grid.under-hit{border-left:6px solid #ff4d4d; background:linear-gradient(90deg, rgba(255,77,77,0.40), rgba(255,77,77,0.15) 55%, rgba(255,77,77,0.08)); box-shadow:inset 0 0 0 1px rgba(255,77,77,0.45), inset 0 0 22px rgba(255,77,77,0.2);}
+  .cmb-row-grid.under-hit:hover{background:linear-gradient(90deg, rgba(255,77,77,0.52), rgba(255,77,77,0.24) 55%, rgba(255,77,77,0.14));}
   .cmb-row-grid .cmb-league-badge{font-family:'Space Grotesk',sans-serif; font-size:9px; font-weight:700; color:#0A0E1A; border-radius:5px; padding:3px 5px; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .cmb-row-grid .cmb-team{display:flex; align-items:center; gap:6px; min-width:0;}
   .cmb-row-grid .cmb-team.away{flex-direction:row-reverse; text-align:right;}
   .cmb-row-grid .cmb-team b{overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:600; font-size:12.5px; flex-shrink:1;}
+  .cmb-row-grid.has-tbl > :nth-child(5){grid-column:5; grid-row:1 / span 2;}
+  .cmb-row-grid.has-tbl > :nth-child(6){grid-column:6; grid-row:1 / span 2;}
+  .cmb-row-grid .tbl-line{grid-row:2; margin-top:-3px; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .cmb-row-grid .tbl-line.home{grid-column:2 / span 2; text-align:left;}
+  .cmb-row-grid .tbl-line.away{grid-column:3 / span 2; text-align:right;}
+  .tbl-tag{font-family:'Space Grotesk',sans-serif; font-size:10px; color:var(--muted); white-space:nowrap; letter-spacing:.02em;}
+  .tbl-tag .k{font-size:8.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); margin-right:3px;}
+  .tbl-tag .v{font-family:'JetBrains Mono',monospace; font-size:11.5px; font-weight:700; color:var(--amber);}
+  .tbl-tag .v2{font-family:'JetBrains Mono',monospace; font-size:11.5px; font-weight:700; color:var(--text);}
+  .tbl-tag .sep{margin:0 6px; opacity:.4;}
+  @media (max-width:560px){
+    .cmb-row-grid .tbl-line.home{grid-column:2; overflow:visible;}
+    .cmb-row-grid .tbl-line.away{grid-column:4; overflow:visible;}
+    .tbl-tag{display:flex; flex-direction:column; gap:1px;}
+    .cmb-row-grid .tbl-line.home .tbl-tag{align-items:flex-start;}
+    .cmb-row-grid .tbl-line.away .tbl-tag{align-items:flex-end;}
+    .cmb-row-grid .cmb-team{display:grid; grid-template-columns:22px minmax(0,1fr); column-gap:6px; row-gap:0; align-items:center;}
+    .cmb-row-grid .cmb-team.away{grid-template-columns:minmax(0,1fr) 22px; text-align:right;}
+    .cmb-row-grid .cmb-team .logo{grid-row:1 / span 2; grid-column:1;}
+    .cmb-row-grid .cmb-team.away .logo{grid-column:2;}
+    .cmb-row-grid .cmb-team b{grid-column:2; grid-row:1; font-size:11.5px;}
+    .cmb-row-grid .cmb-team.away b{grid-column:1;}
+    .cmb-row-grid .cmb-team .ft-pct{grid-column:2; grid-row:2;}
+    .cmb-row-grid .cmb-team.away .ft-pct{grid-column:1;}
+    .cmb-row-grid{grid-template-columns:38px 1fr 12px 1fr 38px 44px !important; gap:4px; padding:10px 8px;}
+    .cmb-row-grid > :nth-child(3){font-size:9px;}
+    .tbl-tag .sep{display:none;}
+    .tbl-tag .k{font-size:7.5px; margin-right:2px;}
+    .tbl-tag .v, .tbl-tag .v2{font-size:10px;}
+    .cmb-row-grid .tbl-line.home{margin-left:-6px;}
+    .cmb-row-grid .tbl-line.away{margin-right:-6px;}
+  }
   .cmb-row-grid .cmb-team .ft-pct{font-family:'JetBrains Mono',monospace; font-weight:700; font-size:11px; flex-shrink:0;}
   .p1-badge{font-family:'JetBrains Mono',monospace; font-weight:800; font-size:12.5px; padding:3px 7px; border-radius:6px; display:inline-block;}
   .p1-badge.p1-over{background:var(--teal-dim); color:var(--teal);}
@@ -1138,6 +1170,45 @@ function leagueShortLabel(lg){
   return meta ? splitCountryLeague(meta.label).country : lg;
 }
 
+// ---------- Tabela ligi + bilans bramek (tylko podgląd, nie wpływa na prognozę) ----------
+let TBL = {src:null, map:{}};
+function leagueTable(lg){
+  if(TBL.src !== DATA) TBL = {src:DATA, map:{}};
+  if(TBL.map[lg]) return TBL.map[lg];
+  const s = DATA.leagues[lg] && DATA.leagues[lg].seasons['2026-27'];
+  const per = {};
+  const ens = n => per[n] || (per[n] = {gp:0, w:0, gf:0, ga:0});
+  ((s && s.mainSeason && s.mainSeason.matches) || []).forEach(m=>{
+    if(!m.played || !m.score) return;
+    const [h,a] = m.score.split(':').map(Number);
+    if(isNaN(h) || isNaN(a)) return;
+    const H = ens(m.home), A = ens(m.away);
+    H.gp++; A.gp++; H.gf+=h; H.ga+=a; A.gf+=a; A.ga+=h;
+    if(h>a) H.w++; else if(a>h) A.w++;
+  });
+  const rows = Object.entries(per).map(([name,t])=>({name, ...t, gd:t.gf-t.ga, wp:t.gp?t.w/t.gp:0}));
+  rows.sort((x,y)=>(y.wp-x.wp) || (y.gd-x.gd) || (y.gf-x.gf));
+  const out = {};
+  rows.forEach((r,i)=>{ out[r.name] = {pos:i+1, total:rows.length, gp:r.gp, gf:r.gf, ga:r.ga, gd:r.gd}; });
+  TBL.map[lg] = out;
+  return out;
+}
+function tblTagHtml(lg, team){
+  const t = (leagueTable(lg)||{})[team];
+  if(!t) return '';
+  const gd = (t.gd>0?'+':'')+t.gd;
+  return `<span class="tbl-tag" title="Miejsce w tabeli (wg % wygranych, potem bilans bramek) · bramki zdobyte:stracone w ${t.gp} meczach sezonu zasadniczego, różnica ${gd}"><span class="g"><span class="k">Miejsce</span><span class="v">${t.pos}.</span></span><span class="sep">|</span><span class="g"><span class="k">Bramki</span><span class="v2">${t.gf}:${t.ga}</span></span></span>`;
+}
+function teamNameBlock(lg, team){
+  return `<b title="${team}">${team}</b>`;
+}
+function tblLinesHtml(lg, m){
+  const h = tblTagHtml(lg, m.home), a = tblTagHtml(lg, m.away);
+  if(!h && !a) return '';
+  return `<div class="tbl-line home">${h}</div><div class="tbl-line away">${a}</div>`;
+}
+function tblRowClass(lg, m){ return (leagueTable(lg)[m.home] || leagueTable(lg)[m.away]) ? ' has-tbl' : ''; }
+
 function fixtureTableHeaderHtml(){
   return `<div class="cmb-table-header" style="grid-template-columns:22px 1fr 22px 1fr 56px 52px;">
     <div></div><div>Gospodarz</div><div class="col-vs">vs</div><div>Gość</div><div class="col-date">Wynik/Data</div><div class="col-prob">Prognoza</div>
@@ -1153,13 +1224,14 @@ function fixtureRowHtml(m){
     ? `<span class="p1-badge ${m.over15?'p1-over':'p1-under'}">${m.p1}</span><span style="font-size:10px; color:var(--muted);">${m.score || (m.isManual ? '(ręcznie)' : '—')}</span>`
     : `<span style="opacity:.7;">${m.date.split('.').slice(0,2).join('.')}</span><span>${m.dataSource==='prev_season'?"sezon '25/26":''}</span>`;
   const hotBadge = findHotInfo({...m, league: currentLeague}) ? `<span title="Silna historia H2H Over 1,5 P1" style="font-size:13px;">⚠️</span>` : '';
-  return `<div class="cmb-row-grid${rowClass}" style="grid-template-columns:22px 1fr 22px 1fr 56px 52px;" data-key="${key}">
+  return `<div class="cmb-row-grid${rowClass}${tblRowClass(currentLeague, m)}" style="grid-template-columns:22px 1fr 22px 1fr 56px 52px;" data-key="${key}">
     <div>${hotBadge}</div>
-    <div class="cmb-team home">${logo(m.home)}<b>${m.home}</b>${m.homePct!=null?`<span class="ft-pct" style="color:${pctColor(m.homePct)}">${m.homePct.toFixed(1)}%</span>`:''}</div>
+    <div class="cmb-team home">${logo(m.home)}${teamNameBlock(currentLeague, m.home)}${m.homePct!=null?`<span class="ft-pct" style="color:${pctColor(m.homePct)}">${m.homePct.toFixed(1)}%</span>`:''}</div>
     <div class="cmb-vs">vs</div>
-    <div class="cmb-team away">${logo(m.away)}<b>${m.away}</b>${m.awayPct!=null?`<span class="ft-pct" style="color:${pctColor(m.awayPct)}">${m.awayPct.toFixed(1)}%</span>`:''}</div>
+    <div class="cmb-team away">${logo(m.away)}${teamNameBlock(currentLeague, m.away)}${m.awayPct!=null?`<span class="ft-pct" style="color:${pctColor(m.awayPct)}">${m.awayPct.toFixed(1)}%</span>`:''}</div>
     <div class="cmb-result">${extra}</div>
     ${m.prob!==undefined ? `<span class="prob-badge ${probClass(m.prob)}">${m.prob.toFixed(0)}%</span>` : '<span style="color:var(--muted); font-size:10.5px; text-align:center;">brak</span>'}
+    ${tblLinesHtml(currentLeague, m)}
   </div>
   <div class="details" id="details-${cssKey(key)}"></div>`;
 }
@@ -1789,6 +1861,14 @@ function renderPerf(){
 
 // ---------- Updates / changelog ----------
 const CHANGELOG = [
+  {
+    date: '18.10.2026',
+    title: 'Miejsce w tabeli i bilans bramek przy meczach',
+    items: [
+      'W TERMINARZU i WYNIKACH pod nazwą drużyny: miejsce w tabeli ligi (wg % wygranych, potem bilans bramek) oraz bramki zdobyte:stracone w sezonie zasadniczym 2026/27',
+      'Tylko podgląd — nie zmienia prognozy (test na ~11 tys. meczów: bilans bramek niemal nie poprawia trafności Over 1,5 P1)',
+    ],
+  },
   {
     date: '09.10.2026',
     title: 'SKUTECZNOŚĆ, kursy break-even, wiarygodność lig i szybszy start',
@@ -2638,13 +2718,14 @@ function combinedRowHtml(m, dayKey, idPrefix, opts){
     ? opts.badgeHtml
     : (m.prob!==undefined ? `<span class="prob-badge ${probClass(m.prob)}" title="Kurs break-even: ${breakEven(m.prob).toFixed(2)}">${m.prob.toFixed(0)}%</span>` : '<span style="color:var(--muted); font-size:10.5px; text-align:center;">brak</span>');
   const rankTag = opts.rankTag ? `<span class="top5-rank-tag">#${opts.rankTag}</span>` : '';
-  return `<div class="cmb-row-grid${rowClass}" id="${rowId}" data-cmb data-cmb-key="${combKey}" data-key="${detailsPrefix}${combKey}">
+  return `<div class="cmb-row-grid${rowClass}${tblRowClass(m.league, m)}" id="${rowId}" data-cmb data-cmb-key="${combKey}" data-key="${detailsPrefix}${combKey}">
     <div class="cmb-league-badge" style="background:${leagueColor(m.league)}">${rankTag}${m.league}${relDotHtml(m.league)}${hotBadge}</div>
-    <div class="cmb-team home">${logo(m.home, m.league)}<b title="${m.home}">${m.home}</b>${m.homePct!=null?`<span class="ft-pct" style="color:${pctColor(m.homePct)}">${m.homePct.toFixed(1)}%</span>`:''}</div>
+    <div class="cmb-team home">${logo(m.home, m.league)}${teamNameBlock(m.league, m.home)}${m.homePct!=null?`<span class="ft-pct" style="color:${pctColor(m.homePct)}">${m.homePct.toFixed(1)}%</span>`:''}</div>
     <div class="cmb-vs">vs</div>
-    <div class="cmb-team away">${logo(m.away, m.league)}<b title="${m.away}">${m.away}</b>${m.awayPct!=null?`<span class="ft-pct" style="color:${pctColor(m.awayPct)}">${m.awayPct.toFixed(1)}%</span>`:''}</div>
+    <div class="cmb-team away">${logo(m.away, m.league)}${teamNameBlock(m.league, m.away)}${m.awayPct!=null?`<span class="ft-pct" style="color:${pctColor(m.awayPct)}">${m.awayPct.toFixed(1)}%</span>`:''}</div>
     <div class="cmb-result">${resultCell}</div>
     ${probCell}
+    ${tblLinesHtml(m.league, m)}
   </div>
   ${opts.afterRowHtml || ''}
   <div class="details" id="details-${cssKey(detailsPrefix+combKey)}"></div>`;
