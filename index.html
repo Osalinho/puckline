@@ -334,6 +334,69 @@
     .league-chips button{flex-shrink:0; white-space:nowrap;}
     .perf-table{font-size:11.5px;}
   }
+
+  /* =====================================================================
+     UI2 — nowy układ (komputer, szerokość >= 1100 px): menu boczne + panel "Typ dnia".
+     Włączany klasą body.ui2 (ustawia ją skrypt UI2 na końcu pliku). Na telefonie
+     i wąskich oknach strona wygląda tak jak w starej wersji.
+     ===================================================================== */
+  .ui2-only{display:none;}
+  body.ui2 .ui2-only{display:block;}
+  body.ui2 #mainWrap[style*="block"]{display:grid !important;}
+  body.ui2 .wrap{max-width:1680px; display:grid; grid-template-columns:240px minmax(0,1fr) 322px; column-gap:22px; padding:0 22px 40px 0; align-items:start;}
+  body.ui2 .wrap > *{grid-column:2; min-width:0;}
+  body.ui2 .wrap > header{grid-column:1; grid-row:1 / span 40; position:sticky; top:0; height:100vh; overflow-y:auto; flex-direction:column; flex-wrap:nowrap; align-items:stretch; justify-content:flex-start; gap:12px; background:#0d1220; border-right:1px solid var(--border); padding:16px 12px 20px; margin:0;}
+  body.ui2 header .subtitle{display:none;}
+  body.ui2 header > div:first-child{flex:0 0 auto !important;}
+  body.ui2 header img{max-width:150px !important; height:auto;}
+  body.ui2 .header-right{align-items:stretch !important; width:100%;}
+  body.ui2 #leagueSwitch, body.ui2 #seasonSwitch{flex-direction:column; background:transparent; border:none; padding:0; gap:3px;}
+  body.ui2 #leagueSwitch button{width:100%; justify-content:flex-start; text-align:left; font-size:13px; padding:10px 12px; border-radius:9px; white-space:normal;}
+  body.ui2 #seasonSwitch{margin-top:6px; padding-top:10px; border-top:1px solid var(--border);}
+  body.ui2 #seasonSwitch button{width:100%; justify-content:flex-start; font-size:12px; padding:8px 12px; background:var(--surface); border:1px solid var(--border); border-radius:8px;}
+  body.ui2 #seasonSwitch button.active{background:var(--amber);}
+  body.ui2 .meta-right{text-align:left;}
+  body.ui2 .country-dropdown{position:static; width:100%; max-height:300px; box-shadow:none;}
+  body.ui2 .sync-badge{align-self:stretch; justify-content:flex-start;}
+  body.ui2 .last-updated-banner{margin-top:14px;}
+  body.ui2 .fixtures-scroll{max-height:calc(100vh - 250px);}
+  body.ui2 .matches-list{max-height:calc(100vh - 250px);}
+  #ui2Leagues{display:flex; flex-direction:column; gap:2px; margin-top:6px; padding-top:10px; border-top:1px solid var(--border);}
+  #ui2Leagues .k{font-family:'Space Grotesk',sans-serif; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); padding:0 8px 6px;}
+  #ui2Leagues button{display:flex; align-items:center; gap:9px; width:100%; background:transparent; border:none; border-radius:8px; padding:7px 9px; color:var(--muted); font-size:12.5px; cursor:pointer; font-family:'Inter',sans-serif; text-align:left;}
+  #ui2Leagues button:hover{background:var(--surface2); color:var(--text);}
+  #ui2Leagues button.active{background:var(--surface2); color:var(--text); font-weight:700;}
+  #ui2Leagues .ld{width:9px; height:9px; border-radius:50%; flex-shrink:0;}
+  #ui2Leagues .ln{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  #ui2Leagues .lc{font-family:'JetBrains Mono',monospace; font-size:10.5px; opacity:.75;}
+  #ui2Title{margin:20px 0 4px;}
+  #ui2Title h2{font-family:'Space Grotesk',sans-serif; font-size:21px; font-weight:700;}
+  #ui2Title .st{font-size:12.5px; color:var(--muted); margin-top:3px;}
+  #ui2Dates{display:flex; gap:6px; overflow-x:auto; padding:6px 0 12px;}
+  #ui2Dates::-webkit-scrollbar{height:6px;} #ui2Dates::-webkit-scrollbar-thumb{background:var(--surface2); border-radius:3px;}
+  #ui2Dates button{flex-shrink:0; background:var(--surface); border:1px solid var(--border); color:var(--muted); font-size:12px; font-weight:700; padding:7px 13px; border-radius:9px; cursor:pointer; font-family:'Space Grotesk',sans-serif; white-space:nowrap;}
+  #ui2Dates button:hover{border-color:var(--amber-dim); color:var(--text);}
+  #ui2Dates button .sn{opacity:.6; font-weight:500; margin-left:4px;}
+  #ui2Dates button.today{border-color:var(--amber); color:var(--amber);}
+  body.ui2 .league-chips{display:none;}
+  .ui2-right{display:none;}
+  body.ui2 .wrap > .ui2-right{display:flex; grid-column:3; grid-row:1 / span 40; position:sticky; top:0; height:100vh; overflow-y:auto; flex-direction:column; gap:14px; padding:20px 0 20px; }
+  .u2-hero{padding:16px; border-radius:16px; background:linear-gradient(135deg,#2a1d06,var(--surface) 75%); border:1px solid #5a4210; cursor:pointer;}
+  .u2-hero:hover{border-color:var(--amber);}
+  .u2-k{font-family:'Space Grotesk',sans-serif; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--muted);}
+  .u2-hero .u2-k{color:var(--amber);}
+  .u2-big{font-family:'JetBrains Mono',monospace; font-weight:700; font-size:42px; line-height:1; color:var(--amber);}
+  .u2-why{display:flex; flex-wrap:wrap; gap:5px; margin-top:11px;}
+  .u2-why span{font-size:10.5px; background:rgba(240,168,48,.12); color:#f3c46a; padding:3px 8px; border-radius:6px;}
+  .u2-card{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:14px;}
+  .u2-mini{display:flex; align-items:center; gap:9px; padding:8px 0; border-bottom:1px solid var(--surface2); font-size:12.5px; font-weight:600; cursor:pointer;}
+  .u2-mini:last-child{border-bottom:none;}
+  .u2-mini:hover{color:var(--amber);}
+  .u2-mini .rk{font-family:'JetBrains Mono',monospace; color:var(--muted); width:14px;}
+  .u2-mini .nm{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .u2-mini .lgt{font-size:9px; font-weight:700; color:#0A0E1A; border-radius:4px; padding:1px 5px;}
+  .u2-donut{width:84px; height:84px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .u2-donut i{width:60px; height:60px; border-radius:50%; background:var(--surface); display:flex; align-items:center; justify-content:center; font-style:normal; font-family:'JetBrains Mono',monospace; font-weight:700; font-size:15px;}
 </style>
 </head>
 <body>
@@ -3134,6 +3197,183 @@ if(localStorage.getItem("puckline_unlocked") === "1"){
 } else {
   document.getElementById("lockPassword").focus();
 }
+
+// =====================================================================
+// UI2 — nowy układ komputerowy: menu boczne z ligami, pasek dni, panel "Typ dnia".
+// Skrypt tylko DODAJE elementy i przełącza klasę body.ui2 (>=1100 px). Nie zmienia danych ani modelu.
+// =====================================================================
+(function(){
+  const mq = window.matchMedia('(min-width:1100px)');
+  const wrap = document.getElementById('mainWrap');
+  const headerRight = document.querySelector('.header-right');
+  const WEEK = ['Nd','Pn','Wt','Śr','Cz','Pt','Sb'];
+
+  // elementy dodatkowe
+  const sideLeagues = document.createElement('div'); sideLeagues.id = 'ui2Leagues'; sideLeagues.className = 'ui2-only';
+  headerRight.insertBefore(sideLeagues, document.getElementById('seasonSwitch'));
+  const title = document.createElement('div'); title.id = 'ui2Title'; title.className = 'ui2-only';
+  wrap.insertBefore(title, document.getElementById('lastUpdatedBanner'));
+  const dates = document.createElement('div'); dates.id = 'ui2Dates'; dates.className = 'ui2-only';
+  wrap.insertBefore(dates, document.querySelector('.topbar'));
+  const right = document.createElement('aside'); right.id = 'ui2Right'; right.className = 'ui2-right';
+  wrap.appendChild(right);
+
+  function setMode(){ document.body.classList.toggle('ui2', mq.matches); if(mq.matches) refresh(); }
+  (mq.addEventListener ? mq.addEventListener('change', setMode) : mq.addListener(setMode));
+
+  function allMatches(){
+    const out = [];
+    Object.keys(DATA.leagues).forEach(lg=>{
+      const s = DATA.leagues[lg].seasons['2026-27'];
+      if(!s) return;
+      [...(s.preseason?.matches||[]), ...(s.mainSeason?.matches||[])].forEach(m=>out.push({...m, league: lg}));
+    });
+    return out;
+  }
+  const esc = t => String(t).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+  function renderLeagues(all){
+    ensureLeagueFilter();
+    const keys = Object.keys(DATA.leagues);
+    const isAll = playNowLeagueFilter.size === keys.length;
+    const cnt = {}; let total = 0;
+    all.forEach(m=>{ if(!m.played && within7days(m.sortDate)){ cnt[m.league] = (cnt[m.league]||0)+1; total++; } });
+    sideLeagues.innerHTML = `<div class="k">Ligi · mecze w 7 dni</div>
+      <button data-lg="__ALL__" class="${isAll?'active':''}"><span class="ld" style="background:var(--amber)"></span><span class="ln">Wszystkie</span><span class="lc">${total}</span></button>` +
+      keys.map(lg=>{
+        const on = !isAll && playNowLeagueFilter.has(lg);
+        return `<button data-lg="${lg}" class="${on?'active':''}" title="${esc(leagueChipLabel(lg))}"><span class="ld" style="background:${leagueColor(lg)}"></span><span class="ln">${esc(leagueChipLabel(lg))}</span><span class="lc">${cnt[lg]||0}</span></button>`;
+      }).join('');
+    sideLeagues.querySelectorAll('button').forEach(b=>{
+      b.addEventListener('click', ()=>{
+        const lg = b.dataset.lg;
+        const allKeys = Object.keys(DATA.leagues);
+        if(lg === '__ALL__') playNowLeagueFilter = new Set(allKeys);
+        else if(playNowLeagueFilter.size===1 && playNowLeagueFilter.has(lg)) playNowLeagueFilter = new Set(allKeys);
+        else playNowLeagueFilter = new Set([lg]);
+        if(currentLeague!=='__PLAYNOW__' && currentLeague!=='__WYNIKIALL__') currentLeague = '__PLAYNOW__';
+        countryPickerOpen = false;
+        renderAll();
+      });
+    });
+  }
+
+  function renderTitle(){
+    const act = document.querySelector('#leagueSwitch button.active');
+    const st = document.getElementById('subtitle');
+    title.innerHTML = `<h2>${esc(act ? act.textContent.replace(/[▾▴]/g,'').trim() : 'PUCKLINE')}</h2><div class="st">${esc(st ? st.textContent : '')}</div>`;
+  }
+
+  function renderDates(){
+    const today = todayStr();
+    const groups = [...document.querySelectorAll('#playnowContent .day-group[id^="pn-anchor-"], #wynikiallContent .day-group[id^="wa-anchor-"]')]
+      .filter(g=>g.offsetParent!==null || !g.closest('.month-group'));
+    const seen = new Set(); const items = [];
+    groups.forEach(g=>{
+      const d = g.id.replace(/^(pn|wa)-anchor-/,'');
+      if(d < today || seen.has(d)) return;
+      seen.add(d);
+      const n = (g.querySelector('.day-header .n')||{}).textContent || '';
+      const num = (n.match(/^\s*(\d+)/)||[])[1] || '';
+      items.push({d, num, id:g.id});
+    });
+    items.sort((a,b)=>a.d.localeCompare(b.d));
+    dates.innerHTML = items.slice(0,14).map(it=>{
+      const dt = new Date(it.d+'T12:00:00');
+      const lbl = `${WEEK[dt.getDay()]} ${it.d.slice(8,10)}.${it.d.slice(5,7)}`;
+      return `<button data-g="${it.id}" class="${it.d===today?'today':''}">${lbl}${it.num?`<span class="sn">${it.num}</span>`:''}</button>`;
+    }).join('');
+    dates.style.display = items.length ? '' : 'none';
+    dates.querySelectorAll('button').forEach(b=>{
+      b.addEventListener('click', ()=>openGroup(b.dataset.g));
+    });
+  }
+
+  function openGroup(id){
+    const g = document.getElementById(id);
+    if(!g) return null;
+    if(!g.classList.contains('open')){ const h = g.querySelector('.day-header'); if(h) h.click(); }
+    g.scrollIntoView({block:'start', behavior:'smooth'});
+    return g;
+  }
+
+  function renderRight(all){
+    ensureLeagueFilter();
+    const today = todayStr();
+    const vis = all.filter(m=>playNowLeagueFilter.has(m.league));
+    const upDates = [...new Set(vis.filter(m=>!m.played && m.sortDate>=today).map(m=>m.sortDate))].sort();
+    const d = upDates[0];
+    let html = '';
+    if(d){
+      const dayM = vis.filter(m=>m.sortDate===d);
+      let picks = [];
+      try{ picks = pickTop5(dayM.filter(m=>!m.played), d); }catch(e){ picks = []; }
+      const dlabel = (d===today ? 'dziś' : d.slice(8,10)+'.'+d.slice(5,7));
+      if(picks.length){
+        const top = picks[0], c = top.c, m = top.m;
+        const tagH = (typeof tblTagHtml==='function') ? '' : '';
+        let pos = '';
+        try{ const T = leagueTable(m.league); if(T[m.home] && T[m.away]) pos = `<span>#${T[m.home].pos} vs #${T[m.away].pos} w tabeli</span>`; }catch(e){}
+        html += `<div class="u2-hero" data-open="pn-anchor-${d}"><div class="u2-k">🔥 Typ dnia · ${dlabel}</div>
+          <div style="display:flex; align-items:center; gap:14px; margin:12px 0 2px;"><div class="u2-big">${c.idx}</div>
+          <div style="min-width:0;"><div style="font-weight:700; font-size:14.5px; line-height:1.25;">${esc(m.home)} – ${esc(m.away)}</div>
+          <div style="font-size:11px; color:var(--muted); margin-top:3px;">${esc(leagueShortLabel(m.league))} · indeks TOP 5</div></div></div>
+          <div class="u2-why"><span>Forma ${(c.F*100).toFixed(0)}%</span><span>H2H ${(c.H*100).toFixed(0)}% (${c.h2hN})</span><span>Gole: ${c.T.toFixed(1)}/mecz → P1 ${(c.G*100).toFixed(0)}%</span>${pos}${m.prob!==undefined?`<span>Model: ${m.prob.toFixed(0)}%</span>`:''}</div></div>`;
+        html += `<div class="u2-card"><div class="u2-k" style="margin-bottom:6px;">TOP 5 dnia · ${dlabel}</div>${picks.map((p,i)=>`
+          <div class="u2-mini" data-open="pn-anchor-${d}"><span class="rk">${i+1}</span><span class="lgt" style="background:${leagueColor(p.m.league)}">${esc(p.m.league.slice(0,3))}</span><span class="nm" title="${esc(p.m.home)} – ${esc(p.m.away)}">${esc(p.m.home)} – ${esc(p.m.away)}</span><span class="prob-badge ${top5Class(p.c.idx)}" style="width:40px; padding:3px 0; font-size:11px;">${p.c.idx}</span></div>`).join('')}</div>`;
+      } else {
+        const best = dayM.filter(m=>!m.played && m.prob!==undefined).sort((a,b)=>b.prob-a.prob).slice(0,5);
+        if(best.length){
+          html += `<div class="u2-card"><div class="u2-k" style="margin-bottom:6px;">Najwyższe prognozy · ${dlabel}</div>${best.map((m,i)=>`
+            <div class="u2-mini" data-open="pn-anchor-${d}"><span class="rk">${i+1}</span><span class="nm">${esc(m.home)} – ${esc(m.away)}</span><span class="prob-badge ${probClass(m.prob)}" style="width:40px; padding:3px 0; font-size:11px;">${m.prob.toFixed(0)}%</span></div>`).join('')}</div>`;
+        }
+      }
+    } else {
+      html += `<div class="u2-card"><div class="u2-k">Typ dnia</div><div style="font-size:12.5px; color:var(--muted); margin-top:8px;">Brak nadchodzących meczów dla wybranych lig.</div></div>`;
+    }
+
+    // rozliczenie ostatniego rozegranego dnia + sezon
+    const playedDates = [...new Set(vis.filter(m=>m.played && m.sortDate<=today).map(m=>m.sortDate))].sort();
+    const ld = playedDates[playedDates.length-1];
+    const seasonPlayed = vis.filter(m=>m.played);
+    if(ld){
+      const dm = vis.filter(m=>m.sortDate===ld && m.played);
+      const ov = dm.filter(m=>m.over15).length;
+      const pct = dm.length ? Math.round(ov/dm.length*100) : 0;
+      const sOv = seasonPlayed.filter(m=>m.over15).length;
+      const sPct = seasonPlayed.length ? (sOv/seasonPlayed.length*100).toFixed(1).replace('.',',') : '—';
+      html += `<div class="u2-card"><div class="u2-k" style="margin-bottom:10px;">Rozliczenie · ${ld===today?'dziś':ld.slice(8,10)+'.'+ld.slice(5,7)}</div>
+        <div style="display:flex; gap:14px; align-items:center;"><div class="u2-donut" style="background:conic-gradient(#22e6a8 0 ${pct}%, #ff4d4d ${pct}% 100%);"><i>${pct}%</i></div>
+        <div><div style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:16px;">${ov} z ${dm.length} Over</div>
+        <div style="font-size:11px; color:var(--muted); margin-top:4px;">sezon 26/27: ${sPct}% (${sOv}/${seasonPlayed.length})</div></div></div></div>`;
+    }
+    right.innerHTML = html;
+    right.querySelectorAll('[data-open]').forEach(el=>{
+      el.addEventListener('click', ()=>{
+        if(currentLeague!=='__PLAYNOW__'){ currentLeague='__PLAYNOW__'; renderAll(); }
+        setTimeout(()=>openGroup(el.dataset.open), 80);
+      });
+    });
+  }
+
+  function refresh(){
+    if(!DATA || !mq.matches) return;
+    try{
+      const all = allMatches();
+      renderLeagues(all); renderTitle(); renderDates(); renderRight(all);
+    }catch(e){ console.error('UI2:', e); }
+  }
+
+  // odświeżanie po przerysowaniu widoków (filtry, dni, przełączanie zakładek)
+  let tmr = null;
+  const sched = ()=>{ clearTimeout(tmr); tmr = setTimeout(refresh, 60); };
+  ['playnowContent','wynikiallContent'].forEach(id=>{
+    new MutationObserver(sched).observe(document.getElementById(id), {childList:true});
+  });
+  const _renderAll = renderAll;
+  renderAll = function(){ _renderAll.apply(this, arguments); sched(); };
+  setMode();
+})();
 </script>
 </body>
 </html>
