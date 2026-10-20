@@ -368,10 +368,23 @@
   #ui2Leagues .ld{width:9px; height:9px; border-radius:50%; flex-shrink:0;}
   #ui2Leagues .ln{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   #ui2Leagues .lc{font-family:'JetBrains Mono',monospace; font-size:10.5px; opacity:.75;}
-  #ui2KrajBox{position:relative;}
+  #ui2KrajBox{position:relative; width:250px; flex-shrink:0;}
   .ui2-kbtn{width:100%; text-align:left; background:var(--surface); border:1px solid var(--border); color:var(--text); font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13px; padding:11px 14px; border-radius:11px; cursor:pointer;}
   .ui2-kbtn:hover{border-color:var(--amber);}
-  #ui2KrajBox .country-dropdown{position:static; width:100%; max-height:320px; margin-top:6px; box-shadow:none;}
+  #ui2KrajBox .country-dropdown{position:absolute; right:0; top:calc(100% + 6px); width:300px; max-height:430px; z-index:90; box-shadow:0 14px 36px rgba(0,0,0,.55);}
+  .u2t-text{min-width:0;}
+  body.ui2 #ui2Title{display:flex; align-items:flex-start; justify-content:space-between; gap:16px;}
+  body.ui2m #ui2KrajBox{display:none;}
+  #pnViewFilter button[data-view="top5"]{pointer-events:none; cursor:default; opacity:.6; border-style:dashed;}
+  .u2-hero, .u2-mini{cursor:default;}
+  .u2-mini:hover{color:inherit;}
+  .u2-hero:hover{border-color:#5a4210;}
+  #ui2Dates button.sel{background:var(--amber); border-color:var(--amber); color:#1A1200;}
+  #ui2Dates button.sel .sn{opacity:.75;}
+  .u2-res{font-size:9.5px; font-weight:700; border-radius:999px; padding:2px 7px; white-space:nowrap;}
+  .u2-res.o{background:rgba(34,230,168,.2); color:#22e6a8;} .u2-res.u{background:rgba(255,77,77,.22); color:#ff4d4d;}
+  .last-updated-banner .lbl{display:block; font-size:9.5px; letter-spacing:.06em; text-transform:uppercase; opacity:.8;}
+  body.ui2 header .last-updated-banner{display:block; margin:8px 0 0; padding:8px 10px; font-size:12.5px; line-height:1.35; border-radius:10px; width:100%;}
   .u2-hero{padding:16px; border-radius:16px; background:linear-gradient(135deg,#2a1d06,var(--surface) 75%); border:1px solid #5a4210; cursor:pointer;}
   .u2-hero:hover{border-color:var(--amber);}
   .u2-k{font-family:'Space Grotesk',sans-serif; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--muted);}
@@ -405,6 +418,9 @@
   body.ui2 .last-updated-banner{margin-top:14px;}
   body.ui2 .fixtures-scroll, body.ui2 .matches-list{max-height:calc(100vh - 250px);}
   body.ui2 #ui2Title{margin:20px 0 4px;}
+  body.ui2 .toolbar, body.ui2 .card, body.ui2 .quick-filters, body.ui2 .top5-panel, body.ui2 .fixtures-scroll, body.ui2 .matches-list, body.ui2 .schedule-note, body.ui2 .legend, body.ui2 .cmb-table-header, body.ui2 .cmb-row-grid, body.ui2 .sort-toggle, body.ui2 .entry-strip, body.ui2 .top5-breakdown, body.ui2 .details, body.ui2 .h2h-details{max-width:none; margin-left:0; margin-right:0;}
+  body.ui2:not([data-view="__PLAYNOW__"]) .wrap{grid-template-columns:240px minmax(0,1fr);}
+  body.ui2:not([data-view="__PLAYNOW__"]) .wrap > .ui2-right{display:none;}
   body.ui2 #ui2Toolbar.on{display:flex;}
   body.ui2 .league-chips{display:none;}
   body.ui2 .wrap > .ui2-right{display:flex; grid-column:3; grid-row:1 / span 40; position:sticky; top:0; height:100vh; overflow-y:auto; flex-direction:column; gap:14px; padding:20px 0;}
@@ -430,7 +446,6 @@
   body.ui2m .wrap > .ui2-right{order:-4; display:none; flex-direction:row; overflow-x:auto; scroll-snap-type:x mandatory; gap:10px; margin:0 0 12px; padding-bottom:4px;}
   body.ui2m[data-view="__PLAYNOW__"] .wrap > .ui2-right{display:flex; align-items:flex-start;}
   body.ui2m .ui2-right .u2-hero, body.ui2m .ui2-right .u2-card{flex:0 0 86%; scroll-snap-align:start;}
-  body.ui2m .ui2-right #ui2KrajBox{display:none;}
   body.ui2m .topbar{order:-3;}
   body.ui2m footer{order:9;}
   body.ui2m #ui2Bottom{display:flex; width:100%; border-radius:0; border-left:none; border-right:none; border-bottom:none; gap:0; position:fixed; left:0; right:0; bottom:0; z-index:250; background:rgba(13,18,32,.97); backdrop-filter:blur(8px); border-top:1px solid var(--border); padding:6px 2px calc(8px + env(safe-area-inset-bottom));}
@@ -3254,8 +3269,12 @@ if(localStorage.getItem("puckline_unlocked") === "1"){
   const mk = (tag,id,cls)=>{ const e=document.createElement(tag); if(id) e.id=id; if(cls) e.className=cls; return e; };
   const sideLeagues = mk('div','ui2Leagues','ui2-desk');
   headerRight.insertBefore(sideLeagues, document.getElementById('seasonSwitch'));
+  const banner = document.getElementById('lastUpdatedBanner');
+  banner.innerHTML = '<span class="dot2"></span><span class="lbl">Ostatnia aktualizacja · czas PL</span><b id="lastUpdatedValue">—</b>';
+  const logoBox = document.querySelector('header > div:first-child');
   const title = mk('div','ui2Title','ui2-only');
-  wrap.insertBefore(title, document.getElementById('lastUpdatedBanner'));
+  const titleText = mk('div',null,'u2t-text'); title.appendChild(titleText);
+  wrap.insertBefore(title, banner);
   const dates = mk('div','ui2Dates','ui2-only');
   wrap.insertBefore(dates, document.querySelector('.topbar'));
   const toolbar = mk('div','ui2Toolbar');
@@ -3266,7 +3285,7 @@ if(localStorage.getItem("puckline_unlocked") === "1"){
   const krajBox = mk('div','ui2KrajBox');
   const krajBtn = mk('button',null,'ui2-kbtn'); krajBtn.type='button'; krajBox.appendChild(krajBtn);
   const rightBody = mk('div','ui2RightBody'); rightBody.style.cssText='display:contents';
-  right.appendChild(krajBox); right.appendChild(rightBody);
+  title.appendChild(krajBox); right.appendChild(rightBody);
   wrap.appendChild(right);
   const bottom = mk('nav','ui2Bottom');
   bottom.innerHTML = [['__PLAYNOW__','🔥','Terminarz'],['__HOT__','🌶️','HOT'],['__WYNIKIALL__','📊','Wyniki'],['__PERF__','📈','Skut.'],['__UPDATES__','📝','Info'],['__KRAJ__','🌍','Ligi']]
@@ -3285,7 +3304,8 @@ if(localStorage.getItem("puckline_unlocked") === "1"){
     const desk = mq.matches;
     document.body.classList.toggle('ui2', desk);
     document.body.classList.toggle('ui2m', !desk);
-    if(desk) krajBox.appendChild(countryStrip); else document.body.appendChild(countryStrip);
+    if(desk){ krajBox.appendChild(countryStrip); logoBox.appendChild(banner); }
+    else { document.body.appendChild(countryStrip); wrap.insertBefore(banner, dates); }
     refresh();
   }
   (mq.addEventListener ? mq.addEventListener('change', setMode) : mq.addListener(setMode));
@@ -3299,6 +3319,15 @@ if(localStorage.getItem("puckline_unlocked") === "1"){
     });
     return out;
   }
+  let selectedDay = null;
+  const fmtPL = (utcText)=>{
+    // "17.10.2026 11:37 UTC" -> czas polski (Europe/Warsaw), np. "17.10.2026 13:37"
+    const m = /^(\d{2})\.(\d{2})\.(\d{4})\s+(\d{2}):(\d{2})/.exec(utcText||'');
+    if(!m) return utcText || '—';
+    const d = new Date(Date.UTC(+m[3], +m[2]-1, +m[1], +m[4], +m[5]));
+    const parts = new Intl.DateTimeFormat('pl-PL',{timeZone:'Europe/Warsaw', day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit', hour12:false}).formatToParts(d).reduce((a,x)=>(a[x.type]=x.value,a),{});
+    return `${parts.day}.${parts.month}.${parts.year} ${parts.hour}:${parts.minute}`;
+  };
   const esc = t => String(t).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
   function renderLeagues(all){
@@ -3330,7 +3359,7 @@ if(localStorage.getItem("puckline_unlocked") === "1"){
   function renderTitle(){
     const act = document.querySelector('#leagueSwitch button.active');
     const st = document.getElementById('subtitle');
-    title.innerHTML = `<h2>${esc(act ? act.textContent.replace(/[▾▴]/g,'').trim() : 'PUCKLINE')}</h2><div class="st">${esc(st ? st.textContent : '')}</div>`;
+    titleText.innerHTML = `<h2>${esc(act ? act.textContent.replace(/[▾▴]/g,'').trim() : 'PUCKLINE')}</h2><div class="st">${esc(st ? st.textContent : '')}</div>`;
   }
 
   function renderDates(){
@@ -3351,18 +3380,25 @@ if(localStorage.getItem("puckline_unlocked") === "1"){
     items = items.slice(0,16);
     dates.innerHTML = items.map(it=>{
       const dt = new Date(it.d+'T12:00:00');
-      return `<button data-g="${it.id}" class="${it.d===today?'today':''}">${WEEK[dt.getDay()]} ${it.d.slice(8,10)}.${it.d.slice(5,7)}${it.num?`<span class="sn">${it.num}</span>`:''}</button>`;
+      return `<button data-g="${it.id}" class="${it.d===today?'today':''}${currentLeague==='__PLAYNOW__' && it.d===(selectedDay||firstUpcoming())?' sel':''}">${WEEK[dt.getDay()]} ${it.d.slice(8,10)}.${it.d.slice(5,7)}${it.num?`<span class="sn">${it.num}</span>`:''}</button>`;
     }).join('');
     dates.style.display = items.length ? '' : 'none';
     dates.querySelectorAll('button').forEach(b=>b.addEventListener('click', ()=>openGroup(b.dataset.g)));
   }
 
+  function firstUpcoming(){
+    const today = todayStr();
+    const ds = [...new Set(allMatches().filter(m=>playNowLeagueFilter.has(m.league) && !m.played && m.sortDate>=today).map(m=>m.sortDate))].sort();
+    return ds[0] || null;
+  }
+  function selectDay(d){ selectedDay = d; refresh(); }
   // Otwiera zakładkę dnia. NIE przewija ekranu — tylko krótko podświetla nagłówek dnia.
   function openGroup(id){
     const g = document.getElementById(id);
     if(!g) return;
     const mg = g.closest('.month-group'); if(mg) mg.classList.add('open');
     if(!g.classList.contains('open')){ const h = g.querySelector('.day-header'); if(h) h.click(); }
+    if(g.id.startsWith('pn-anchor-')) selectDay(g.id.slice('pn-anchor-'.length));
     g.classList.remove('ui2-flash'); void g.offsetWidth; g.classList.add('ui2-flash');
     setTimeout(()=>g.classList.remove('ui2-flash'), 2000);
   }
@@ -3371,37 +3407,43 @@ if(localStorage.getItem("puckline_unlocked") === "1"){
     ensureLeagueFilter();
     const today = todayStr();
     const vis = all.filter(m=>playNowLeagueFilter.has(m.league));
-    const upDates = [...new Set(vis.filter(m=>!m.played && m.sortDate>=today).map(m=>m.sortDate))].sort();
-    const d = upDates[0];
+    const allDates = [...new Set(vis.map(m=>m.sortDate))].sort();
+    let d = selectedDay && allDates.includes(selectedDay) ? selectedDay : null;
+    if(!d){ const up = allDates.filter(x=>x>=today && vis.some(m=>m.sortDate===x && !m.played)); d = up[0] || allDates[allDates.length-1] || null; }
+    const dl = x => x===today ? 'dziś' : x.slice(8,10)+'.'+x.slice(5,7);
+    const resChip = m => m.played ? `<span class="u2-res ${m.over15?'o':'u'}">${m.over15?'✔':'✕'} ${esc(m.p1||'')}</span>` : '';
     let html = '';
     if(d){
       const dayM = vis.filter(m=>m.sortDate===d);
       let picks = [];
-      try{ picks = pickTop5(dayM.filter(m=>!m.played), d); }catch(e){ picks = []; }
-      const dlabel = (d===today ? 'dziś' : d.slice(8,10)+'.'+d.slice(5,7));
+      try{ picks = pickTop5(dayM, d); }catch(e){ picks = []; }
+      const played = dayM.filter(m=>m.played).length;
+      const sub = played ? ` · rozegrane ${played}/${dayM.length}` : '';
       if(picks.length){
         const top = picks[0], c = top.c, m = top.m;
         let pos = '';
         try{ const T = leagueTable(m.league); if(T[m.home] && T[m.away]) pos = `<span>#${T[m.home].pos} vs #${T[m.away].pos} w tabeli</span>`; }catch(e){}
-        html += `<div class="u2-hero" data-open="pn-anchor-${d}"><div class="u2-k">🔥 Typ dnia · ${dlabel}</div>
+        html += `<div class="u2-hero"><div class="u2-k">🔥 Typ dnia · ${dl(d)}${sub}</div>
           <div style="display:flex; align-items:center; gap:14px; margin:12px 0 2px;"><div class="u2-big">${c.idx}</div>
-          <div style="min-width:0;"><div style="font-weight:700; font-size:14.5px; line-height:1.25;">${esc(m.home)} – ${esc(m.away)}</div>
-          <div style="font-size:11px; color:var(--muted); margin-top:3px;">${esc(leagueShortLabel(m.league))} · indeks TOP 5</div></div></div>
+          <div style="min-width:0;"><div style="font-weight:700; font-size:14.5px; line-height:1.25;">${esc(m.home)} – ${esc(m.away)} ${resChip(m)}</div>
+          <div style="font-size:11px; color:var(--muted); margin-top:3px;">${esc(leagueChipLabel(m.league))} · indeks TOP 5</div></div></div>
           <div class="u2-why"><span>Forma ${(c.F*100).toFixed(0)}%</span><span>H2H ${(c.H*100).toFixed(0)}% (${c.h2hN})</span><span>Gole: ${c.T.toFixed(1)}/mecz → P1 ${(c.G*100).toFixed(0)}%</span>${pos}${m.prob!==undefined?`<span>Model: ${m.prob.toFixed(0)}%</span>`:''}</div></div>`;
-        html += `<div class="u2-card"><div class="u2-k" style="margin-bottom:6px;">TOP 5 dnia · ${dlabel}</div>${picks.map((p,i)=>`
-          <div class="u2-mini" data-open="pn-anchor-${d}"><span class="rk">${i+1}</span><span class="lgt" style="background:${leagueColor(p.m.league)}">${esc(p.m.league.slice(0,3))}</span><span class="nm" title="${esc(p.m.home)} – ${esc(p.m.away)}">${esc(p.m.home)} – ${esc(p.m.away)}</span><span class="prob-badge ${top5Class(p.c.idx)}" style="width:40px; padding:3px 0; font-size:11px;">${p.c.idx}</span></div>`).join('')}</div>`;
+        html += `<div class="u2-card"><div class="u2-k" style="margin-bottom:6px;">⭐ TOP 5 dnia · ${dl(d)}</div>${picks.map((p,i)=>`
+          <div class="u2-mini"><span class="rk">${i+1}</span><span class="lgt" style="background:${leagueColor(p.m.league)}">${esc(p.m.league.slice(0,3))}</span><span class="nm" title="${esc(p.m.home)} – ${esc(p.m.away)}">${esc(p.m.home)} – ${esc(p.m.away)}</span>${resChip(p.m)}<span class="prob-badge ${top5Class(p.c.idx)}" style="width:40px; padding:3px 0; font-size:11px;">${p.c.idx}</span></div>`).join('')}
+          <div style="font-size:10.5px; color:var(--muted); margin-top:8px;">Kliknij dzień na liście lub na pasku dat, żeby zmienić.</div></div>`;
       } else {
-        const best = dayM.filter(m=>!m.played && m.prob!==undefined).sort((a,b)=>b.prob-a.prob).slice(0,5);
-        if(best.length){
-          html += `<div class="u2-card"><div class="u2-k" style="margin-bottom:6px;">Najwyższe prognozy · ${dlabel}</div>${best.map((m,i)=>`
-            <div class="u2-mini" data-open="pn-anchor-${d}"><span class="rk">${i+1}</span><span class="nm">${esc(m.home)} – ${esc(m.away)}</span><span class="prob-badge ${probClass(m.prob)}" style="width:40px; padding:3px 0; font-size:11px;">${m.prob.toFixed(0)}%</span></div>`).join('')}</div>`;
-        }
+        const best = dayM.filter(m=>m.prob!==undefined).sort((a,b)=>b.prob-a.prob).slice(0,5);
+        html += best.length ? `<div class="u2-card"><div class="u2-k" style="margin-bottom:6px;">Najwyższe prognozy · ${dl(d)}</div>${best.map((m,i)=>`
+            <div class="u2-mini"><span class="rk">${i+1}</span><span class="nm">${esc(m.home)} – ${esc(m.away)}</span>${resChip(m)}<span class="prob-badge ${probClass(m.prob)}" style="width:40px; padding:3px 0; font-size:11px;">${m.prob.toFixed(0)}%</span></div>`).join('')}</div>`
+          : `<div class="u2-card"><div class="u2-k">TOP 5 dnia · ${dl(d)}</div><div style="font-size:12.5px; color:var(--muted); margin-top:8px;">Za mało danych historycznych drużyn, żeby wskazać TOP 5 tego dnia.</div></div>`;
       }
     } else {
-      html += `<div class="u2-card"><div class="u2-k">Typ dnia</div><div style="font-size:12.5px; color:var(--muted); margin-top:8px;">Brak nadchodzących meczów dla wybranych lig.</div></div>`;
+      html += `<div class="u2-card"><div class="u2-k">Typ dnia</div><div style="font-size:12.5px; color:var(--muted); margin-top:8px;">Brak meczów dla wybranych lig.</div></div>`;
     }
+    // rozliczenie: wybrany dzień (jeśli są rozegrane mecze), w przeciwnym razie ostatni rozegrany
     const playedDates = [...new Set(vis.filter(m=>m.played && m.sortDate<=today).map(m=>m.sortDate))].sort();
-    const ld = playedDates[playedDates.length-1];
+    const hasPlayed = d && vis.some(m=>m.sortDate===d && m.played);
+    const ld = hasPlayed ? d : playedDates[playedDates.length-1];
     const seasonPlayed = vis.filter(m=>m.played);
     if(ld){
       const dm = vis.filter(m=>m.sortDate===ld && m.played);
@@ -3409,18 +3451,12 @@ if(localStorage.getItem("puckline_unlocked") === "1"){
       const pct = dm.length ? Math.round(ov/dm.length*100) : 0;
       const sOv = seasonPlayed.filter(m=>m.over15).length;
       const sPct = seasonPlayed.length ? (sOv/seasonPlayed.length*100).toFixed(1).replace('.',',') : '—';
-      html += `<div class="u2-card"><div class="u2-k" style="margin-bottom:10px;">Rozliczenie · ${ld===today?'dziś':ld.slice(8,10)+'.'+ld.slice(5,7)}</div>
+      html += `<div class="u2-card"><div class="u2-k" style="margin-bottom:10px;">Rozliczenie · ${dl(ld)}</div>
         <div style="display:flex; gap:14px; align-items:center;"><div class="u2-donut" style="background:conic-gradient(#22e6a8 0 ${pct}%, #ff4d4d ${pct}% 100%);"><i>${pct}%</i></div>
         <div><div style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:16px;">${ov} z ${dm.length} Over</div>
         <div style="font-size:11px; color:var(--muted); margin-top:4px;">sezon 26/27: ${sPct}% (${sOv}/${seasonPlayed.length})</div></div></div></div>`;
     }
     rightBody.innerHTML = html;
-    rightBody.querySelectorAll('[data-open]').forEach(el=>{
-      el.addEventListener('click', ()=>{
-        if(currentLeague!=='__PLAYNOW__'){ currentLeague='__PLAYNOW__'; renderAll(); }
-        setTimeout(()=>openGroup(el.dataset.open), 80);
-      });
-    });
   }
 
   function syncChrome(){
@@ -3430,6 +3466,13 @@ if(localStorage.getItem("puckline_unlocked") === "1"){
     bottom.querySelectorAll('button').forEach(b=>b.classList.toggle('active', b.dataset.go===act));
     const kb = document.querySelector('#leagueSwitch button[data-league="__KRAJ__"]');
     krajBtn.textContent = kb ? kb.textContent.trim() : '🌍 Wybierz ligę ▾';
+    // data aktualizacji w czasie polskim (Europe/Warsaw)
+    const lv = document.getElementById('lastUpdatedValue');
+    if(lv && DATA && DATA.lastUpdated) lv.textContent = fmtPL(DATA.lastUpdated);
+    // przycisk TOP 5 Zakładów: tylko informacyjny — TOP 5 wybranego dnia jest w panelu
+    if(typeof pnView!=='undefined' && pnView==='top5') pnView='all';
+    const tb = document.querySelector('#pnViewFilter button[data-view="top5"]');
+    if(tb){ tb.disabled = true; tb.textContent = mq.matches ? '⭐ TOP 5 dnia → po prawej' : '⭐ TOP 5 dnia → u góry'; }
     const sw = document.getElementById('seasonSwitch');
     toolbar.classList.toggle('on', !!sw && sw.style.display!=='none' && !special.includes(currentLeague));
   }
@@ -3444,6 +3487,13 @@ if(localStorage.getItem("puckline_unlocked") === "1"){
     }catch(e){ console.error('UI2:', e); }
   }
 
+  const pnc = document.getElementById('playnowContent');
+  if(pnc) pnc.addEventListener('click', ev=>{
+    const h = ev.target.closest && ev.target.closest('.day-header[data-toggle="day"]');
+    if(!h) return;
+    const g = h.closest('.day-group');
+    setTimeout(()=>{ if(g && g.classList.contains('open') && g.id.startsWith('pn-anchor-')) selectDay(g.id.slice('pn-anchor-'.length)); }, 0);
+  });
   let tmr = null;
   const sched = ()=>{ clearTimeout(tmr); tmr = setTimeout(refresh, 60); };
   ['playnowContent','wynikiallContent','hotContent'].forEach(id=>{
