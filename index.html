@@ -335,6 +335,45 @@
     .perf-table{font-size:11.5px;}
   }
 
+  /* ---- zakładka TEST ---- */
+  .tst-sum{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.6fr); gap:22px; align-items:start;}
+  .tst-tab{width:100%; border-collapse:collapse; font-size:12px;}
+  .tst-tab th{font-family:'Space Grotesk',sans-serif; font-size:10px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); text-align:left; padding:5px 6px; border-bottom:1px solid var(--border); cursor:default;}
+  .tst-tab th.n, .tst-tab td.n{text-align:right; font-family:'JetBrains Mono',monospace;}
+  .tst-tab td{padding:6px; border-bottom:1px solid var(--surface2); white-space:normal;}
+  .tst-tab th{white-space:nowrap;}
+  .tst-tab .pos{color:#22e6a8;} .tst-tab .neg{color:#ff4d4d;}
+  .tst-note{font-size:10.5px; color:var(--muted); line-height:1.5; margin-top:12px;}
+  .tst-row{display:grid; grid-template-columns:96px minmax(230px,1.1fr) minmax(0,1.6fr) 190px; gap:14px; align-items:center; padding:11px 14px; border-bottom:1px solid var(--surface2); border-left:3px solid transparent;}
+  .tst-row.over-hit{border-left:6px solid #22e6a8; background:linear-gradient(90deg, rgba(34,230,168,0.30), rgba(34,230,168,0.05) 60%);}
+  .tst-row.under-hit{border-left:6px solid #ff4d4d; background:linear-gradient(90deg, rgba(255,77,77,0.32), rgba(255,77,77,0.05) 60%);}
+  .tst-l{display:flex; flex-direction:column; gap:4px; align-items:flex-start;}
+  .tst-lb{font-size:9px; font-weight:700; color:#0A0E1A; border-radius:4px; padding:2px 6px; max-width:92px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .tst-d{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted);}
+  .tst-t{display:flex; align-items:center; gap:7px; font-size:13px; flex-wrap:wrap;}
+  .tst-t b{font-weight:600;}
+  .tst-vs{color:var(--muted); font-size:11px;}
+  .tst-tags{display:flex; align-items:center; gap:8px; margin-top:5px; flex-wrap:wrap;}
+  .tst-lg{font-size:10px; color:var(--muted); border:1px solid var(--border); border-radius:6px; padding:1px 6px;}
+  .tst-s{display:flex; flex-wrap:wrap; gap:5px;}
+  .tst-chip{font-size:11px; font-weight:600; padding:3px 8px; border-radius:7px;}
+  .tst-chip.up{background:rgba(34,230,168,.15); color:#22e6a8;} .tst-chip.dn{background:rgba(255,77,77,.16); color:#ff6b6b;}
+  .tst-none{font-size:11px; color:var(--muted); font-style:italic;}
+  .tst-g{display:flex; align-items:center; gap:8px; justify-content:flex-end; flex-wrap:wrap;}
+  .tst-res{font-size:10.5px; font-weight:700; border-radius:999px; padding:3px 9px; white-space:nowrap;}
+  .tst-res.o{background:rgba(34,230,168,.2); color:#22e6a8;} .tst-res.u{background:rgba(255,77,77,.22); color:#ff6b6b;}
+  .tst-grade{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:15px; width:30px; height:30px; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; color:#0A0E1A;}
+  .tst-grade.gA{background:#22e6a8;} .tst-grade.gB{background:#9be22a;} .tst-grade.gC{background:#F0A830;} .tst-grade.gD{background:#ff6b6b;} .tst-grade.gx{background:var(--surface2); color:var(--muted);}
+  .tst-conf{display:inline-flex; gap:2px;} .tst-conf i{width:7px; height:7px; border-radius:2px; background:var(--border);} .tst-conf i.f{background:var(--teal);}
+  @media (max-width:900px){
+    .tst-sum{grid-template-columns:1fr; gap:14px;}
+    .tst-tab{font-size:11px;} .tst-tab td, .tst-tab th{padding:5px 3px;}
+    #testContent .legend{display:none;}
+    .tst-row{grid-template-columns:1fr; gap:8px;}
+    .tst-l{flex-direction:row; align-items:center; gap:8px;}
+    .tst-g{justify-content:flex-start;}
+  }
+
   /* =====================================================================
      UI2 — nowy układ. body.ui2 = komputer (>=1100 px: menu boczne + panel po prawej),
      body.ui2m = telefon/wąskie okno (dolna nawigacja, pasek dni, karty Typ dnia).
@@ -527,6 +566,10 @@
     <div id="perfContent"></div>
   </div>
 
+  <div id="test" class="panel">
+    <div id="testContent"></div>
+  </div>
+
   <div id="updates" class="panel">
     <div id="updatesContent"></div>
   </div>
@@ -673,7 +716,7 @@ function allLeagueMenuItems(){
 }
 
 function renderHeader(){
-  const SPECIAL_TABS = ['__PLAYNOW__', '__WYNIKIALL__', '__HOT__', '__PERF__', '__UPDATES__'];
+  const SPECIAL_TABS = ['__PLAYNOW__', '__WYNIKIALL__', '__HOT__', '__PERF__', '__UPDATES__', '__TEST__'];
   const isLeagueView = !SPECIAL_TABS.includes(currentLeague);
   const currentItem = isLeagueView ? allLeagueMenuItems().find(it=>it.key===currentLeague) : null;
   const krajLabel = currentItem ? `🌍 ${currentItem.country}` : '🌍 Wybierz ligę';
@@ -688,6 +731,7 @@ function renderHeader(){
     <button class="${currentLeague==='__WYNIKIALL__'?'active':''}" data-league="__WYNIKIALL__">📊 WYNIKI</button>
     <button class="${currentLeague==='__PERF__'?'active':''}" data-league="__PERF__">📈 SKUTECZNOŚĆ</button>
     <button class="${currentLeague==='__UPDATES__'?'active':''}" data-league="__UPDATES__">📝 UPDATES</button>
+    <button class="${currentLeague==='__TEST__'?'active':''}" data-league="__TEST__">🧪 TEST</button>
     <button class="${isLeagueView?'active':''}" data-league="__KRAJ__">${krajLabel} ${countryPickerOpen?'▴':'▾'}</button>`;
 
   document.querySelectorAll('#leagueSwitch button').forEach(b=>{
@@ -777,6 +821,16 @@ function renderHeader(){
     document.querySelector('.topbar').style.display = 'none';
     document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
     document.getElementById('hot').classList.add('active');
+    document.getElementById('metaRight').innerHTML = '';
+    return;
+  }
+
+  if(currentLeague === '__TEST__'){
+    document.getElementById('subtitle').textContent = 'Eksperyment: sygnały Over/Under na żywym sezonie — nie wpływają na prognozę ani TOP 5';
+    document.getElementById('seasonSwitch').style.display = 'none';
+    document.querySelector('.topbar').style.display = 'none';
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    document.getElementById('test').classList.add('active');
     document.getElementById('metaRight').innerHTML = '';
     return;
   }
@@ -1508,6 +1562,10 @@ function renderAll(){
     renderUpdates();
     return;
   }
+  if(currentLeague === '__TEST__'){
+    renderTest();
+    return;
+  }
   if(currentLeague === 'COMBINED'){
     renderCombined();
     return;
@@ -1980,6 +2038,28 @@ function renderPerf(){
 
 // ---------- Updates / changelog ----------
 const CHANGELOG = [
+  {
+    date: '21.10.2026',
+    title: 'Nowy układ strony: menu boczne, panel „Typ dnia”, układ na telefon, zakładka TEST',
+    items: [
+      'Komputer: menu boczne z listą lig i liczbą meczów w 7 dni (kliknięcie filtruje Terminarz i Wyniki), pasek dni u góry, panel po prawej z „Typem dnia”, TOP 5 dnia i rozliczeniem dnia — panel tylko w TERMINARZU, w pozostałych zakładkach całość rozciąga się na pełną szerokość',
+      'TOP 5 po prawej zmienia się na dzień, który klikniesz na liście lub na pasku dat (dla rozegranych dni widać wyniki ✔/✕). Przycisk „TOP 5 Zakładów” jest teraz tylko informacją, bez przeskakiwania do osobnych okien',
+      'Kliknięcie dnia na pasku dat otwiera jego zakładkę i przewija listę tylko wtedy, gdy zakładki nie widać; pasek dni jest w TERMINARZU, HOT i WYNIKACH',
+      '„Wybierz ligę” jest w prawym górnym rogu; po wyborze ligi wybór sezonu jest nad tabelą',
+      'Ostatnia aktualizacja danych pod logo, w czasie polskim (Europa/Warszawa)',
+      'Telefon: dolna nawigacja (Terminarz, HOT, Wyniki, Skut., Info, TEST, Ligi), pasek dni przyklejony u góry, „Typ dnia” i TOP 5 jako karty przewijane w bok, czytelne nazwy drużyn w wierszach meczów',
+      'Mocniejsze kolory wierszy po meczu: zielony = Over, czerwony = Under (pasek z boku, tło i poświata)',
+      'Naprawiono: po wybraniu ligi z Terminarza nadal wyświetlał się panel Terminarza zamiast rankingu drużyn',
+    ],
+  },
+  {
+    date: '21.10.2026',
+    title: '🧪 TEST: eksperymentalne sygnały, gdzie może paść Over',
+    items: [
+      'Nowa zakładka TEST (tylko podgląd, nie zmienia prognozy ani TOP 5): przy każdym meczu chipy ▲ (sygnały za Over) i ▼ (sygnały za Under), ocena A–D, pewność (kropki) i średnia Over w lidze',
+      'Sygnały pochodzą z testu na ok. 16 tys. meczów historycznych (m.in. słabe obrony + mocne ataki, wysokie tempo goli P1, gorące H2H, back-to-back, serie Over/Under); u góry zakładki widać też, jak sprawdzają się w sezonie 2026/27',
+    ],
+  },
   {
     date: '18.10.2026',
     title: 'Miejsce w tabeli i bilans bramek przy meczach',
@@ -3255,6 +3335,230 @@ if(localStorage.getItem("puckline_unlocked") === "1"){
 }
 
 // =====================================================================
+// 🧪 TEST — eksperymentalne sygnały Over/Under (nie wpływają na prognozę ani TOP 5)
+// Statystyki drużyn: bieżący sezon (liga zasadnicza) + połowa wagi poprzedniego sezonu,
+// zawsze liczone tylko na meczach sprzed danego dnia. Lifty z testu na ~16 tys. meczów historycznych.
+// =====================================================================
+const TST_K = 8, TST_PRIOR_W = 0.5, TST_MIN_N = 10;
+const TST_UP = [
+  {id:'weak2',  lift:7.6, label:'obie obrony słabe + mocne ataki'},
+  {id:'weakH',  lift:5.4, label:'słaba obrona gosp. vs mocny atak gościa'},
+  {id:'weakA',  lift:5.4, label:'słaba obrona gościa vs mocny atak gosp.'},
+  {id:'tempoHi',lift:5.1, label:'wysokie tempo goli P1'},
+  {id:'h2hHot', lift:8.8, label:'H2H ≥80% Over'},
+  {id:'gap',    lift:3.3, label:'duża różnica klasy'},
+  {id:'ooo',    lift:4.5, label:'obie: 3 ost. mecze Over'},
+  {id:'b2b',    lift:2.4, label:'back-to-back'},
+  {id:'form2',  lift:1.6, label:'obie formy ≥60% Over'},
+];
+const TST_DOWN = [
+  {id:'uuu',    lift:-10.0, label:'obie: 3 ost. mecze Under'},
+  {id:'tempoLo',lift:-4.6,  label:'niskie tempo goli P1'},
+  {id:'def2',   lift:-3.7,  label:'obie obrony bardzo mocne'},
+  {id:'def1',   lift:-2.7,  label:'jedna bardzo mocna obrona'},
+];
+const TST_ALL = [...TST_UP, ...TST_DOWN];
+const TST_BY_ID = Object.fromEntries(TST_ALL.map(x=>[x.id,x]));
+let tstScope = 'upcoming';   // 'upcoming' | 'played'
+let tstMin = 'all';          // 'all' | 'ab'
+let tstCache = {src:null};
+
+function tstByDate(a,b){ return a.sortDate.localeCompare(b.sortDate); }
+function tstPrevDay(d){ const x = new Date(d+'T12:00:00'); x.setDate(x.getDate()-1); return x.toISOString().slice(0,10); }
+function tstQuantile(arr, p){ if(!arr.length) return null; const a=[...arr].sort((x,y)=>x-y); return a[Math.min(a.length-1, Math.floor(a.length*p))]; }
+
+function tstLeagueCtx(lg){
+  const L = DATA.leagues[lg]; const s = L.seasons['2026-27'];
+  const cur = ((s && s.mainSeason && s.mainSeason.matches) || []);
+  const curPlayed = cur.filter(m=>m.played && m.p1).sort(tstByDate);
+  const keys = Object.keys(L.seasons).filter(k=>L.seasons[k].status==='completed').sort().reverse();
+  const prev = keys.length ? (L.seasons[keys[0]].matches||[]).filter(m=>m.p1).sort(tstByDate) : [];
+  const idx = list => { const o={}; list.forEach(m=>{ (o[m.home]=o[m.home]||[]).push(m); (o[m.away]=o[m.away]||[]).push(m); }); return o; };
+  const sched = {};
+  cur.forEach(m=>{ (sched[m.home]=sched[m.home]||new Set()).add(m.sortDate); (sched[m.away]=sched[m.away]||new Set()).add(m.sortDate); });
+  let g=0,n=0; [...curPlayed,...prev].forEach(m=>{ const [a,b]=m.p1.split(':').map(Number); g+=a+b; n++; });
+  const hist = {n:0, over:0};
+  keys.forEach(k=>(L.seasons[k].matches||[]).forEach(m=>{ if(m.p1){ hist.n++; if(m.over15) hist.over++; } }));
+  return {cur, curPlayed, prev, byCur:idx(curPlayed), byPrev:idx(prev), sched,
+          lgGF: n ? g/(2*n) : 0.8, histOverPct: hist.n ? hist.over/hist.n*100 : null, histN: hist.n};
+}
+
+function tstTeam(ctx, team, date){
+  let n=0, gf=0, ga=0, fn=0, fd=0; const hist=[];
+  (ctx.byCur[team]||[]).forEach(m=>{
+    if(m.sortDate>=date) return;
+    const [a,b] = m.p1.split(':').map(Number); const h = m.home===team;
+    gf += h?a:b; ga += h?b:a; n++; hist.push(a+b>=2?1:0);
+    if(m.score){ const [c,d] = m.score.split(':').map(Number); fd += h?(c-d):(d-c); fn++; }
+  });
+  let pn=0, pgf=0, pga=0, pfn=0, pfd=0; const phist=[];
+  (ctx.byPrev[team]||[]).forEach(m=>{
+    const [a,b] = m.p1.split(':').map(Number); const h = m.home===team;
+    pgf += h?a:b; pga += h?b:a; pn++; phist.push(a+b>=2?1:0);
+    if(m.score){ const [c,d] = m.score.split(':').map(Number); pfd += h?(c-d):(d-c); pfn++; }
+  });
+  const nEff = n + TST_PRIOR_W*pn;
+  const all = [...phist, ...hist];
+  const last = k => { const x = all.slice(-k); return x.length>=k ? x : null; };
+  const fnEff = fn + TST_PRIOR_W*pfn;
+  const l5 = last(5), l3 = last(3);
+  return {
+    nCur:n, nEff,
+    att: (gf + TST_PRIOR_W*pgf + TST_K*ctx.lgGF)/(nEff+TST_K),
+    def: (ga + TST_PRIOR_W*pga + TST_K*ctx.lgGF)/(nEff+TST_K),
+    gd: fnEff>=5 ? (fd + TST_PRIOR_W*pfd)/fnEff : null,
+    form5: l5 ? l5.reduce((x,y)=>x+y,0)/5 : null,
+    l3: l3 ? l3.reduce((x,y)=>x+y,0) : null,
+  };
+}
+
+function tstFeatures(ctx, m){
+  const h = tstTeam(ctx, m.home, m.sortDate), a = tstTeam(ctx, m.away, m.sortDate);
+  const nMin = Math.min(h.nEff, a.nEff);
+  if(nMin < TST_MIN_N) return {ok:false, nMin};
+  const sch = ctx.sched;
+  const prevD = tstPrevDay(m.sortDate);
+  return {ok:true, h, a, nMin,
+    tempo: ((h.att+h.def)+(a.att+a.def))/2,
+    b2b: !!((sch[m.home]&&sch[m.home].has(prevD)) || (sch[m.away]&&sch[m.away].has(prevD))),
+    gap: (h.gd!==null && a.gd!==null) ? Math.abs(h.gd - a.gd) : null};
+}
+
+function tstBuild(){
+  if(tstCache.src === DATA) return tstCache;
+  const out = {src:DATA, ctx:{}, rows:[], th:null};
+  const lgs = Object.keys(DATA.leagues);
+  lgs.forEach(lg=>{ out.ctx[lg] = tstLeagueCtx(lg); });
+  const today = todayStr();
+  lgs.forEach(lg=>{
+    const ctx = out.ctx[lg];
+    ctx.cur.forEach(m=>{
+      const f = tstFeatures(ctx, m);
+      out.rows.push({m, lg, f, played: !!(m.played && m.p1)});
+    });
+  });
+  // progi (kwantyle) z meczów rozegranych w bieżącym sezonie z kompletem danych
+  const base = out.rows.filter(r=>r.played && r.f.ok);
+  const att = [], def = [], tempo = [];
+  base.forEach(r=>{ att.push(r.f.h.att, r.f.a.att); def.push(r.f.h.def, r.f.a.def); tempo.push(r.f.tempo); });
+  out.th = base.length >= 80 ? {
+    att50:tstQuantile(att,.5), def50:tstQuantile(def,.5), def75:tstQuantile(def,.75), def25:tstQuantile(def,.25), def10:tstQuantile(def,.10),
+    tempo75:tstQuantile(tempo,.75), tempo25:tstQuantile(tempo,.25), nBase:base.length } : null;
+  out.rows.forEach(r=>{ r.sig = (out.th && r.f.ok) ? tstSignals(r, out.th) : null; });
+  tstCache = out;
+  return out;
+}
+
+function tstSignals(r, th){
+  const f = r.f, h = f.h, a = f.a, ids = [];
+  const weak2 = h.att>=th.att50 && a.att>=th.att50 && h.def>=th.def50 && a.def>=th.def50;
+  if(weak2) ids.push('weak2');
+  else {
+    if(h.def>=th.def75 && a.att>=th.att50) ids.push('weakH');
+    if(a.def>=th.def75 && h.att>=th.att50) ids.push('weakA');
+  }
+  if(f.tempo>=th.tempo75) ids.push('tempoHi'); else if(f.tempo<=th.tempo25) ids.push('tempoLo');
+  let hot = null; try{ hot = findHotInfo({league:r.lg, home:r.m.home, away:r.m.away}); }catch(e){}
+  if(hot) ids.push('h2hHot');
+  if(f.gap!==null && f.gap>=1.5) ids.push('gap');
+  if(h.l3===3 && a.l3===3) ids.push('ooo');
+  if(h.l3===0 && a.l3===0) ids.push('uuu');
+  if(f.b2b) ids.push('b2b');
+  if(h.form5!==null && a.form5!==null && h.form5>=.6 && a.form5>=.6) ids.push('form2');
+  if(h.def<=th.def25 && a.def<=th.def25) ids.push('def2');
+  else if(Math.min(h.def,a.def)<=th.def10) ids.push('def1');
+  const damp = list => { const v = list.map(i=>TST_BY_ID[i].lift).sort((x,y)=>Math.abs(y)-Math.abs(x)); return v.reduce((s,x,i)=>s + (i===0?x:x*0.5), 0); };
+  const up = ids.filter(i=>TST_BY_ID[i].lift>0), down = ids.filter(i=>TST_BY_ID[i].lift<0);
+  const score = damp(up) + damp(down);
+  const grade = score>=10 ? 'A' : score>=5 ? 'B' : score>=0 ? 'C' : 'D';
+  const conf = f.nMin>=24 ? 4 : f.nMin>=16 ? 3 : f.nMin>=12 ? 2 : 1;
+  return {ids, up, down, score, grade, conf};
+}
+
+function tstChip(id){
+  const x = TST_BY_ID[id]; const up = x.lift>0;
+  return `<span class="tst-chip ${up?'up':'dn'}" title="Lift w teście historycznym: ${x.lift>0?'+':''}${String(x.lift).replace('.',',')} pkt">${up?'▲':'▼'} ${x.label}</span>`;
+}
+
+function tstRowHtml(r, T){
+  const m = r.m, sg = r.sig;
+  const played = r.played;
+  const rc = played ? (m.over15 ? ' over-hit' : ' under-hit') : '';
+  const res = played ? `<span class="tst-res ${m.over15?'o':'u'}">${m.over15?'✔ OVER':'✕ under'} · P1 ${m.p1}</span>` : '';
+  const ctx = T.ctx[r.lg];
+  const lgAvg = ctx.histOverPct!==null ? `<span class="tst-lg" title="Średnia Over 1,5 P1 w tej lidze (sezony historyczne, ${ctx.histN} meczów)">liga ${Math.round(ctx.histOverPct)}%</span>` : '';
+  const dots = sg ? `<span class="tst-conf" title="Pewność: ilość meczów obu drużyn (bieżący sezon + połowa poprzedniego)">${[1,2,3,4].map(i=>`<i class="${i<=sg.conf?'f':''}"></i>`).join('')}</span>` : '';
+  const grade = sg ? `<span class="tst-grade g${sg.grade}" title="Suma sygnałów (pkt): ${sg.score>0?'+':''}${sg.score.toFixed(1).replace('.',',')}">${sg.grade}</span>` : `<span class="tst-grade gx" title="Za mało meczów obu drużyn">–</span>`;
+  const chips = sg ? (sg.ids.length ? sg.ids.map(tstChip).join('') : '<span class="tst-none">brak wyraźnych sygnałów</span>') : '<span class="tst-none">za mało danych o drużynach</span>';
+  const pct = m.prob!==undefined ? `<span class="prob-badge ${probClass(m.prob)}" style="width:42px; padding:3px 0; font-size:11px;">${m.prob.toFixed(0)}%</span>` : '';
+  return `<div class="tst-row${rc}">
+    <div class="tst-l"><span class="tst-lb" style="background:${leagueColor(r.lg)}">${esc2(leagueShortLabel(r.lg))}</span><span class="tst-d">${m.date.slice(0,5)}</span></div>
+    <div class="tst-m"><div class="tst-t">${logo(m.home, r.lg)}<b>${esc2(m.home)}</b> <span class="tst-vs">–</span> ${logo(m.away, r.lg)}<b>${esc2(m.away)}</b></div>
+      <div class="tst-tags">${tblTagHtml(r.lg, m.home)} <span class="tst-vs">vs</span> ${tblTagHtml(r.lg, m.away)} ${lgAvg}</div></div>
+    <div class="tst-s">${chips}</div>
+    <div class="tst-g">${res}${pct}${grade}${dots}</div>
+  </div>`;
+}
+function esc2(t){ return String(t).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+function renderTest(){
+  const el = document.getElementById('testContent');
+  if(typeof ensureLeagueFilter==='function') ensureLeagueFilter();
+  const T = tstBuild();
+  const today = todayStr();
+  const vis = T.rows.filter(r=>playNowLeagueFilter.has(r.lg));
+
+  // --- sprawdzian na żywo: rozegrane mecze sezonu 2026/27
+  const played = T.rows.filter(r=>r.played && r.sig);
+  const overAll = played.length ? played.filter(r=>r.m.over15).length/played.length*100 : 0;
+  const gradeRows = ['A','B','C','D'].map(g=>{
+    const x = played.filter(r=>r.sig.grade===g); const o = x.filter(r=>r.m.over15).length;
+    return {g, n:x.length, o, pct: x.length ? o/x.length*100 : null};
+  });
+  const sigRows = TST_ALL.map(sg=>{
+    const x = played.filter(r=>r.sig.ids.includes(sg.id)); const o = x.filter(r=>r.m.over15).length;
+    return {sg, n:x.length, pct: x.length ? o/x.length*100 : null};
+  });
+  const fmtP = v => v===null ? '—' : v.toFixed(1).replace('.',',')+'%';
+  const liftCell = (pct) => { if(pct===null) return '<td class="n">—</td>'; const d = pct-overAll; return `<td class="n ${d>=0?'pos':'neg'}">${d>=0?'+':''}${d.toFixed(1).replace('.',',')}</td>`; };
+  const summary = `<div class="top5-panel" style="margin-bottom:14px;">
+      <div class="top5-title">🧪 Sprawdzian na żywo — sezon 2026/27 (${played.length} rozegranych meczów z oceną, średnio Over: ${fmtP(overAll)})</div>
+      <div class="tst-sum">
+        <table class="tst-tab"><thead><tr><th>Ocena</th><th class="n">mecze</th><th class="n">Over</th><th class="n">vs średnia</th></tr></thead><tbody>
+          ${gradeRows.map(x=>`<tr><td><span class="tst-grade g${x.g}">${x.g}</span></td><td class="n">${x.n}</td><td class="n">${fmtP(x.pct)}</td>${liftCell(x.pct)}</tr>`).join('')}
+        </tbody></table>
+        <table class="tst-tab"><thead><tr><th>Sygnał</th><th class="n">mecze</th><th class="n">Over</th><th class="n">vs średnia</th></tr></thead><tbody>
+          ${sigRows.filter(x=>x.n>0).map(x=>`<tr><td>${x.sg.lift>0?'<span class="pos">▲</span>':'<span class="neg">▼</span>'} ${x.sg.label}</td><td class="n">${x.n}</td><td class="n">${fmtP(x.pct)}</td>${liftCell(x.pct)}</tr>`).join('')}
+        </tbody></table>
+      </div>
+      <div class="tst-note">Ocena: A = suma sygnałów ≥ +10 pkt, B ≥ +5, C ≥ 0, D poniżej 0 (sygnały skorelowane liczone z połową wagi). Progi (np. „słaba obrona”) wyliczane z meczów bieżącego sezonu${T.th?` (${T.th.nBase} meczów)`:''}. Zielone „vs średnia” = lepiej niż średnia, czerwone = gorzej. Przy małych liczbach meczów wynik to głównie szum — patrz na trend w kolejnych tygodniach.</div>
+    </div>`;
+
+  const toolbar = `<div class="toolbar" style="margin-bottom:10px;">
+      <div class="h2h-min-filter" id="tstScope"><button data-v="upcoming" class="${tstScope==='upcoming'?'active':''}">Nadchodzące (7 dni)</button><button data-v="played" class="${tstScope==='played'?'active':''}">Rozegrane (ost. 3 dni)</button></div>
+      <div class="h2h-min-filter" id="tstMin"><button data-v="all" class="${tstMin==='all'?'active':''}">Wszystkie</button><button data-v="ab" class="${tstMin==='ab'?'active':''}">Tylko ocena A–B</button></div>
+    </div>`;
+
+  let list;
+  if(tstScope==='upcoming') list = vis.filter(r=>!r.played && r.m.sortDate>=today && within7days(r.m.sortDate));
+  else { const d3 = new Date(); d3.setDate(d3.getDate()-3); const lim = d3.toISOString().slice(0,10); list = vis.filter(r=>r.played && r.m.sortDate>=lim && r.m.sortDate<=today); }
+  if(tstMin==='ab') list = list.filter(r=>r.sig && (r.sig.grade==='A'||r.sig.grade==='B'));
+  const byDay = {}; list.forEach(r=>{ (byDay[r.m.sortDate]=byDay[r.m.sortDate]||[]).push(r); });
+  const days = Object.keys(byDay).sort(); if(tstScope==='played') days.reverse();
+  const body = days.length ? days.map(d=>{
+    const rows = byDay[d].sort((a,b)=>((b.sig?b.sig.score:-99)-(a.sig?a.sig.score:-99)));
+    const a = rows.filter(r=>r.sig && r.sig.grade==='A').length;
+    return `<div class="day-group open"><div class="day-header"><span class="date">${rows[0].m.date}</span><span class="n">${rows.length} meczów · ocena A: ${a}</span></div>
+      <div class="day-body" style="display:block;">${rows.map(r=>tstRowHtml(r,T)).join('')}</div></div>`;
+  }).join('') : `<div style="color:var(--muted); font-size:13px; padding:24px; text-align:center;">Brak meczów w tym filtrze.</div>`;
+
+  el.innerHTML = `<div class="legend">🧪 TEST — sygnały policzone z danych drużyn (tempo goli, obrony, ataki, serie, H2H, dni odpoczynku). <b>Nie wpływają na prognozę % ani na TOP 5</b> — to eksperyment, który sprawdzamy na żywym sezonie.</div>
+    ${summary}${toolbar}<div class="fixtures-scroll">${body}</div>`;
+  el.querySelectorAll('#tstScope button').forEach(b=>b.addEventListener('click', ()=>{ tstScope=b.dataset.v; renderTest(); }));
+  el.querySelectorAll('#tstMin button').forEach(b=>b.addEventListener('click', ()=>{ tstMin=b.dataset.v; renderTest(); }));
+}
+
+// =====================================================================
 // UI2 — nowy układ: menu boczne + panel "Typ dnia" (komputer), dolna nawigacja + pasek dni (telefon).
 // Skrypt tylko DODAJE elementy i przełącza klasy body.ui2 / body.ui2m. Nie zmienia danych ani modelu.
 // =====================================================================
@@ -3288,7 +3592,7 @@ if(localStorage.getItem("puckline_unlocked") === "1"){
   title.appendChild(krajBox); right.appendChild(rightBody);
   wrap.appendChild(right);
   const bottom = mk('nav','ui2Bottom');
-  bottom.innerHTML = [['__PLAYNOW__','🔥','Terminarz'],['__HOT__','🌶️','HOT'],['__WYNIKIALL__','📊','Wyniki'],['__PERF__','📈','Skut.'],['__UPDATES__','📝','Info'],['__KRAJ__','🌍','Ligi']]
+  bottom.innerHTML = [['__PLAYNOW__','🔥','Terminarz'],['__HOT__','🌶️','HOT'],['__WYNIKIALL__','📊','Wyniki'],['__PERF__','📈','Skut.'],['__UPDATES__','📝','Info'],['__TEST__','🧪','TEST'],['__KRAJ__','🌍','Ligi']]
     .map(([k,i,l])=>`<button type="button" data-go="${k}"><b>${i}</b>${l}</button>`).join('');
   document.body.appendChild(bottom);
 
@@ -3349,7 +3653,7 @@ if(localStorage.getItem("puckline_unlocked") === "1"){
         if(lg === '__ALL__') playNowLeagueFilter = new Set(allKeys);
         else if(playNowLeagueFilter.size===1 && playNowLeagueFilter.has(lg)) playNowLeagueFilter = new Set(allKeys);
         else playNowLeagueFilter = new Set([lg]);
-        if(currentLeague!=='__PLAYNOW__' && currentLeague!=='__WYNIKIALL__' && currentLeague!=='__HOT__') currentLeague = '__PLAYNOW__';
+        if(currentLeague!=='__PLAYNOW__' && currentLeague!=='__WYNIKIALL__' && currentLeague!=='__HOT__' && currentLeague!=='__TEST__') currentLeague = '__PLAYNOW__';
         countryPickerOpen = false;
         renderAll();
       });
@@ -3392,13 +3696,23 @@ if(localStorage.getItem("puckline_unlocked") === "1"){
     return ds[0] || null;
   }
   function selectDay(d){ selectedDay = d; refresh(); }
-  // Otwiera zakładkę dnia. NIE przewija ekranu — tylko krótko podświetla nagłówek dnia.
+  // Otwiera zakładkę dnia, przewija do niej tylko gdy jej nie widać, i krótko podświetla nagłówek.
   function openGroup(id){
     const g = document.getElementById(id);
     if(!g) return;
     const mg = g.closest('.month-group'); if(mg) mg.classList.add('open');
     if(!g.classList.contains('open')){ const h = g.querySelector('.day-header'); if(h) h.click(); }
     if(g.id.startsWith('pn-anchor-')) selectDay(g.id.slice('pn-anchor-'.length));
+    // przewiń TYLKO jeśli zakładki dnia nie widać (poza kontenerem listy albo poza ekranem)
+    requestAnimationFrame(()=>{
+      const sc = g.closest('.fixtures-scroll');
+      if(sc){
+        const r = g.getBoundingClientRect(), c = sc.getBoundingClientRect();
+        if(r.top < c.top || r.top > c.bottom - 90) sc.scrollTo({top: sc.scrollTop + (r.top - c.top) - 6, behavior:'smooth'});
+      }
+      const r2 = g.getBoundingClientRect();
+      if(r2.top < 0 || r2.top > window.innerHeight - 120) window.scrollBy({top: r2.top - 110, behavior:'smooth'});
+    });
     g.classList.remove('ui2-flash'); void g.offsetWidth; g.classList.add('ui2-flash');
     setTimeout(()=>g.classList.remove('ui2-flash'), 2000);
   }
@@ -3461,7 +3775,7 @@ if(localStorage.getItem("puckline_unlocked") === "1"){
 
   function syncChrome(){
     document.body.dataset.view = currentLeague;
-    const special = ['__PLAYNOW__','__HOT__','__WYNIKIALL__','__PERF__','__UPDATES__'];
+    const special = ['__PLAYNOW__','__HOT__','__WYNIKIALL__','__PERF__','__UPDATES__','__TEST__'];
     const act = special.includes(currentLeague) ? currentLeague : '__KRAJ__';
     bottom.querySelectorAll('button').forEach(b=>b.classList.toggle('active', b.dataset.go===act));
     const kb = document.querySelector('#leagueSwitch button[data-league="__KRAJ__"]');
@@ -3504,7 +3818,7 @@ if(localStorage.getItem("puckline_unlocked") === "1"){
   renderAll = function(){
     _renderAll.apply(this, arguments);
     // widok pojedynczej ligi: pokaż panel aktywnej zakładki (Ranking / Terminarz / H2H) zamiast panelu Terminarza całości
-    const special = ['__PLAYNOW__','__HOT__','__WYNIKIALL__','__PERF__','__UPDATES__','COMBINED'];
+    const special = ['__PLAYNOW__','__HOT__','__WYNIKIALL__','__PERF__','__UPDATES__','__TEST__','COMBINED'];
     if(!special.includes(currentLeague)){
       document.querySelectorAll('.panel').forEach(pn=>pn.classList.remove('active'));
       const pn = document.getElementById(currentTab); if(pn) pn.classList.add('active');
