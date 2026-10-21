@@ -335,6 +335,26 @@
     .perf-table{font-size:11.5px;}
   }
 
+  #saveAllBtn{background:var(--amber) !important; color:#1A1200 !important; border:1px solid var(--amber) !important; font-weight:700; font-size:13px !important; padding:10px 20px !important; border-radius:10px !important; box-shadow:0 0 0 3px rgba(240,168,48,.18), 0 6px 18px rgba(240,168,48,.28); cursor:pointer;}
+  #saveAllBtn:hover{filter:brightness(1.08);}
+  #wynikiallContent .toolbar:has(#saveAllBtn){position:sticky; top:0; z-index:35; background:var(--bg); padding:8px 0;}
+  /* kompaktowy panel szczegółów meczu */
+  .details-comp{display:grid; grid-template-columns:1fr 1fr; column-gap:28px;}
+  .details-head{display:flex; align-items:center; gap:10px; margin-bottom:8px; flex-wrap:wrap;}
+  .details-head .lbl{font-family:'Space Grotesk',sans-serif; font-size:12.5px; color:var(--muted);}
+  .details-head .verdict{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:12px; background:var(--surface); border:1px solid var(--border); border-radius:999px; padding:3px 10px;}
+  .details-head .info{color:var(--muted); font-size:12px; cursor:help; border:1px solid var(--border); border-radius:50%; width:18px; height:18px; display:inline-flex; align-items:center; justify-content:center;}
+  .details-head .value{margin-left:auto;}
+  @media (max-width:600px){ .details-comp{grid-template-columns:1fr;} }
+  /* rozliczenie: 3 ostatnie dni */
+  .u2-day{display:grid; grid-template-columns:44px 1fr auto; gap:10px; align-items:center; padding:7px 0; border-bottom:1px solid var(--surface2); font-size:12px;}
+  .u2-day:last-child{border-bottom:none;}
+  .u2-day .dt{font-family:'JetBrains Mono',monospace; color:var(--muted);}
+  .u2-day .bar{height:9px; border-radius:5px; background:#ff4d4d; overflow:hidden;}
+  .u2-day .bar i{display:block; height:100%; background:#22e6a8;}
+  .u2-day .v{font-family:'JetBrains Mono',monospace; font-weight:700; font-size:11.5px; white-space:nowrap;}
+  .u2-day.sel .dt{color:var(--amber);}
+
   /* ---- zakładka TEST ---- */
   .tst-sum{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.6fr); gap:22px; align-items:start;}
   .tst-tab{width:100%; border-collapse:collapse; font-size:12px;}
@@ -414,7 +434,7 @@
   .u2t-text{min-width:0;}
   body.ui2 #ui2Title{display:flex; align-items:flex-start; justify-content:space-between; gap:16px;}
   body.ui2m #ui2KrajBox{display:none;}
-  #pnViewFilter button[data-view="top5"]{pointer-events:none; cursor:default; opacity:.6; border-style:dashed;}
+  #pnViewFilter button[data-view="top5"]{display:none !important;}
   .u2-hero, .u2-mini{cursor:default;}
   .u2-mini:hover{color:inherit;}
   .u2-hero:hover{border-color:#5a4210;}
@@ -727,11 +747,11 @@ function renderHeader(){
 
   document.getElementById('leagueSwitch').innerHTML = `
     <button class="${currentLeague==='__PLAYNOW__'?'active':''}" data-league="__PLAYNOW__">🔥 TERMINARZ 26/27</button>
-    <button class="${currentLeague==='__HOT__'?'active':''}" data-league="__HOT__">🌶️ HOT</button>
     <button class="${currentLeague==='__WYNIKIALL__'?'active':''}" data-league="__WYNIKIALL__">📊 WYNIKI</button>
+    <button class="${currentLeague==='__TEST__'?'active':''}" data-league="__TEST__">🧪 TEST</button>
+    <button class="${currentLeague==='__HOT__'?'active':''}" data-league="__HOT__">🌶️ HOT</button>
     <button class="${currentLeague==='__PERF__'?'active':''}" data-league="__PERF__">📈 SKUTECZNOŚĆ</button>
     <button class="${currentLeague==='__UPDATES__'?'active':''}" data-league="__UPDATES__">📝 UPDATES</button>
-    <button class="${currentLeague==='__TEST__'?'active':''}" data-league="__TEST__">🧪 TEST</button>
     <button class="${isLeagueView?'active':''}" data-league="__KRAJ__">${krajLabel} ${countryPickerOpen?'▴':'▾'}</button>`;
 
   document.querySelectorAll('#leagueSwitch button').forEach(b=>{
@@ -1508,22 +1528,21 @@ function toggleFixtureDetails(row, m, league){
       <div class="details-row"><span>Away</span><span style="color:var(--amber); font-weight:700;">${m.awayPct!=null?m.awayPct+'%':'—'}</span></div>
     </div>
     <div style="grid-column:1/-1; margin-top:4px; padding-top:12px; border-top:1px solid var(--border);">
-      <div style="display:flex; align-items:baseline; justify-content:space-between; margin-bottom:10px;">
-        <div style="font-family:'Space Grotesk',sans-serif; font-size:12.5px; color:var(--muted);">Prognoza Over 1,5 P1</div>
+      <div class="details-head">
+        <span class="lbl">Prognoza Over 1,5 P1</span>
+        <span class="verdict">${v.emoji} ${v.text}</span>
+        <span class="info" title="${String(m.modelBasis||'').replace(/"/g,'&quot;')}">i</span>
         <div class="value">${m.prob.toFixed(0)}%</div>
       </div>
       <div style="font-size:10.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; margin-bottom:6px;">Składniki</div>
+      <div class="details-comp">
       ${rows.map(([label,val])=>`
         <div class="details-row"><span>${label}</span><span>${val!==null&&val!==undefined?val.toFixed(1)+'%':'—'}</span></div>
       `).join('')}
       ${c.expGoals!=null?`<div class="details-row"><span>Oczekiwane gole w P1 (obie drużyny)</span><span>${c.expGoals.toFixed(2)}</span></div>`:''}
       ${c.rawProb!=null?`<div class="details-row"><span>Prognoza przed kalibracją</span><span>${c.rawProb.toFixed(1)}%</span></div>`:''}
-      <div style="display:flex; align-items:center; gap:8px; margin-top:12px; padding-top:10px; border-top:1px solid var(--border);">
-        <span style="font-size:10.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em;">Ocena modelu</span>
-        <span style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13px;">${v.emoji} ${v.text}</span>
       </div>
-    </div>
-    ${basisLine}
+          </div>
     ${historyBlock}
   </div>`;
   panel.classList.add('open');
@@ -1859,7 +1878,7 @@ function renderPlayNow(opts){
       </div>
     </div>`;
   const legendTop = pnView==='all'
-    ? `<div class="legend">🔥 Cały terminarz sezonu 2026/27 — wszystkie ${Object.keys(DATA.leagues).length} lig naraz. Klik w kraj poniżej pokazuje tylko jego mecze.</div>`
+    ? ''
     : `<div class="legend">⭐ TOP 5 każdego dnia wg indeksu z trzech wskaźników: forma z ostatnich ${TOP5_N} meczów obu drużyn (20%), H2H (20%) i średnia bramkowa z tabeli ligowej przeliczona na P1 (60%). To nie jest ranking % prognozy — indeks 50 = przeciętny mecz. Typy każdego dnia liczone są ze stanu na początek dnia, więc w ZAKOŃCZONE widać uczciwie, jak by trafiły. Statystyka, nie gwarancja.</div>`;
   const listHtml = pnView==='all'
     ? `${pastSection}<div class="fixtures-scroll">${dates.map(d=>dayGroupHtml(d)).join('') || `<div style="color:var(--muted); font-size:13px; padding:24px; text-align:center;">Brak nadchodzących meczów w tym filtrze.</div>`}</div>`
@@ -2038,6 +2057,17 @@ function renderPerf(){
 
 // ---------- Updates / changelog ----------
 const CHANGELOG = [
+  {
+    date: '21.10.2026',
+    title: 'Porządki w układzie',
+    items: [
+      'HOT: zakończone dni schowane w folderze „Zakończone” (zwinięty), na wierzchu tylko nadchodzące gorące mecze; usunięte opisy nad listami w HOT i TERMINARZU',
+      'Kolejność zakładek: TERMINARZ, WYNIKI, TEST, HOT, SKUTECZNOŚĆ, UPDATES (taka sama w menu bocznym i na telefonie)',
+      'Panel po prawej: „Rozliczenie” pokazuje 3 ostatnie dni (Over/mecze i pasek), usunięty zbędny przycisk „TOP 5 dnia → po prawej”',
+      'WYNIKI: przycisk „Zapisz wszystko wypełnione” jest pomarańczowy, większy i przyklejony u góry listy',
+      'Szczegóły meczu zajmują mniej miejsca: ocena modelu (np. „Podwyższona szansa”) jest w jednej linii z prognozą, opis modelu schowany pod ikoną „i”, składniki w dwóch kolumnach',
+    ],
+  },
   {
     date: '21.10.2026',
     title: 'Nowy układ strony: menu boczne, panel „Typ dnia”, układ na telefon, zakładka TEST',
@@ -3052,10 +3082,10 @@ function renderHot(){
   const groups = {};
   upcomingHot.forEach(m=>{ (groups[m.sortDate] = groups[m.sortDate] || []).push(m); });
   const dates = Object.keys(groups).sort();
-  const schedulePart = dates.length ? `
-    <div class="fixtures-scroll">${dates.map(d=>{
-      const dayMatches = groups[d];
-      return `<div class="day-group" id="hot-anchor-${d}">
+  const hotToday = todayStr();
+  const hotDayHtml = (d) => {
+    const dayMatches = groups[d];
+    return `<div class="day-group" id="hot-anchor-${d}">
         <div class="day-header" data-toggle="day">
           <span class="date">${dayMatches[0].date}</span>
           <span class="n">${dayMatches.length} smaczn${dayMatches.length===1?'y mecz':'e mecze'}</span>
@@ -3076,14 +3106,30 @@ function renderHot(){
             <div class="details" id="details-hot-${cssKey(m.sortDate+'|'+m.league+'|'+m.home+'|'+m.away)}"></div>`).join('')}
         </div>
       </div>`;
-    }).join('')}</div>` : `<div class="schedule-note">📅 <span>Żadna z gorących par nie ma jeszcze zaplanowanego meczu w widocznym terminarzu 2026/27.</span></div>`;
+  };
+  const hotPastDates = dates.filter(d=>d<hotToday);
+  const hotUpDates = dates.filter(d=>d>=hotToday);
+  const hotPastSection = hotPastDates.length ? `
+    <div class="month-group" id="hot-past-wrapper">
+      <div class="month-header" data-toggle="past">
+        <span class="name">📁 ZAKOŃCZONE</span>
+        <span class="n">${hotPastDates.length} dni · ${hotPastDates.reduce((acc,d)=>acc+groups[d].length,0)} meczów</span>
+        <span class="caret">▾</span>
+      </div>
+      <div class="month-body">${hotPastDates.map(hotDayHtml).join('')}</div>
+    </div>` : '';
+  const schedulePart = dates.length ? `
+    ${hotPastSection}
+    ${hotUpDates.length ? `<div class="fixtures-scroll">${hotUpDates.map(hotDayHtml).join('')}</div>` : `<div class="schedule-note">📅 <span>Żadna z gorących par nie ma już nadchodzącego meczu w terminarzu 2026/27 — zobacz folder „Zakończone”.</span></div>`}` : `<div class="schedule-note">📅 <span>Żadna z gorących par nie ma jeszcze zaplanowanego meczu w widocznym terminarzu 2026/27.</span></div>`;
 
   content.innerHTML = `
-    <div class="legend">🌶️ Pary drużyn, które w historii bardzo często "robiły" Over 1,5 w 1. tercji między sobą (min. ${HOT_MIN_MATCHES} spotkań, ≥${HOT_MIN_PCT}% Over) — warto na nie zwrócić uwagę, gdy się znów spotkają.</div>
-    ${pairsList}
+        ${pairsList}
     <div style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:14px; margin:4px 0 12px;">📅 Nadchodzące gorące mecze (sezon 2026/27)</div>
     ${schedulePart}`;
 
+  content.querySelector('.month-header[data-toggle="past"]')?.addEventListener('click', ()=>{
+    document.getElementById('hot-past-wrapper').classList.toggle('open');
+  });
   content.querySelectorAll('.day-header[data-toggle="day"]').forEach(h=>{
     h.addEventListener('click', ()=>{
       const group = h.closest('.day-group');
@@ -3592,7 +3638,7 @@ function renderTest(){
   title.appendChild(krajBox); right.appendChild(rightBody);
   wrap.appendChild(right);
   const bottom = mk('nav','ui2Bottom');
-  bottom.innerHTML = [['__PLAYNOW__','🔥','Terminarz'],['__HOT__','🌶️','HOT'],['__WYNIKIALL__','📊','Wyniki'],['__PERF__','📈','Skut.'],['__UPDATES__','📝','Info'],['__TEST__','🧪','TEST'],['__KRAJ__','🌍','Ligi']]
+  bottom.innerHTML = [['__PLAYNOW__','🔥','Terminarz'],['__WYNIKIALL__','📊','Wyniki'],['__TEST__','🧪','TEST'],['__HOT__','🌶️','HOT'],['__PERF__','📈','Skut.'],['__UPDATES__','📝','Info'],['__KRAJ__','🌍','Ligi']]
     .map(([k,i,l])=>`<button type="button" data-go="${k}"><b>${i}</b>${l}</button>`).join('');
   document.body.appendChild(bottom);
 
@@ -3754,21 +3800,20 @@ function renderTest(){
     } else {
       html += `<div class="u2-card"><div class="u2-k">Typ dnia</div><div style="font-size:12.5px; color:var(--muted); margin-top:8px;">Brak meczów dla wybranych lig.</div></div>`;
     }
-    // rozliczenie: wybrany dzień (jeśli są rozegrane mecze), w przeciwnym razie ostatni rozegrany
+    // rozliczenie: 3 ostatnie dni z rozegranymi meczami + średnia sezonu
     const playedDates = [...new Set(vis.filter(m=>m.played && m.sortDate<=today).map(m=>m.sortDate))].sort();
-    const hasPlayed = d && vis.some(m=>m.sortDate===d && m.played);
-    const ld = hasPlayed ? d : playedDates[playedDates.length-1];
+    const last3 = playedDates.slice(-3).reverse();
     const seasonPlayed = vis.filter(m=>m.played);
-    if(ld){
-      const dm = vis.filter(m=>m.sortDate===ld && m.played);
-      const ov = dm.filter(m=>m.over15).length;
-      const pct = dm.length ? Math.round(ov/dm.length*100) : 0;
+    if(last3.length){
       const sOv = seasonPlayed.filter(m=>m.over15).length;
       const sPct = seasonPlayed.length ? (sOv/seasonPlayed.length*100).toFixed(1).replace('.',',') : '—';
-      html += `<div class="u2-card"><div class="u2-k" style="margin-bottom:10px;">Rozliczenie · ${dl(ld)}</div>
-        <div style="display:flex; gap:14px; align-items:center;"><div class="u2-donut" style="background:conic-gradient(#22e6a8 0 ${pct}%, #ff4d4d ${pct}% 100%);"><i>${pct}%</i></div>
-        <div><div style="font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:16px;">${ov} z ${dm.length} Over</div>
-        <div style="font-size:11px; color:var(--muted); margin-top:4px;">sezon 26/27: ${sPct}% (${sOv}/${seasonPlayed.length})</div></div></div></div>`;
+      html += `<div class="u2-card"><div class="u2-k" style="margin-bottom:6px;">Rozliczenie · 3 ostatnie dni</div>${last3.map(ld=>{
+        const dm = vis.filter(m=>m.sortDate===ld && m.played);
+        const ov = dm.filter(m=>m.over15).length;
+        const pct = dm.length ? Math.round(ov/dm.length*100) : 0;
+        return `<div class="u2-day${ld===d?' sel':''}"><span class="dt">${dl(ld)==='dziś'?'dziś':ld.slice(8,10)+'.'+ld.slice(5,7)}</span><div class="bar"><i style="width:${pct}%"></i></div><span class="v">${ov}/${dm.length} · ${pct}%</span></div>`;
+      }).join('')}
+        <div style="font-size:11px; color:var(--muted); margin-top:8px;">sezon 26/27: ${sPct}% Over (${sOv}/${seasonPlayed.length})</div></div>`;
     }
     rightBody.innerHTML = html;
   }
