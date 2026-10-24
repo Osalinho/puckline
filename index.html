@@ -395,6 +395,23 @@
   .tst-selinfo{font-size:12.5px; color:var(--muted); margin:0 0 10px;} .tst-selinfo b{color:var(--text);}
   @media (max-width:900px){ .tst-kpis{grid-template-columns:repeat(2,minmax(0,1fr));} }
 
+
+  /* ===== HOT w Terminarzu, zakończone dni, nagłówki dni ===== */
+  .cmb-row-grid .hot-line{grid-row:2; grid-column:1; margin-top:-3px; text-align:center;}
+  .hot-chip{display:inline-block; font-family:'JetBrains Mono',monospace; font-size:9.5px; font-weight:700; color:#FF9F1C; background:rgba(255,159,28,.14); border:1px solid rgba(255,159,28,.5); border-radius:6px; padding:1px 5px; white-space:nowrap;}
+  .cmb-row-grid.is-hot{outline:1px solid rgba(255,159,28,.55); outline-offset:-1px;}
+  .cmb-row-grid.is-hot:not(.over-hit):not(.under-hit){background:linear-gradient(90deg, rgba(255,159,28,.14), transparent 45%);}
+  body.only-hot .day-group[data-hot="0"]{display:none;}
+  body.only-hot .cmb-row-grid:not(.is-hot){display:none;}
+  .day-hot{color:#FF9F1C; font-weight:700;} .day-over{color:var(--teal); font-weight:600;} .day-grade{color:var(--text); font-weight:600;}
+  .ui2-hotbtn{margin-top:10px; background:var(--surface); border:1px solid var(--border); color:var(--text); font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:12px; padding:7px 13px; border-radius:9px; cursor:pointer;}
+  .ui2-hotbtn.on{background:#FF9F1C; color:#14100a; border-color:#FF9F1C; box-shadow:0 4px 14px rgba(255,159,28,.35);}
+  .day-group.is-past > .day-header{background:#141b27; border-left:4px solid #5b6b82;}
+  .day-group.is-past > .day-header .date{color:#cbd5e1;}
+  .day-group.is-past > .day-body{background:rgba(91,107,130,.10); box-shadow:inset 3px 0 0 rgba(91,107,130,.45);}
+  .past-tag{font-size:9.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:#94A3B8; border:1px solid #475569; border-radius:6px; padding:1px 7px; margin-left:auto; margin-right:8px;}
+  .day-group.is-past > .day-header .caret{margin-left:0;}
+
   /* ---- zakładka TEST ---- */
   .tst-sum{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.9fr); gap:22px; align-items:start;}
   .tst-tab{width:100%; border-collapse:collapse; font-size:12px;}
@@ -765,7 +782,6 @@ function allLeagueMenuItems(){
   const items = [
     {key:'NHL', country:'NHL', league:'National Hockey League'},
     {key:'AHL', country:'AHL', league:'American Hockey League'},
-    {key:'COMBINED', country:'🔗 Seria Łączona', league:'Kalendarz NHL + AHL'},
   ];
   Object.keys(DATA.leagues).forEach(k=>{
     if(k==='NHL' || k==='AHL') return; // już dodane wyżej, ich obiekt ligi nie ma pola label
@@ -789,7 +805,6 @@ function renderHeader(){
     <button class="${currentLeague==='__PLAYNOW__'?'active':''}" data-league="__PLAYNOW__">🔥 TERMINARZ 26/27</button>
     <button class="${currentLeague==='__WYNIKIALL__'?'active':''}" data-league="__WYNIKIALL__">📊 WYNIKI</button>
     <button class="${currentLeague==='__TEST__'?'active':''}" data-league="__TEST__">🧪 TEST</button>
-    <button class="${currentLeague==='__HOT__'?'active':''}" data-league="__HOT__">🌶️ HOT</button>
     <button class="${currentLeague==='__PERF__'?'active':''}" data-league="__PERF__">📈 SKUTECZNOŚĆ</button>
     <button class="${currentLeague==='__UPDATES__'?'active':''}" data-league="__UPDATES__">📝 UPDATES</button>
     <button class="${isLeagueView?'active':''}" data-league="__KRAJ__">${krajLabel} ${countryPickerOpen?'▴':'▾'}</button>`;
@@ -1838,14 +1853,32 @@ function renderPlayNow(opts){
     const raw = groups[d];
     const hasTimes = raw.some(m=>m.time);
     const dayMatches = sortDayMatches(raw, pnSort);
-    const strongCount = dayMatches.filter(m=>m.prob!==undefined && m.prob>=56).length;
+    const strongCount = dayMatches.filter(m=>m.prob!==undefined && m.prob>=56 && !m.played).length;
     const intensityTag = strongCount>0 ? ` · <span style="color:var(--teal)">🔥 ${strongCount} mocnych typów (≥56%)</span>` : '';
-    const playingLeagues = [...new Set(dayMatches.map(m=>leagueShortLabel(m.league)))].join(', ');
+    const hotCount = dayMatches.filter(m=>{ try{ return !!findHotInfo(m); }catch(e){ return false; } }).length;
+    const hotTag = hotCount>0 ? ` · <span class="day-hot">🌶️ ${hotCount} HOT</span>` : '';
+    const playedDay = dayMatches.filter(m=>m.played && m.p1);
+    const overDay = playedDay.filter(m=>m.over15).length;
+    const overTag = playedDay.length ? ` · <span class="day-over">Over ${overDay}/${playedDay.length} (${Math.round(overDay/playedDay.length*100)}%)</span>` : '';
+    let gradeTag = '';
+    try{
+      const TB = tstBuild();
+      const sigOf = m => { const r = TB.byKey[`${m.sortDate}|${m.league}|${m.home}|${m.away}`]; return r && r.sig ? r : null; };
+      const ab = dayMatches.map(sigOf).filter(r=>r && (r.sig.grade==='A'||r.sig.grade==='B'));
+      if(ab.length){
+        const abPlayed = ab.filter(r=>r.played);
+        const nA = ab.filter(r=>r.sig.grade==='A').length, nB = ab.length - nA;
+        gradeTag = abPlayed.length
+          ? ` · <span class="day-grade" title="Oceny A i B z zakładki TEST">A+B: Over ${abPlayed.filter(r=>r.m.over15).length}/${abPlayed.length}</span>`
+          : ` · <span class="day-grade" title="Oceny z zakładki TEST">A: ${nA} · B: ${nB}</span>`;
+      }
+    }catch(e){}
     LAZY['pn-anchor-'+d] = () => sortToggleHtml(hasTimes) + combinedTableHeaderHtml('Data') + dayMatches.map(m=>combinedRowHtml(m, d, 'pn-row-')).join('');
-    return `<div class="day-group" id="pn-anchor-${d}">
+    return `<div class="day-group${d<today?' is-past':''}" id="pn-anchor-${d}" data-hot="${hotCount}">
       <div class="day-header" data-toggle="day">
         <span class="date">${dayMatches[0].date}</span>
-        <span class="n">${dayMatches.length} mecz${dayMatches.length===1?'':dayMatches.length<5?'e':'ów'} · ${playingLeagues}${intensityTag}</span>
+        <span class="n">${dayMatches.length} mecz${dayMatches.length===1?'':dayMatches.length<5?'e':'ów'}${overTag}${intensityTag}${hotTag}${gradeTag}</span>
+        ${d<today?'<span class="past-tag">zakończony</span>':''}
         <span class="caret">▾</span>
       </div>
       <div class="day-body" data-lazy="1"></div>
@@ -1890,7 +1923,7 @@ function renderPlayNow(opts){
     <div class="month-group" id="pn-past-wrapper">
       <div class="month-header" data-toggle="past">
         <span class="name">📁 ZAKOŃCZONE</span>
-        <span class="n">${pastDates.length} dni · ${pastDates.reduce((s,d)=>s+groups[d].length,0)} meczów</span>
+        <span class="n">${pastDates.length} dni · ${pastDates.reduce((s,d)=>s+groups[d].length,0)} meczów · ${(()=>{ const pl = pastDates.flatMap(d=>groups[d]).filter(m=>m.played && m.p1); return overBadgeHtml(pl.filter(m=>m.over15).length, pl.length); })()}</span>
         <span class="caret">▾</span>
       </div>
       <div class="month-body">${pastDates.map(d=>dayGroupHtml(d)).join('')}</div>
@@ -2089,6 +2122,18 @@ function renderPerf(){
 
 // ---------- Updates / changelog ----------
 const CHANGELOG = [
+  {
+    date: '22.10.2026',
+    title: 'HOT w Terminarzu, szersza historia NHL/AHL, porządki',
+    items: [
+      'Zakładka HOT wchłonięta przez TERMINARZ: mecz z gorącym H2H ma pomarańczową ramkę i znaczek 🌶️ z bilansem (np. 6/6 = w 6 z 6 spotkań padł Over 1,5 P1); dzień pokazuje ile takich meczów ma; przycisk „Tylko HOT” zostawia same gorące mecze',
+      'Nagłówki dni w Terminarzu: bez listy lig; zamiast tego Over (ile padło) dla rozegranych, liczba mocnych typów, HOT oraz oceny A/B z zakładki TEST; folder „Zakończone” też pokazuje Over; zakończone dni mają inny odcień i etykietę „zakończony”',
+      'TEST: mecze z bieżącego dnia zostają na liście „Dziś i nadchodzące” także po wpisaniu wyników i przechodzą do „Zakończone” dopiero po zakończeniu dnia (czas polski; do 12:00 poprzedni dzień jeszcze się liczy, żeby nocne mecze NHL było widać rano)',
+      'SKUTECZNOŚĆ: „Wiarygodność modelu w ligach” jest otwarta po wejściu, pozostałe sekcje zwinięte',
+      'NHL i AHL: dodane sezony 2020/21, 2021/22, 2022/23 i 2023/24 (widoczne w wyborze sezonu po wybraniu ligi, wchodzą też do historii H2H i rankingów)',
+      'Usunięta „Seria Łączona NHL + AHL” z listy lig',
+    ],
+  },
   {
     date: '22.10.2026',
     title: 'TEST: zakończone mecze, skuteczność ocen A/B na żywo, skorygowane parametry sygnałów',
@@ -2995,7 +3040,8 @@ function combinedRowHtml(m, dayKey, idPrefix, opts){
   const combKey = `${m.sortDate}|${m.league}|${m.home}|${m.away}`;
   const rowId = prefix + cssKey(dayKey+'|'+m.league+'|'+m.home+'|'+m.away);
   const hot = findHotInfo(m);
-  const hotBadge = hot ? `<span title="H2H: ${hot.n} meczów, ${hot.pct}% Over 1,5 P1" style="flex-shrink:0; font-size:11px; margin-left:3px;">⚠️</span>` : '';
+  const hotBadge = '';
+  const hotLine = hot ? `<div class="hot-line"><span class="hot-chip" title="HOT: w H2H tych drużyn Over 1,5 P1 padł w ${hot.overs} z ${hot.n} meczów (${hot.pct}%)">🌶️ ${hot.overs}/${hot.n}</span></div>` : '';
   const overHit = m.played && m.over15;
   const underHit = m.played && !m.over15;
   const rowClass = overHit ? ' over-hit' : (underHit ? ' under-hit' : '');
@@ -3007,14 +3053,14 @@ function combinedRowHtml(m, dayKey, idPrefix, opts){
     ? opts.badgeHtml
     : (m.prob!==undefined ? `<span class="prob-badge ${probClass(m.prob)}" title="Kurs break-even: ${breakEven(m.prob).toFixed(2)}">${m.prob.toFixed(0)}%</span>` : '<span style="color:var(--muted); font-size:10.5px; text-align:center;">brak</span>');
   const rankTag = opts.rankTag ? `<span class="top5-rank-tag">#${opts.rankTag}</span>` : '';
-  return `<div class="cmb-row-grid${rowClass}${tblRowClass(m.league, m)}" id="${rowId}" data-cmb data-cmb-key="${combKey}" data-key="${detailsPrefix}${combKey}">
+  return `<div class="cmb-row-grid${rowClass}${tblRowClass(m.league, m)||(hot?' has-tbl':'')}${hot?' is-hot':''}" id="${rowId}" data-cmb data-cmb-key="${combKey}" data-key="${detailsPrefix}${combKey}">
     <div class="cmb-league-badge" style="background:${leagueColor(m.league)}">${rankTag}${m.league}${relDotHtml(m.league)}${hotBadge}</div>
     <div class="cmb-team home">${logo(m.home, m.league)}${teamNameBlock(m.league, m.home)}${m.homePct!=null?`<span class="ft-pct" style="color:${pctColor(m.homePct)}">${m.homePct.toFixed(1)}%</span>`:''}</div>
     <div class="cmb-vs">vs</div>
     <div class="cmb-team away">${logo(m.away, m.league)}${teamNameBlock(m.league, m.away)}${m.awayPct!=null?`<span class="ft-pct" style="color:${pctColor(m.awayPct)}">${m.awayPct.toFixed(1)}%</span>`:''}</div>
     <div class="cmb-result">${resultCell}</div>
     ${probCell}
-    ${tblLinesHtml(m.league, m)}
+    ${tblLinesHtml(m.league, m)}${hotLine}
   </div>
   ${opts.afterRowHtml || ''}
   <div class="details" id="details-${cssKey(detailsPrefix+combKey)}"></div>`;
@@ -3480,6 +3526,15 @@ let tstCache = {src:null, sig:null};
 function tstByDate(a,b){ return a.sortDate.localeCompare(b.sortDate); }
 function tstPrevDay(d){ const x = new Date(d+'T12:00:00'); x.setDate(x.getDate()-1); return x.toISOString().slice(0,10); }
 function tstQuantile(arr, p){ if(!arr.length) return null; const a=[...arr].sort((x,y)=>x-y); return a[Math.min(a.length-1, Math.floor(a.length*p))]; }
+function tstCutoff(){
+  // „Bieżący dzień” wg czasu polskiego; do 12:00 poprzedni dzień jeszcze się liczy (nocne mecze NHL widać rano na liście bieżącej)
+  const f = new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Warsaw', year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', hour12:false});
+  const p = Object.fromEntries(f.formatToParts(new Date()).map(x=>[x.type,x.value]));
+  let d = `${p.year}-${p.month}-${p.day}`;
+  if((+p.hour % 24) < 12) d = tstPrevDay(d);
+  return d;
+}
+function tstAddDays(d, n){ const x = new Date(d+'T12:00:00'); x.setDate(x.getDate()+n); return x.toISOString().slice(0,10); }
 function tstSignature(){
   // zmienia się, gdy pojawi się nowy rozegrany mecz (scraper albo wpis ręczny) — wtedy przeliczamy wszystko
   let n = 0, o = 0;
@@ -3567,6 +3622,7 @@ function tstBuild(){
     att50:tstQuantile(att,.5), def50:tstQuantile(def,.5), def75:tstQuantile(def,.75), def25:tstQuantile(def,.25), def10:tstQuantile(def,.10),
     tempo75:tstQuantile(tempo,.75), tempo25:tstQuantile(tempo,.25), nBase:base.length } : null;
   out.rows.forEach(r=>{ r.sig = (out.th && r.f.ok) ? tstSignals(r, out.th, out.ctx[r.lg].histOverPct) : null; });
+  out.byKey = {}; out.rows.forEach(r=>{ out.byKey[`${r.m.sortDate}|${r.lg}|${r.m.home}|${r.m.away}`] = r; });
   tstCache = out;
   return out;
 }
@@ -3665,13 +3721,14 @@ function renderTest(){
 
   const chipBtn = (v, label) => `<button data-v="${v}" class="${tstGrade===v?'active':''}">${label}</button>`;
   const toolbar = `<div class="toolbar" style="margin-bottom:10px;">
-      <div class="h2h-min-filter" id="tstScope"><button data-v="upcoming" class="${tstScope==='upcoming'?'active':''}">Nadchodzące (7 dni)</button><button data-v="played" class="${tstScope==='played'?'active':''}">Zakończone</button></div>
+      <div class="h2h-min-filter" id="tstScope"><button data-v="upcoming" class="${tstScope==='upcoming'?'active':''}">Dziś i nadchodzące</button><button data-v="played" class="${tstScope==='played'?'active':''}">Zakończone</button></div>
       <div class="h2h-min-filter" id="tstGrade">${chipBtn('all','Wszystkie')}${chipBtn('A','A')}${chipBtn('B','B')}${chipBtn('AB','A + B')}${chipBtn('C','C')}${chipBtn('D','D')}</div>
     </div>`;
 
   let list;
-  if(tstScope==='upcoming') list = vis.filter(r=>!r.played && r.m.sortDate>=today && within7days(r.m.sortDate));
-  else list = vis.filter(r=>r.played && r.m.sortDate<=today);
+  const cut = tstCutoff(), lim = tstAddDays(cut, 7);
+  if(tstScope==='upcoming') list = vis.filter(r=>r.m.sortDate>=cut && r.m.sortDate<=lim);   // bieżący dzień zostaje tu także po wpisaniu wyników
+  else list = vis.filter(r=>r.played && r.m.sortDate<cut);
   const gOk = g => tstGrade==='all' ? true : tstGrade==='AB' ? (g==='A'||g==='B') : g===tstGrade;
   if(tstGrade!=='all') list = list.filter(r=>r.sig && gOk(r.sig.grade));
   const sel = tstScope==='played' ? statFor(list.filter(r=>r.sig)) : null;
@@ -3686,12 +3743,13 @@ function renderTest(){
       const ab = x.filter(r=>r.sig.grade==='A'||r.sig.grade==='B'); const abo = ab.filter(r=>r.m.over15).length;
       return `${rows.length} meczów · Over ${o}/${x.length}${ab.length?` · A+B: ${abo}/${ab.length}`:''}`;
     }
-    return `${rows.length} meczów · ocena A: ${rows.filter(r=>r.sig && r.sig.grade==='A').length}`;
+    const pl = rows.filter(r=>r.played && r.sig), pov = pl.filter(r=>r.m.over15).length;
+    return `${rows.length} meczów · ocena A: ${rows.filter(r=>r.sig && r.sig.grade==='A').length}${pl.length?` · Over ${pov}/${pl.length}`:''}`;
   };
   const body = days.length ? days.map((d,i)=>{
     const rows = sortRows(byDay[d]);
     const open = tstScope==='upcoming' || i<2;
-    return `<div class="day-group tst-day${open?' open':''}" data-day="${d}">
+    return `<div class="day-group tst-day${open?' open':''}${tstScope==='played'?' is-past':''}" data-day="${d}">
       <div class="day-header" data-toggle="tstday"><span class="date">${rows[0].m.date}</span><span class="n">${dayInfo(rows)}</span><span class="caret">▾</span></div>
       <div class="day-body" style="display:${open?'block':'none'};">${open ? rows.map(r=>tstRowHtml(r,T)).join('') : ''}</div></div>`;
   }).join('') : `<div style="color:var(--muted); font-size:13px; padding:24px; text-align:center;">Brak meczów w tym filtrze.</div>`;
@@ -3719,7 +3777,7 @@ function renderTest(){
   const headerRight = document.querySelector('.header-right');
   const countryStrip = document.getElementById('countryStrip');
   const WEEK = ['Nd','Pn','Wt','Śr','Cz','Pt','Sb'];
-  const DATE_VIEWS = {'__PLAYNOW__':['#playnowContent','pn-anchor-'], '__HOT__':['#hotContent','hot-anchor-'], '__WYNIKIALL__':['#wynikiallContent','wa-anchor-']};
+  const DATE_VIEWS = {'__PLAYNOW__':['#playnowContent','pn-anchor-'], '__WYNIKIALL__':['#wynikiallContent','wa-anchor-']};
 
   const mk = (tag,id,cls)=>{ const e=document.createElement(tag); if(id) e.id=id; if(cls) e.className=cls; return e; };
   const sideLeagues = mk('div','ui2Leagues','ui2-desk');
@@ -3743,7 +3801,7 @@ function renderTest(){
   title.appendChild(krajBox); right.appendChild(rightBody);
   wrap.appendChild(right);
   const bottom = mk('nav','ui2Bottom');
-  bottom.innerHTML = [['__PLAYNOW__','🔥','Terminarz'],['__WYNIKIALL__','📊','Wyniki'],['__TEST__','🧪','TEST'],['__HOT__','🌶️','HOT'],['__PERF__','📈','Skut.'],['__UPDATES__','📝','Info'],['__KRAJ__','🌍','Ligi']]
+  bottom.innerHTML = [['__PLAYNOW__','🔥','Terminarz'],['__WYNIKIALL__','📊','Wyniki'],['__TEST__','🧪','TEST'],['__PERF__','📈','Skut.'],['__UPDATES__','📝','Info'],['__KRAJ__','🌍','Ligi']]
     .map(([k,i,l])=>`<button type="button" data-go="${k}"><b>${i}</b>${l}</button>`).join('');
   document.body.appendChild(bottom);
 
@@ -3833,6 +3891,10 @@ function renderTest(){
     const act = document.querySelector('#leagueSwitch button.active');
     const st = document.getElementById('subtitle');
     titleText.innerHTML = `<h2>${esc(act ? act.textContent.replace(/[▾▴]/g,'').trim() : 'PUCKLINE')}</h2><div class="st">${esc(st ? st.textContent : '')}</div>`;
+    if(currentLeague==='__PLAYNOW__'){
+      titleText.insertAdjacentHTML('beforeend', `<button class="ui2-hotbtn${document.body.classList.contains('only-hot')?' on':''}" type="button" title="Pokaż tylko mecze z gorącym H2H">🌶️ Tylko HOT</button>`);
+      titleText.querySelector('.ui2-hotbtn').addEventListener('click', e=>{ const on = document.body.classList.toggle('only-hot'); e.currentTarget.classList.toggle('on', on); });
+    }
   }
 
   function renderDates(){
@@ -3982,7 +4044,7 @@ function renderTest(){
       det.appendChild(sum);
       let n = h.nextSibling;
       while(n && !(n.nodeType===1 && n.classList.contains('perf-h'))){ const nx = n.nextSibling; det.appendChild(n); n = nx; }
-      det.open = false;   // po wejściu w zakładkę wszystkie sekcje są zwinięte
+      det.open = /Wiarygodno/i.test(sum.textContent);   // po wejściu zwinięte, oprócz „Wiarygodność modelu w ligach”
       h.replaceWith(det);
     });
   }
