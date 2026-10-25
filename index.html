@@ -460,6 +460,43 @@
   #ui2Bottom button.active{color:#fff; text-shadow:0 0 10px rgba(255,159,28,.7);}
   #ui2Bottom button.active b{background:radial-gradient(circle at 50% 30%, rgba(255,159,28,.38), rgba(255,159,28,.12)); box-shadow:0 0 22px rgba(255,159,28,.6), inset 0 0 0 1px rgba(255,159,28,.55); filter:drop-shadow(0 0 7px rgba(255,159,28,.85)); transform:translateY(-3px) scale(1.06);}
 
+
+  /* ===== ZALEŻNOŚCI v2: pasek, kolejka, serie, zwijane karty ===== */
+  .dep-bar{display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin:6px 0 10px;}
+  .dep-sel{background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.12); color:var(--text); font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13px; padding:10px 14px; border-radius:11px; min-width:210px; outline:none;}
+  .dep-sel option{background:#10151F; color:#fff;}
+  .dep-seg{display:inline-flex; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.1); border-radius:12px; padding:3px; gap:3px;}
+  .dep-seg button{background:transparent; border:none; color:var(--muted); font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:12px; padding:8px 14px; border-radius:9px; cursor:pointer; letter-spacing:.02em;}
+  .dep-seg button.active{background:var(--amber); color:#14100a; box-shadow:0 4px 14px rgba(255,159,28,.4);}
+  .dep-bar .dep-chips{margin:0;}
+  .dep-card.dep-main, .dep-card.dep-sc{margin-bottom:14px;}
+  .dep-card > summary{cursor:pointer; list-style:none;} .dep-card > summary::-webkit-details-marker{display:none;}
+  .dep-card > summary::after, .dep-day > summary::after, .dep-det > summary::after{content:'▾'; float:right; color:var(--amber);}
+  .dep-card[open] > summary::after, .dep-day[open] > summary::after, .dep-det[open] > summary::after{content:'▴';}
+  .dep-hd{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin:18px 0 10px;}
+  .dep-day{border:1px solid rgba(255,255,255,.08); border-radius:12px; margin:8px 0; background:rgba(255,255,255,.02);}
+  .dep-day > summary{cursor:pointer; list-style:none; padding:10px 14px; font-size:13px; font-weight:600;} .dep-day > summary::-webkit-details-marker{display:none;}
+  .dep-dn{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:14px; color:var(--amber);}
+  .dep-q{padding:10px 14px; border-top:1px solid rgba(255,255,255,.06);}
+  .dep-qh{display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:13px; margin-bottom:8px;}
+  .dep-sum{margin-left:auto; font-family:'JetBrains Mono',monospace; font-weight:700; font-size:12.5px; border-radius:8px; padding:3px 9px; background:rgba(255,255,255,.06);}
+  .dep-sum.pos{color:#22e6a8; background:rgba(34,230,168,.14);} .dep-sum.neg{color:#ff6b6b; background:rgba(255,77,77,.16);} .dep-sum.flat{color:var(--muted);}
+  .dep-qt{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  .dep-tc{background:rgba(255,255,255,.035); border:1px solid rgba(255,255,255,.07); border-radius:10px; padding:8px 10px; min-width:0;}
+  .dep-tn{display:flex; align-items:center; gap:7px; font-size:13px; margin-bottom:5px;} .dep-tn b{font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .dep-tx{display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-top:4px; font-size:11.5px;}
+  .dep-lbl{font-size:9.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); margin-right:2px;}
+  .dep-b2b{background:rgba(255,159,28,.16); color:#FF9F1C; border-radius:7px; padding:2px 8px; font-weight:700; font-size:11px;}
+  .dep-role{background:rgba(255,255,255,.07); border-radius:7px; padding:2px 8px; font-size:11px;}
+  .dep-det{margin:8px 0; border:1px solid rgba(255,255,255,.08); border-radius:12px; background:rgba(255,255,255,.02); padding:0 14px 10px;}
+  .dep-det > summary{cursor:pointer; list-style:none; padding:10px 0; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13.5px;} .dep-det > summary::-webkit-details-marker{display:none;}
+  .dep-sum2.o{color:#22e6a8;} .dep-sum2.u{color:#ff6b6b;}
+  .dep-sg{padding:8px 0; border-top:1px solid rgba(255,255,255,.06);}
+  .dep-sgh{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:7px; font-size:12px;} .dep-hist{margin-left:auto; font-size:11px; color:var(--muted);}
+  .dep-pills{display:flex; flex-wrap:wrap; gap:8px;}
+  .dep-pill{display:inline-flex; align-items:center; gap:7px; background:rgba(255,255,255,.045); border:1px solid rgba(255,255,255,.09); border-radius:10px; padding:6px 10px; font-size:12.5px;} .dep-pill b{font-weight:600;} .dep-pill small{font-size:10.5px; color:var(--muted);}
+  @media (max-width:700px){ .dep-qt{grid-template-columns:1fr;} .dep-sel{min-width:0; width:100%;} .dep-hist{margin-left:0; width:100%;} }
+
   /* ---- zakładka FIX ---- */
   .tst-sum{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.9fr); gap:22px; align-items:start;}
   .tst-tab{width:100%; border-collapse:collapse; font-size:12px;}
@@ -2190,6 +2227,15 @@ function renderPerf(){
 // ---------- Updates / changelog ----------
 const CHANGELOG = [
   {
+    date: '25.10.2026',
+    title: 'ZALEŻNOŚCI: kolejka na najbliższe dni, aktualne serie, wybór ligi i zakresu',
+    items: [
+      'Na górze „Kolejka”: najbliższe 4 dni z meczami, w których drużyny są na serii, grają back-to-back lub mają serię 3 meczów w swojej roli (dom/wyjazd), z wypadkową ▲/▼ wg historii; pod nią „Aktualne serie” Over/Under ×3…8+ z następnym meczem każdej drużyny',
+      'Wybór ligi oraz przełącznik AKTUALNY SEZON / CAŁOŚĆ (zakres, z którego liczone są statystyki „po takiej serii”)',
+      'Wszystkie karty są zwijane; statystyki wstecz są niżej i domyślnie zwinięte',
+    ],
+  },
+  {
     date: '24.10.2026',
     title: 'Zakładka ZALEŻNOŚCI, ocena A–D w Terminarzu, zakładka FIX → FIX, nowy wygląd',
     items: [
@@ -3897,11 +3943,11 @@ function depBuild(){
           const vv = x.v[side]; const v3 = vv.length>=3 ? (vv.slice(-3).every(z=>z)?'OOO':vv.slice(-3).every(z=>!z)?'UUU':'mix') : null;
           const rest = x.last ? depDays(x.last, m.sortDate) : null;
           feats[side] = {rest};
-          obs.push({lg, y, side, streak, l3, c5, v3, rest, p1:x.p1, month:m.sortDate.slice(5,7), dow:new Date(m.sortDate+'T12:00:00').getDay(), n:keys.length});
+          obs.push({lg, y, side, streak, l3, c5, v3, rest, p1:x.p1, cur:isCur, month:m.sortDate.slice(5,7), dow:new Date(m.sortDate+'T12:00:00').getDay(), n:keys.length});
         });
-        mobs.push({lg, y, rh:feats.H.rest, ra:feats.A.rest, n:keys.length});
+        mobs.push({lg, y, rh:feats.H.rest, ra:feats.A.rest, cur:isCur, n:keys.length});
         const pk = [m.home,m.away].sort().join('||'); const ph = pairHist[pk] || (pairHist[pk]=[]);
-        if(ph.length) hobs.push({lg, y, prev:ph[ph.length-1], both: ph.length>=2 ? (ph[ph.length-1]&&ph[ph.length-2] ? 1 : (!ph[ph.length-1]&&!ph[ph.length-2] ? 0 : null)) : null, n:keys.length});
+        if(ph.length) hobs.push({lg, y, cur:isCur, prev:ph[ph.length-1], both: ph.length>=2 ? (ph[ph.length-1]&&ph[ph.length-2] ? 1 : (!ph[ph.length-1]&&!ph[ph.length-2] ? 0 : null)) : null, n:keys.length});
         ph.push(y);
         [[m.home,'H'],[m.away,'A']].forEach(([t,side])=>{ const x = get(t); x.h.push(y); x.v[side].push(y); x.last = m.sortDate; x.p1 = a+b; });
       });
@@ -3909,7 +3955,7 @@ function depBuild(){
         Object.keys(st).forEach(t=>{
           const x = st[t], h = x.h; let streak = 0;
           if(h.length){ const v = h[h.length-1]; let k = 1; while(k<h.length && h[h.length-1-k]===v) k++; streak = v ? k : -k; }
-          cur[lg+'|'+t] = {lg, team:t, streak, l3: h.length>=3 ? h.slice(-3).map(z=>z?'O':'U').join('') : null, n:h.length,
+          cur[lg+'|'+t] = {lg, team:t, streak, l5: h.slice(-5).map(z=>z?'O':'U').join(''), l3: h.length>=3 ? h.slice(-3).map(z=>z?'O':'U').join('') : null, n:h.length,
             v3H: x.v.H.length>=3 ? (x.v.H.slice(-3).every(z=>z)?'OOO':x.v.H.slice(-3).every(z=>!z)?'UUU':'mix') : null,
             v3A: x.v.A.length>=3 ? (x.v.A.slice(-3).every(z=>z)?'OOO':x.v.A.slice(-3).every(z=>!z)?'UUU':'mix') : null, last:x.last};
         });
@@ -3960,17 +4006,39 @@ function depRestFor(T, lg, team, d){
   return prev ? depDays(prev, d) : null;
 }
 
+let depScope = 'all';       // 'cur' = aktualny sezon, 'all' = całość (wszystkie sezony w danych)
+let depLg = 'ALL';          // klucz ligi albo 'ALL'
+let depMinN = 40;
+
+function depSetBase(list){
+  const lb = {}; list.forEach(o=>{ const x = lb[o.lg] || (lb[o.lg]={n:0,o:0}); x.n++; x.o+=o.y; });
+  list.forEach(o=>{ o.b = lb[o.lg].o/lb[o.lg].n; });
+}
+function depLiftOf(r){
+  // przycinanie wyniku przy małej próbie: lift * n/(n+K); w samym sezonie próby są małe, więc K większe
+  if(!(r && r.n>=depMinN && Math.abs(r.z)>=1.5)) return 0;
+  const K = depScope==='cur' ? 300 : 100;
+  return r.lift * r.n/(r.n+K);
+}
+function depNextUnplayedMap(T){
+  const out = {};
+  Object.keys(T.upcoming).forEach(lg=>{ (T.upcoming[lg]||[]).forEach(m=>{ [m.home,m.away].forEach(t=>{ const k = lg+'|'+t; if(!out[k]) out[k] = m; }); }); });
+  return out;
+}
+
 function renderDep(){
   const el = document.getElementById('depContent');
   const T = depBuild();
+  const lgOk = lg => depLg==='ALL' || lg===depLg;
   const histMode = depFilter==='hist';
-  const obs = histMode ? T.obs.filter(o=>o.n>=6) : T.obs;
-  const mobs = histMode ? T.mobs.filter(o=>o.n>=6) : T.mobs;
-  const hobs = histMode ? T.hobs.filter(o=>o.n>=6) : T.hobs;
-  const lgsIn = [...new Set(obs.map(o=>o.lg))];
+  depMinN = depScope==='cur' ? 50 : 150;
+  const scoped = list => list.filter(o=>lgOk(o.lg) && (depScope==='all' || o.cur) && (!histMode || o.n>=6));
+  const obs = scoped(T.obs), mobs = scoped(T.mobs), hobs = scoped(T.hobs);
+  depSetBase(obs); depSetBase(mobs); depSetBase(hobs);
   const cut = tstCutoff();
+  const nextU = depNextUnplayedMap(T);
 
-  // --- tabele
+  // --- tabele statystyk
   const sKeys = [-8,-7,-6,-5,-4,-3,-2,-1,1,2,3,4,5,6,7,8];
   const sRows = depRows(obs.filter(o=>o.streak!==0), o=>Math.max(-8,Math.min(8,o.streak)), sKeys);
   const sLabel = k => k>0 ? `<span class="dep-s o">Over ×${k}${k===8?'+':''}</span>` : `<span class="dep-s u">Under ×${-k}${k===-8?'+':''}</span>`;
@@ -3982,101 +4050,115 @@ function renderDep(){
   const p1Rows = depRows(obs.filter(o=>o.p1!==null), o=>Math.min(4,o.p1), [0,1,2,3,4]);
   const v3H = depRows(obs.filter(o=>o.side==='H' && o.v3), o=>o.v3, ['OOO','mix','UUU']);
   const v3A = depRows(obs.filter(o=>o.side==='A' && o.v3), o=>o.v3, ['OOO','mix','UUU']);
-  const restB = o => o.rest===null ? null : Math.min(4, o.rest);
-  const restRows = depRows(obs, restB, [1,2,3,4]);
+  const restRows = depRows(obs, o=>o.rest===null ? null : Math.min(4, o.rest), [1,2,3,4]);
   const restMap = Object.fromEntries(restRows.map(r=>[r.k,r]));
-  const mPairKey = o => (o.rh===1 && o.ra===1) ? 'obie' : o.rh===1 ? 'gosp' : o.ra===1 ? 'gosc' : (o.rh!==null && o.ra!==null) ? 'zadna' : null;
-  const mRows = depRows(mobs, mPairKey, ['obie','gosp','gosc','zadna']);
-  const mo = ['10','11','12','01','02','03','04'], moN = {'10':'październik','11':'listopad','12':'grudzień','01':'styczeń','02':'luty','03':'marzec','04':'kwiecień'};
-  const monRows = depRows(obs, o=>moN[o.month]?o.month:null, mo);
+  const mRows = depRows(mobs, o=>(o.rh===1 && o.ra===1) ? 'obie' : o.rh===1 ? 'gosp' : o.ra===1 ? 'gosc' : (o.rh!==null && o.ra!==null) ? 'zadna' : null, ['obie','gosp','gosc','zadna']);
+  const moN = {'10':'październik','11':'listopad','12':'grudzień','01':'styczeń','02':'luty','03':'marzec','04':'kwiecień'};
+  const monRows = depRows(obs, o=>moN[o.month]?o.month:null, ['10','11','12','01','02','03','04']);
   const dn = ['Nd','Pn','Wt','Śr','Cz','Pt','Sb'];
   const dowRows = depRows(obs, o=>o.dow, [1,2,3,4,5,6,0]);
   const hRows = depRows(hobs, o=>o.prev?'O':'U', ['O','U']);
   const hBoth = depRows(hobs.filter(o=>o.both!==null), o=>o.both?'OO':'UU', ['OO','UU']);
 
-  // --- listy „teraz”
-  const teamsNow = Object.values(T.cur).filter(t=>lgsIn.includes(t.lg));
-  const nextOf = t => depNextMatch(T, t.lg, t.team, cut);
-  const nextCell = (t, nm) => {
-    if(!nm) return '<span class="dim">brak terminarza</span>';
-    const home = nm.home===t.team; const opp = home ? nm.away : nm.home;
-    return `<span class="dep-nm">${nm.date.slice(0,5)}</span> ${home?'🏠':'✈️'} ${esc2(opp)}`;
+  // --- stan drużyn „teraz” (zawsze bieżący sezon)
+  const teamsNow = Object.values(T.cur).filter(t=>lgOk(t.lg));
+  const fmtNext = (t, nm) => {
+    if(!nm) return '<span class="dim">brak w terminarzu</span>';
+    const home = nm.home===t.team;
+    return `<span class="dep-nm">${nm.date.slice(0,5)}</span> ${home?'🏠':'✈️'} ${esc2(home?nm.away:nm.home)}`;
   };
-  const streakNow = teamsNow.filter(t=>Math.abs(t.streak)>=4).map(t=>{ const k = Math.max(-8,Math.min(8,t.streak)); return {t, r:sMap[k], nm:nextOf(t)}; }).filter(x=>x.r)
-    .sort((a,b)=>Math.abs(b.r.lift)-Math.abs(a.r.lift));
-  const s1Body = streakNow.length ? `<table class="tst-tab dep-tab"><thead><tr><th>Drużyna</th><th>Seria</th><th>Następny mecz</th><th class="n">hist. Over po takiej serii</th><th class="n">różnica</th></tr></thead><tbody>${streakNow.slice(0,24).map(x=>{
-      const cl = x.r.lift>=0?'pos':'neg';
-      return `<tr><td><span class="dep-team"><span class="tst-lb" style="background:${leagueColor(x.t.lg)}">${esc2(leagueShortLabel(x.t.lg))}</span>${logo(x.t.team, x.t.lg)}<b>${esc2(x.t.team)}</b></span></td><td>${sLabel(x.t.streak>0?Math.min(8,x.t.streak):-Math.min(8,-x.t.streak))}</td><td>${nextCell(x.t, x.nm)}</td><td class="n">${depF(x.r.p)}% <span class="dim">(${x.r.n})</span></td><td class="n ${cl}">${x.r.lift>=0?'+':''}${depF(x.r.lift)}</td></tr>`;
-    }).join('')}</tbody></table>` : '<div class="dep-empty">Żadna drużyna nie ma teraz serii 4+ meczów Over lub Under.</div>';
+  const sq = s => (s||'').split('').map(ch=>`<i class="pt ${ch==='O'?'o':'u'}">${ch}</i>`).join('');
+  const clampS = v => Math.max(-8, Math.min(8, v));
 
-  const seqNow = teamsNow.filter(t=>t.l3 && pMap[t.l3] && pMap[t.l3].n>=DEP_MIN_N && Math.abs(pMap[t.l3].z)>=2).map(t=>({t, r:pMap[t.l3], nm:nextOf(t)}))
-    .sort((a,b)=>Math.abs(b.r.lift)-Math.abs(a.r.lift));
-  const q3Body = seqNow.length ? `<table class="tst-tab dep-tab"><thead><tr><th>Drużyna</th><th>Ostatnie 3</th><th>Następny mecz</th><th class="n">hist. Over po takiej sekwencji</th><th class="n">różnica</th></tr></thead><tbody>${seqNow.slice(0,16).map(x=>{
-      const cl = x.r.lift>=0?'pos':'neg';
-      return `<tr><td><span class="dep-team"><span class="tst-lb" style="background:${leagueColor(x.t.lg)}">${esc2(leagueShortLabel(x.t.lg))}</span>${logo(x.t.team, x.t.lg)}<b>${esc2(x.t.team)}</b></span></td><td>${depPat(x.t.l3)}</td><td>${nextCell(x.t, x.nm)}</td><td class="n">${depF(x.r.p)}% <span class="dim">(${x.r.n})</span></td><td class="n ${cl}">${x.r.lift>=0?'+':''}${depF(x.r.lift)}</td></tr>`;
-    }).join('')}</tbody></table>` : '<div class="dep-empty">Brak drużyn w sekwencjach o istotnej zależności.</div>';
-
-  const venNow = [];
-  teamsNow.forEach(t=>{
-    const nm = nextOf(t); if(!nm) return;
-    const home = nm.home===t.team; const v3 = home ? t.v3H : t.v3A;
-    const r = (home ? v3H : v3A).find(z=>z.k===v3);
-    if(v3 && v3!=='mix' && r && r.n>=DEP_MIN_N && Math.abs(r.z)>=2) venNow.push({t, nm, home, v3, r});
-  });
-  venNow.sort((a,b)=>Math.abs(b.r.lift)-Math.abs(a.r.lift));
-  const h2Body = venNow.length ? `<table class="tst-tab dep-tab"><thead><tr><th>Drużyna</th><th>Ostatnie 3 ${'u siebie / na wyjeździe'}</th><th>Następny mecz</th><th class="n">hist. Over</th><th class="n">różnica</th></tr></thead><tbody>${venNow.slice(0,16).map(x=>{
-      const cl = x.r.lift>=0?'pos':'neg';
-      return `<tr><td><span class="dep-team"><span class="tst-lb" style="background:${leagueColor(x.t.lg)}">${esc2(leagueShortLabel(x.t.lg))}</span>${logo(x.t.team, x.t.lg)}<b>${esc2(x.t.team)}</b></span></td><td>${x.home?'🏠 u siebie':'✈️ na wyjeździe'}: ${depPat(x.v3.slice(0,3))}</td><td>${nextCell(x.t, x.nm)}</td><td class="n">${depF(x.r.p)}% <span class="dim">(${x.r.n})</span></td><td class="n ${cl}">${x.r.lift>=0?'+':''}${depF(x.r.lift)}</td></tr>`;
-    }).join('')}</tbody></table>` : '<div class="dep-empty">Nikt nie ma teraz serii 3 meczów Over/Under w roli, w której zagra następny mecz.</div>';
-
-  // B2B: mecze od dziś do +2 dni, w których któraś drużyna grała dzień wcześniej
-  const b2bList = [];
-  const lim = tstAddDays(cut, 2);
-  Object.keys(T.upcoming).forEach(lg=>{
-    if(!lgsIn.includes(lg)) return;
-    (T.upcoming[lg]||[]).forEach(m=>{
-      if(m.sortDate<cut || m.sortDate>lim) return;
-      const rh = depRestFor(T, lg, m.home, m.sortDate), ra = depRestFor(T, lg, m.away, m.sortDate);
-      if(rh===1 || ra===1) b2bList.push({lg, m, rh, ra});
+  // --- 1) KOLEJKA: najbliższe dni i mecze ze schematami drużyn
+  const teamCell = (lg, team, isHome, m) => {
+    const st = T.cur[lg+'|'+team];
+    const valid = st && nextU[lg+'|'+team]===m;      // stan drużyny jest aktualny tylko dla jej najbliższego meczu
+    const rest = depRestFor(T, lg, team, m.sortDate);
+    const chips = [], lifts = [];
+    if(valid && Math.abs(st.streak)>=2){ const r = sMap[clampS(st.streak)]; chips.push(sLabel(clampS(st.streak))); if(Math.abs(st.streak)>=3) lifts.push(depLiftOf(r)); }
+    if(rest===1){ chips.push('<span class="dep-b2b">⏳ B2B</span>'); lifts.push(depLiftOf(restMap[1])); }
+    const v3 = valid ? (isHome ? st.v3H : st.v3A) : null;
+    if(v3 && v3!=='mix'){ const r = (isHome ? v3H : v3A).find(z=>z.k===v3); chips.push(`<span class="dep-role">${isHome?'🏠':'✈️'} ${depPat(v3)}</span>`); lifts.push(depLiftOf(r)); }
+    const notable = (valid && Math.abs(st.streak)>=3) || rest===1 || (v3 && v3!=='mix');
+    return {notable, lifts, html:`<div class="dep-tc"><div class="dep-tn">${logo(team, lg)}<b>${esc2(team)}</b></div><div class="dep-tx">${chips.join('') || '<span class="dim">bez wyraźnego schematu</span>'}</div>${valid&&st.l5?`<div class="dep-tx"><span class="dep-lbl">ostatnie</span>${sq(st.l5)}</div>`:''}</div>`};
+  };
+  const dayName = d => d===cut ? 'Dziś' : d===tstAddDays(cut,1) ? 'Jutro' : d===tstAddDays(cut,2) ? 'Pojutrze' : dn[new Date(d+'T12:00:00').getDay()];
+  const queue = [];
+  for(let i=0;i<4;i++){
+    const d = tstAddDays(cut, i); const rows = [];
+    Object.keys(T.upcoming).forEach(lg=>{
+      if(!lgOk(lg)) return;
+      (T.upcoming[lg]||[]).forEach(m=>{
+        if(m.sortDate!==d) return;
+        const h = teamCell(lg, m.home, true, m), a = teamCell(lg, m.away, false, m);
+        if(!(h.notable || a.notable)) return;
+        const L = [...h.lifts, ...a.lifts].filter(x=>x!==0).sort((x,y)=>Math.abs(y)-Math.abs(x));
+        const sum = L.reduce((s,x,k)=>s + (k===0?x:x*0.5), 0);
+        rows.push({lg, m, h, a, sum});
+      });
     });
-  });
-  const bothLift = mRows.find(r=>r.k==='obie'), oneH = mRows.find(r=>r.k==='gosp'), oneA = mRows.find(r=>r.k==='gosc');
-  const b2bBody = b2bList.length ? `<table class="tst-tab dep-tab"><thead><tr><th>Mecz</th><th>Termin</th><th>Kto po wczorajszym meczu</th><th class="n">hist. Over</th><th class="n">różnica</th></tr></thead><tbody>${b2bList.sort((a,b)=>a.m.sortDate.localeCompare(b.m.sortDate)).slice(0,30).map(x=>{
-      const key = (x.rh===1 && x.ra===1) ? 'obie' : x.rh===1 ? 'gosp' : 'gosc'; const r = mRows.find(z=>z.k===key);
-      const who = key==='obie' ? 'obie drużyny' : key==='gosp' ? esc2(x.m.home)+' (gosp.)' : esc2(x.m.away)+' (gość)'; const cl = r && r.lift>=0 ? 'pos':'neg';
-      return `<tr><td><span class="dep-team"><span class="tst-lb" style="background:${leagueColor(x.lg)}">${esc2(leagueShortLabel(x.lg))}</span><b>${esc2(x.m.home)}</b> – <b>${esc2(x.m.away)}</b></span></td><td class="dep-nm">${x.m.date.slice(0,5)}</td><td>${who}</td><td class="n">${r?depF(r.p)+'%':'—'}</td><td class="n ${cl}">${r?(r.lift>=0?'+':'')+depF(r.lift):'—'}</td></tr>`;
-    }).join('')}</tbody></table>` : '<div class="dep-empty">W najbliższych 3 dniach brak meczów z drużyną po wczorajszym meczu.</div>';
+    if(!rows.length) continue;
+    rows.sort((x,y)=>Math.abs(y.sum)-Math.abs(x.sum));
+    queue.push({d, rows});
+  }
+  const qHtml = queue.length ? queue.map((q,i)=>`<details class="dep-day" ${i===0?'open':''}><summary><span class="dep-dn">${dayName(q.d)}</span> <span class="dep-nm">${q.d.slice(8,10)}.${q.d.slice(5,7)}</span> · ${q.rows.length} meczów ze schematem</summary>
+      ${q.rows.slice(0,40).map(r=>{
+        const cl = r.sum>=1 ? 'pos' : r.sum<=-1 ? 'neg' : 'flat'; const arrow = r.sum>=1 ? '▲' : r.sum<=-1 ? '▼' : '•';
+        return `<div class="dep-q"><div class="dep-qh"><span class="tst-lb" style="background:${leagueColor(r.lg)}">${esc2(leagueShortLabel(r.lg))}</span><b>${esc2(r.m.home)}</b> – <b>${esc2(r.m.away)}</b><span class="dep-sum ${cl}" title="Wypadkowa różnica Over wg historii dla schematów obu drużyn (pkt vs oczekiwane, z przycięciem przy małej próbie)">${arrow} ${r.sum>=0?'+':''}${depF(r.sum)}</span></div><div class="dep-qt">${r.h.html}${r.a.html}</div></div>`;
+      }).join('')}${q.rows.length>40?`<div class="dep-empty">…i ${q.rows.length-40} kolejnych (zawęź ligę).</div>`:''}</details>`).join('')
+    : '<div class="dep-empty">W najbliższych 4 dniach brak meczów ze schematem dla wybranej ligi.</div>';
 
-  const sLabelRest = k => k===1 ? 'grała wczoraj (B2B)' : k===2 ? '1 dzień przerwy' : k===3 ? '2 dni przerwy' : '3+ dni przerwy';
+  // --- 2) AKTUALNE SERIE (sezon 2026/27): Over / Under ×3…8+
+  const grp = {};
+  teamsNow.filter(t=>Math.abs(t.streak)>=3).forEach(t=>{ const k = clampS(t.streak); (grp[k] = grp[k] || []).push(t); });
+  const serieBlock = (keys, title, cls) => {
+    const parts = keys.filter(k=>grp[k] && grp[k].length).map(k=>{
+      const r = sMap[k];
+      const hist = r ? `<span class="dep-hist" title="W wybranym zakresie danych">po takiej serii Over ${depF(r.p)}% (${r.lift>=0?'+':''}${depF(r.lift)} pkt, ${r.n} obs.)</span>` : '';
+      return `<div class="dep-sg"><div class="dep-sgh">${sLabel(k)} <span class="dim">${grp[k].length} dr.</span>${hist}</div><div class="dep-pills">${grp[k].sort((a,b)=>b.n-a.n).map(t=>{
+        const nm = nextU[t.lg+'|'+t.team];
+        return `<span class="dep-pill">${logo(t.team, t.lg)}<b>${esc2(t.team)}</b><small>${fmtNext(t, nm)}</small></span>`;
+      }).join('')}</div></div>`;
+    }).join('');
+    return parts ? `<details class="dep-det" open><summary class="dep-sum2 ${cls}">${title}</summary>${parts}</details>` : '';
+  };
+  const serieHtml = (serieBlock([8,7,6,5,4,3], '🟢 Serie OVER (3+ mecze z rzędu)', 'o') + serieBlock([-8,-7,-6,-5,-4,-3], '🔴 Serie UNDER (3+ mecze z rzędu)', 'u')) || '<div class="dep-empty">Żadna drużyna z wybranej ligi nie ma teraz serii 3+ meczów Over lub Under.</div>';
+
+  // --- 3) statystyki wstecz (zwijane)
   const mLabel = k => ({obie:'obie drużyny po wczorajszym meczu', gosp:'tylko gospodarz po wczorajszym meczu', gosc:'tylko gość po wczorajszym meczu', zadna:'żadna po wczorajszym meczu'})[k];
-  const note = `${histMode ? '🤖 Tylko ligi z 6+ sezonami danych: <b>'+lgsIn.join(', ')+'</b>. ' : ''}Podstawa: <b>${obs.length}</b> obserwacji (drużyna w meczu) z <b>${lgsIn.length}</b> lig. ★ = różnica istotna statystycznie (≥2 odch. std., min. ${DEP_MIN_N} obserwacji).`;
-
-  const chips = [['all','Wszystkie'],['streak','🔥 Serie (Over/Under)'],['seq','🔄 Sekwencje'],['ha','🏟️ Dom/Wyjazd'],['b2b','⏳ Back-to-Back (B2B)'],['hist','🤖 Historyczne (6+ sezonów)']]
-    .map(([k,l])=>`<button data-v="${k}" class="${depFilter===k?'active':''}">${l}</button>`).join('');
-
-  const cards = [
-    depCard('S1','🔥 Gorące serie Over/Under (4+ mecze)','Drużyny, które teraz mają serię 4+ meczów z Over lub Under w P1, razem z historią: co działo się w następnym meczu po takiej serii.', s1Body),
-    depCard('S2','📊 Co dzieje się po serii','Over w następnym meczu po serii Over lub Under o danej długości (w obrębie sezonu).', depInsight(sRows,k=>k>0?`Over ×${k}`:`Under ×${-k}`)+depTable(sRows, sLabel, 'Seria przed meczem')),
-    depCard('Q1','🔄 Cykle i sekwencje: ostatnie 3 mecze','Wzór ostatnich trzech meczów drużyny (od najstarszego do najnowszego), np. O U O = Over, Under, Over.', depInsight(pRows,k=>k.split('').join(' '))+depTable(pRows, depPat, 'Ostatnie 3')),
-    depCard('Q2','🧮 Forma w liczbach','Ile razy Over padł w ostatnich 5 meczach drużyny oraz ile goli było w jej poprzednim meczu w P1.', `<div class="dep-two"><div><div class="dep-mini">Overów w ostatnich 5</div>${depTable(c5Rows,k=>`${k} z 5`,'Seria 5 meczów')}</div><div><div class="dep-mini">Gole w P1 poprzedniego meczu</div>${depTable(p1Rows,k=>k===4?'4 i więcej':String(k),'Gole P1')}</div></div>`),
-    depCard('Q3','🎯 Drużyny w wyraźnej sekwencji teraz','Drużyny, których ostatnie 3 mecze to wzór o istotnej historycznej zależności (posortowane wg siły).', q3Body),
-    depCard('H1','🏟️ Dom / Wyjazd: seria 3 meczów w tej samej roli','Ostatnie 3 mecze drużyny u siebie (gospodarz) lub na wyjeździe (gość) i Over w następnym meczu w tej roli.', `<div class="dep-two"><div><div class="dep-mini">🏠 Gospodarz</div>${depTable(v3H,k=>k==='mix'?'mieszane':depPat(k),'Ostatnie 3 u siebie')}</div><div><div class="dep-mini">✈️ Gość</div>${depTable(v3A,k=>k==='mix'?'mieszane':depPat(k),'Ostatnie 3 na wyjeździe')}</div></div>`),
-    depCard('H2','🏒 Drużyny z serią w roli, w której zagrają następny mecz','Np. gospodarz z 3× Over u siebie, który właśnie gra u siebie.', h2Body),
-    depCard('B1','⏳ Back-to-back i dni odpoczynku','Over wg tego, ile dni minęło od poprzedniego meczu drużyny, oraz wg tego, czy któraś drużyna grała wczoraj.', `<div class="dep-two"><div><div class="dep-mini">Przerwa drużyny przed meczem</div>${depTable(restRows,sLabelRest,'Przerwa')}</div><div><div class="dep-mini">Układ w meczu</div>${depTable(mRows,mLabel,'B2B w meczu')}</div></div>`),
-    depCard('B2','📅 Najbliższe mecze po wczorajszym meczu (3 dni)','Mecze, w których przynajmniej jedna drużyna grała dzień wcześniej, z historycznym Over dla takiego układu.', b2bBody),
-    depCard('X1','📈 Miesiąc sezonu i dzień tygodnia','Czy Over zależy od momentu sezonu lub dnia tygodnia (po odjęciu różnic między ligami).', `<div class="dep-two"><div>${depTable(monRows,k=>moN[k],'Miesiąc')}</div><div>${depTable(dowRows,k=>dn[k],'Dzień tygodnia')}</div></div>`),
-    depCard('X2','🤝 Zależność w H2H','Czy po Over w poprzednim spotkaniu tych samych drużyn Over pada częściej w następnym?', `<div class="dep-two"><div><div class="dep-mini">Poprzednie spotkanie</div>${depTable(hRows,k=>k==='O'?'było Over':'było Under','Poprzednie H2H')}</div><div><div class="dep-mini">Dwa ostatnie spotkania</div>${depTable(hBoth,k=>k==='OO'?'oba Over':'oba Under','Dwa ostatnie H2H')}</div></div>`),
+  const sLabelRest = k => k===1 ? 'grała wczoraj (B2B)' : k===2 ? '1 dzień przerwy' : k===3 ? '2 dni przerwy' : '3+ dni przerwy';
+  const statCard = (tag, title, sub, body) => `<details class="dep-card dep-sc" data-tag="${tag}" ${depFilter===tag?'open':''}><summary class="dep-h">${title}</summary>${sub?`<div class="dep-sub">${sub}</div>`:''}${body}</details>`;
+  const statCards = [
+    statCard('streak','📊 Co dzieje się po serii Over / Under','Over w następnym meczu po serii o danej długości (w obrębie sezonu).', depInsight(sRows,k=>k>0?`Over ×${k}`:`Under ×${-k}`)+depTable(sRows, sLabel, 'Seria przed meczem')),
+    statCard('seq','🔄 Sekwencje ostatnich 3 meczów','Wzór od najstarszego do najnowszego, np. O U O = Over, Under, Over.', depInsight(pRows,k=>k.split('').join(' '))+depTable(pRows, depPat, 'Ostatnie 3')),
+    statCard('seq','🧮 Forma w liczbach','Ile Overów w ostatnich 5 meczach drużyny oraz ile goli w P1 w jej poprzednim meczu.', `<div class="dep-two"><div><div class="dep-mini">Overów w ostatnich 5</div>${depTable(c5Rows,k=>`${k} z 5`,'Ostatnie 5')}</div><div><div class="dep-mini">Gole w P1 poprzedniego meczu</div>${depTable(p1Rows,k=>k===4?'4 i więcej':String(k),'Gole P1')}</div></div>`),
+    statCard('ha','🏟️ Dom / Wyjazd: seria 3 meczów w tej samej roli','Ostatnie 3 mecze u siebie (gospodarz) lub na wyjeździe (gość) i Over w następnym meczu w tej roli.', `<div class="dep-two"><div><div class="dep-mini">🏠 Gospodarz</div>${depTable(v3H,k=>k==='mix'?'mieszane':depPat(k),'Ostatnie 3 u siebie')}</div><div><div class="dep-mini">✈️ Gość</div>${depTable(v3A,k=>k==='mix'?'mieszane':depPat(k),'Ostatnie 3 na wyjeździe')}</div></div>`),
+    statCard('b2b','⏳ Back-to-back i dni odpoczynku','Over wg przerwy drużyny przed meczem oraz wg układu B2B w meczu.', `<div class="dep-two"><div><div class="dep-mini">Przerwa drużyny</div>${depTable(restRows,sLabelRest,'Przerwa')}</div><div><div class="dep-mini">Układ w meczu</div>${depTable(mRows,mLabel,'B2B w meczu')}</div></div>`),
+    statCard('x','📈 Miesiąc sezonu i dzień tygodnia','Czy Over zależy od momentu sezonu lub dnia tygodnia (po odjęciu różnic między ligami).', `<div class="dep-two"><div>${depTable(monRows,k=>moN[k],'Miesiąc')}</div><div>${depTable(dowRows,k=>dn[k],'Dzień tygodnia')}</div></div>`),
+    statCard('x','🤝 Zależność w H2H','Czy po Over w poprzednim spotkaniu tych samych drużyn Over pada częściej w następnym?', `<div class="dep-two"><div><div class="dep-mini">Poprzednie spotkanie</div>${depTable(hRows,k=>k==='O'?'było Over':'było Under','Poprzednie H2H')}</div><div><div class="dep-mini">Dwa ostatnie spotkania</div>${depTable(hBoth,k=>k==='OO'?'oba Over':'oba Under','Dwa ostatnie H2H')}</div></div>`),
   ].join('');
 
-  el.innerHTML = `<div class="dep-chips" id="depChips">${chips}</div><div class="dep-note">${note}</div><div class="dep-grid" id="depGrid">${cards}</div>`;
-  const apply = () => {
-    el.querySelectorAll('.dep-card').forEach(c=>{
-      const tag = c.dataset.tag;
-      c.style.display = (depFilter==='all' || depFilter==='hist' || tag===depFilter) ? '' : 'none';
-    });
-  };
-  apply();
+  // --- pasek sterowania
+  const lgs = Object.keys(DATA.leagues);
+  const lgSel = `<select id="depLg" class="dep-sel"><option value="ALL">Wszystkie ligi</option>${lgs.map(lg=>`<option value="${lg}" ${depLg===lg?'selected':''}>${esc2(leagueChipLabel(lg))}</option>`).join('')}</select>`;
+  const seg = `<div class="dep-seg" id="depScope"><button data-s="cur" class="${depScope==='cur'?'active':''}">AKTUALNY SEZON</button><button data-s="all" class="${depScope==='all'?'active':''}">CAŁOŚĆ</button></div>`;
+  const chips = [['all','Wszystkie'],['streak','🔥 Serie'],['seq','🔄 Sekwencje'],['ha','🏟️ Dom/Wyjazd'],['b2b','⏳ B2B'],['hist','🤖 6+ sezonów']]
+    .map(([k,l])=>`<button data-v="${k}" class="${depFilter===k?'active':''}">${l}</button>`).join('');
+  const lgsIn = [...new Set(obs.map(o=>o.lg))];
+  const note = `Schematy i serie dotyczą <b>aktualnego sezonu 2026/27</b>. Statystyki „po takiej serii” liczone z: <b>${depScope==='cur'?'aktualnego sezonu':'wszystkich sezonów w danych'}</b>${histMode?' (tylko ligi z 6+ sezonami)':''}, <b>${obs.length}</b> obserwacji${depLg==='ALL'?` z ${lgsIn.length} lig`:''}. ▲/▼ przy meczu = wypadkowa różnica Over wg historii dla schematów obu drużyn; ★ = różnica istotna statystycznie.${depScope==='cur'?' W samym sezonie próby są małe, więc liczby bywają przypadkowe.':''}`;
+
+  el.innerHTML = `<div class="dep-bar">${lgSel}${seg}<div class="dep-chips" id="depChips">${chips}</div></div><div class="dep-note">${note}</div>
+    <details class="dep-card dep-main" open><summary class="dep-h">📅 Kolejka: najbliższe dni i mecze ze schematami</summary><div class="dep-sub">Mecze, w których któraś drużyna jest na serii, gra back-to-back albo ma serię 3 meczów w swojej roli (dom/wyjazd). Stan drużyny liczony tylko do jej najbliższego meczu.</div>${qHtml}</details>
+    <details class="dep-card dep-main" open><summary class="dep-h">🔥 Aktualne serie w sezonie 2026/27</summary><div class="dep-sub">Drużyny z serią 3, 4, 5, 6, 7, 8+ meczów Over lub Under z rzędu i ich następny mecz.</div>${serieHtml}</details>
+    <div class="dep-hd">📚 Statystyki wstecz (zwinięte)</div><div class="dep-grid">${statCards}</div>`;
+  el.querySelector('#depLg').addEventListener('change', e=>{ depLg = e.target.value; renderDep(); });
+  el.querySelectorAll('#depScope button').forEach(b=>b.addEventListener('click', ()=>{ depScope = b.dataset.s; renderDep(); }));
   el.querySelectorAll('#depChips button').forEach(b=>b.addEventListener('click', ()=>{ depFilter = b.dataset.v; renderDep(); }));
+  el.querySelectorAll('.dep-sc').forEach(c=>{
+    const tag = c.dataset.tag;
+    c.style.display = (depFilter==='all' || depFilter==='hist' || tag===depFilter) ? '' : 'none';
+  });
 }
 
 // =====================================================================
