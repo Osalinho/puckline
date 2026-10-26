@@ -418,6 +418,8 @@
   .u2-g{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:12.5px; width:24px; height:24px; border-radius:7px; display:inline-flex; align-items:center; justify-content:center; color:#0B0F17; flex-shrink:0; box-shadow:0 0 12px rgba(255,255,255,.08);}
   .u2-g.gA{background:#22e6a8; box-shadow:0 0 14px rgba(34,230,168,.45);} .u2-g.gB{background:#9be22a;} .u2-g.gC{background:#FF9F1C;} .u2-g.gD{background:#ff6b6b;}
   .dep-chips{display:flex; gap:8px; flex-wrap:wrap; margin:6px 0 10px;}
+  .dep-cnt{display:inline-block; margin-left:5px; font-family:'JetBrains Mono',monospace; font-size:10.5px; opacity:.75; background:rgba(255,255,255,.1); border-radius:6px; padding:0 6px;}
+  .dep-chips button.active .dep-cnt{background:rgba(0,0,0,.18); opacity:1;}
   .dep-chips button{background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.1); color:var(--text); font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:12.5px; padding:9px 15px; border-radius:11px; cursor:pointer; backdrop-filter:blur(8px);}
   .dep-chips button:hover{border-color:rgba(255,159,28,.5);}
   .dep-chips button.active{background:var(--amber); color:#14100a; border-color:var(--amber); box-shadow:0 6px 20px rgba(255,159,28,.4);}
@@ -496,6 +498,21 @@
   .dep-pills{display:flex; flex-wrap:wrap; gap:8px;}
   .dep-pill{display:inline-flex; align-items:center; gap:7px; background:rgba(255,255,255,.045); border:1px solid rgba(255,255,255,.09); border-radius:10px; padding:6px 10px; font-size:12.5px;} .dep-pill b{font-weight:600;} .dep-pill small{font-size:10.5px; color:var(--muted);}
   @media (max-width:700px){ .dep-qt{grid-template-columns:1fr;} .dep-sel{min-width:0; width:100%;} .dep-hist{margin-left:0; width:100%;} }
+
+
+  .dep-q{border-top:1px solid rgba(255,255,255,.06);}
+  .dep-q > summary{display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:10px 14px; cursor:pointer; list-style:none; font-size:13px;} .dep-q > summary::-webkit-details-marker{display:none;}
+  .dep-q > summary::before{content:'▸'; color:var(--amber); font-size:12px; margin-right:2px;} .dep-q[open] > summary::before{content:'▾';}
+  .dep-q > summary:hover{background:rgba(255,255,255,.04);}
+  .dep-ms{display:inline-flex; align-items:center; gap:6px; margin-left:6px; flex-wrap:wrap;} .dep-sep{color:var(--muted); opacity:.5;}
+  .dep-right{margin-left:auto; display:inline-flex; align-items:center; gap:8px;}
+  .dep-qb{padding:4px 14px 14px;}
+  .dep-ex{margin-top:10px; padding-top:10px; border-top:1px dashed rgba(255,255,255,.1); display:flex; flex-direction:column; gap:7px;}
+  .dep-exr{display:flex; align-items:center; gap:10px; flex-wrap:wrap; font-size:12.5px;} .dep-exr .dep-lbl{min-width:104px;} .dep-exr.wrapx{gap:6px;}
+  .dep-seq{margin-top:7px;} .dep-sqs{display:flex; gap:6px; margin-top:4px;}
+  .sqd{display:inline-flex; flex-direction:column; align-items:center; gap:2px;} .sqd em{font-style:normal; font-size:9px; color:var(--muted); font-family:'JetBrains Mono',monospace;}
+  .sqd .pt{width:24px; height:24px; font-size:12px; margin:0; border-radius:7px;}
+  .sqd.last .pt{outline:2px solid #fff; outline-offset:1px;} .sqd.last em{color:#fff; font-weight:700;}
 
   /* ---- zakładka FIX ---- */
   .tst-sum{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.9fr); gap:22px; align-items:start;}
@@ -2231,6 +2248,7 @@ const CHANGELOG = [
     title: 'ZALEŻNOŚCI: kolejka na najbliższe dni, aktualne serie, wybór ligi i zakresu',
     items: [
       'Na górze „Kolejka”: najbliższe 4 dni z meczami, w których drużyny są na serii, grają back-to-back lub mają serię 3 meczów w swojej roli (dom/wyjazd), z wypadkową ▲/▼ wg historii; pod nią „Aktualne serie” Over/Under ×3…8+ z następnym meczem każdej drużyny',
+      'Mecze w kolejce są zwijane: po kliknięciu widać schematy obu drużyn z datami ostatnich 5 meczów (najnowszy po prawej, wyróżniony), prognozę modelu, ocenę A–D i sygnały; usunięte górne filtry, które mało zmieniały',
       'Wybór ligi oraz przełącznik AKTUALNY SEZON / CAŁOŚĆ (zakres, z którego liczone są statystyki „po takiej serii”)',
       'Wszystkie karty są zwijane; statystyki wstecz są niżej i domyślnie zwinięte',
     ],
@@ -3930,7 +3948,7 @@ function depBuild(){
       }
       const ms = all.filter(m=>m.p1 && (!isCur || m.played)).sort(tstByDate);
       const st = {};
-      const get = t => st[t] || (st[t] = {h:[], v:{H:[],A:[]}, last:null, p1:null});
+      const get = t => st[t] || (st[t] = {h:[], v:{H:[],A:[]}, last:null, p1:null, rc:[]});
       ms.forEach(m=>{
         const [a,b] = m.p1.split(':').map(Number); const y = (a+b)>=2 ? 1 : 0;
         const feats = {};
@@ -3949,13 +3967,13 @@ function depBuild(){
         const pk = [m.home,m.away].sort().join('||'); const ph = pairHist[pk] || (pairHist[pk]=[]);
         if(ph.length) hobs.push({lg, y, cur:isCur, prev:ph[ph.length-1], both: ph.length>=2 ? (ph[ph.length-1]&&ph[ph.length-2] ? 1 : (!ph[ph.length-1]&&!ph[ph.length-2] ? 0 : null)) : null, n:keys.length});
         ph.push(y);
-        [[m.home,'H'],[m.away,'A']].forEach(([t,side])=>{ const x = get(t); x.h.push(y); x.v[side].push(y); x.last = m.sortDate; x.p1 = a+b; });
+        [[m.home,'H'],[m.away,'A']].forEach(([t,side])=>{ const x = get(t); x.h.push(y); x.v[side].push(y); x.last = m.sortDate; x.p1 = a+b; x.rc.push({y, d:m.sortDate, opp:(side==='H'?m.away:m.home), home:side==='H', p1:m.p1}); });
       });
       if(isCur){
         Object.keys(st).forEach(t=>{
           const x = st[t], h = x.h; let streak = 0;
           if(h.length){ const v = h[h.length-1]; let k = 1; while(k<h.length && h[h.length-1-k]===v) k++; streak = v ? k : -k; }
-          cur[lg+'|'+t] = {lg, team:t, streak, l5: h.slice(-5).map(z=>z?'O':'U').join(''), l3: h.length>=3 ? h.slice(-3).map(z=>z?'O':'U').join('') : null, n:h.length,
+          cur[lg+'|'+t] = {lg, team:t, streak, l5d: x.rc.slice(-5), l5: h.slice(-5).map(z=>z?'O':'U').join(''), l3: h.length>=3 ? h.slice(-3).map(z=>z?'O':'U').join('') : null, n:h.length,
             v3H: x.v.H.length>=3 ? (x.v.H.slice(-3).every(z=>z)?'OOO':x.v.H.slice(-3).every(z=>!z)?'UUU':'mix') : null,
             v3A: x.v.A.length>=3 ? (x.v.A.slice(-3).every(z=>z)?'OOO':x.v.A.slice(-3).every(z=>!z)?'UUU':'mix') : null, last:x.last};
         });
@@ -4029,7 +4047,8 @@ function depNextUnplayedMap(T){
 function renderDep(){
   const el = document.getElementById('depContent');
   const T = depBuild();
-  const lgOk = lg => depLg==='ALL' || lg===depLg;
+  const histMode0 = null;
+  const lgOk = lg => (depLg==='ALL' || lg===depLg) && (depFilter!=='hist' || T.lgSeasons[lg]>=6);
   const histMode = depFilter==='hist';
   depMinN = depScope==='cur' ? 50 : 150;
   const scoped = list => list.filter(o=>lgOk(o.lg) && (depScope==='all' || o.cur) && (!histMode || o.n>=6));
@@ -4067,7 +4086,7 @@ function renderDep(){
     const home = nm.home===t.team;
     return `<span class="dep-nm">${nm.date.slice(0,5)}</span> ${home?'🏠':'✈️'} ${esc2(home?nm.away:nm.home)}`;
   };
-  const sq = s => (s||'').split('').map(ch=>`<i class="pt ${ch==='O'?'o':'u'}">${ch}</i>`).join('');
+  const sqd = arr => `<div class="dep-seq"><span class="dep-lbl">ostatnie 5 meczów · najnowszy po prawej</span><div class="dep-sqs">${arr.map((r,i)=>`<span class="sqd${i===arr.length-1?' last':''}" title="${r.d.slice(8,10)}.${r.d.slice(5,7)} · ${r.home?'u siebie':'na wyjeździe'} vs ${esc2(r.opp)} · P1 ${r.p1} → ${r.y?'Over':'Under'}"><i class="pt ${r.y?'o':'u'}">${r.y?'O':'U'}</i><em>${r.d.slice(8,10)}.${r.d.slice(5,7)}</em></span>`).join('')}</div></div>`;
   const clampS = v => Math.max(-8, Math.min(8, v));
 
   // --- 1) KOLEJKA: najbliższe dni i mecze ze schematami drużyn
@@ -4075,16 +4094,23 @@ function renderDep(){
     const st = T.cur[lg+'|'+team];
     const valid = st && nextU[lg+'|'+team]===m;      // stan drużyny jest aktualny tylko dla jej najbliższego meczu
     const rest = depRestFor(T, lg, team, m.sortDate);
-    const chips = [], lifts = [];
-    if(valid && Math.abs(st.streak)>=2){ const r = sMap[clampS(st.streak)]; chips.push(sLabel(clampS(st.streak))); if(Math.abs(st.streak)>=3) lifts.push(depLiftOf(r)); }
-    if(rest===1){ chips.push('<span class="dep-b2b">⏳ B2B</span>'); lifts.push(depLiftOf(restMap[1])); }
+    const chips = [], lifts = [], tags = new Set();
+    const bigStreak = valid && Math.abs(st.streak)>=3;
+    if(valid && Math.abs(st.streak)>=2){ chips.push(sLabel(clampS(st.streak))); }
+    if(bigStreak){ tags.add('streak'); lifts.push({t:'streak', v:depLiftOf(sMap[clampS(st.streak)])}); }
+    if(rest===1){ chips.push('<span class="dep-b2b">⏳ B2B</span>'); tags.add('b2b'); lifts.push({t:'b2b', v:depLiftOf(restMap[1])}); }
     const v3 = valid ? (isHome ? st.v3H : st.v3A) : null;
-    if(v3 && v3!=='mix'){ const r = (isHome ? v3H : v3A).find(z=>z.k===v3); chips.push(`<span class="dep-role">${isHome?'🏠':'✈️'} ${depPat(v3)}</span>`); lifts.push(depLiftOf(r)); }
-    const notable = (valid && Math.abs(st.streak)>=3) || rest===1 || (v3 && v3!=='mix');
-    return {notable, lifts, html:`<div class="dep-tc"><div class="dep-tn">${logo(team, lg)}<b>${esc2(team)}</b></div><div class="dep-tx">${chips.join('') || '<span class="dim">bez wyraźnego schematu</span>'}</div>${valid&&st.l5?`<div class="dep-tx"><span class="dep-lbl">ostatnie</span>${sq(st.l5)}</div>`:''}</div>`};
+    if(v3 && v3!=='mix'){ const r = (isHome ? v3H : v3A).find(z=>z.k===v3); chips.push(`<span class="dep-role">${isHome?'🏠':'✈️'} ${depPat(v3)}</span>`); tags.add('ha'); lifts.push({t:'ha', v:depLiftOf(r)}); }
+    if(valid && st.l3){ const v = depLiftOf(pMap[st.l3]); if(v!==0){ chips.push(`<span class="dep-role" title="Ostatnie 3 mecze, od najstarszego do najnowszego">3: ${depPat(st.l3)}</span>`); tags.add('seq'); lifts.push({t:'seq', v, dup:bigStreak}); } }
+    return {tags, lifts, short: chips.join('') || '<span class="dim">—</span>', html:`<div class="dep-tc"><div class="dep-tn">${logo(team, lg)}<b>${esc2(team)}</b></div><div class="dep-tx">${chips.join('') || '<span class="dim">bez wyraźnego schematu</span>'}</div>${valid&&st.l5d&&st.l5d.length?sqd(st.l5d):(st&&!valid&&st.last?`<div class="dep-tx dim" title="Wyniki z ostatnich dni nie są jeszcze w danych, więc schemat drużyny może być nieaktualny">brak świeżych wyników (ostatni mecz w danych: ${st.last.slice(8,10)}.${st.last.slice(5,7)})</div>`:'')}</div>`};
   };
   const dayName = d => d===cut ? 'Dziś' : d===tstAddDays(cut,1) ? 'Jutro' : d===tstAddDays(cut,2) ? 'Pojutrze' : dn[new Date(d+'T12:00:00').getDay()];
-  const queue = [];
+  const MODE = ['streak','seq','ha','b2b'].includes(depFilter) ? depFilter : 'all';
+  const sumFor = (lifts) => {
+    const L = lifts.filter(x=>x.v!==0 && (MODE==='all' ? !x.dup : x.t===MODE)).map(x=>x.v).sort((x,y)=>Math.abs(y)-Math.abs(x));
+    return L.reduce((a,x,k)=>a + (k===0?x:x*0.5), 0);
+  };
+  const allDays = []; const tagCnt = {streak:0, seq:0, ha:0, b2b:0, all:0};
   for(let i=0;i<4;i++){
     const d = tstAddDays(cut, i); const rows = [];
     Object.keys(T.upcoming).forEach(lg=>{
@@ -4092,22 +4118,35 @@ function renderDep(){
       (T.upcoming[lg]||[]).forEach(m=>{
         if(m.sortDate!==d) return;
         const h = teamCell(lg, m.home, true, m), a = teamCell(lg, m.away, false, m);
-        if(!(h.notable || a.notable)) return;
-        const L = [...h.lifts, ...a.lifts].filter(x=>x!==0).sort((x,y)=>Math.abs(y)-Math.abs(x));
-        const sum = L.reduce((s,x,k)=>s + (k===0?x:x*0.5), 0);
-        rows.push({lg, m, h, a, sum});
+        const tags = new Set([...h.tags, ...a.tags]);
+        if(!tags.size) return;
+        tagCnt.all++; tags.forEach(t=>{ tagCnt[t]++; });
+        rows.push({lg, m, h, a, tags, lifts:[...h.lifts, ...a.lifts]});
       });
     });
-    if(!rows.length) continue;
-    rows.sort((x,y)=>Math.abs(y.sum)-Math.abs(x.sum));
-    queue.push({d, rows});
+    allDays.push({d, rows});
   }
+  const queue = allDays.map(q=>{
+    let rows = (MODE==='all') ? q.rows : q.rows.filter(r=>r.tags.has(MODE));
+    rows = rows.map(r=>({...r, sum:sumFor(r.lifts)})).sort((x,y)=>Math.abs(y.sum)-Math.abs(x.sum));
+    return {d:q.d, rows};
+  }).filter(q=>q.rows.length);
   const qHtml = queue.length ? queue.map((q,i)=>`<details class="dep-day" ${i===0?'open':''}><summary><span class="dep-dn">${dayName(q.d)}</span> <span class="dep-nm">${q.d.slice(8,10)}.${q.d.slice(5,7)}</span> · ${q.rows.length} meczów ze schematem</summary>
       ${q.rows.slice(0,40).map(r=>{
         const cl = r.sum>=1 ? 'pos' : r.sum<=-1 ? 'neg' : 'flat'; const arrow = r.sum>=1 ? '▲' : r.sum<=-1 ? '▼' : '•';
-        return `<div class="dep-q"><div class="dep-qh"><span class="tst-lb" style="background:${leagueColor(r.lg)}">${esc2(leagueShortLabel(r.lg))}</span><b>${esc2(r.m.home)}</b> – <b>${esc2(r.m.away)}</b><span class="dep-sum ${cl}" title="Wypadkowa różnica Over wg historii dla schematów obu drużyn (pkt vs oczekiwane, z przycięciem przy małej próbie)">${arrow} ${r.sum>=0?'+':''}${depF(r.sum)}</span></div><div class="dep-qt">${r.h.html}${r.a.html}</div></div>`;
+        let sg = null, hot = null;
+        try{ const rr = tstBuild().byKey[`${r.m.sortDate}|${r.lg}|${r.m.home}|${r.m.away}`]; sg = rr && rr.sig ? rr.sig : null; }catch(e){}
+        try{ hot = findHotInfo({league:r.lg, home:r.m.home, away:r.m.away}); }catch(e){}
+        const gBadge = sg ? `<span class="u2-g g${sg.grade}" title="Ocena FIX: ${sg.grade}">${sg.grade}</span>` : '';
+        const extra = `<div class="dep-ex">
+          <div class="dep-exr"><span class="dep-lbl">Prognoza modelu</span><b>${r.m.prob!==undefined ? r.m.prob.toFixed(0)+'%' : '—'}</b></div>
+          <div class="dep-exr"><span class="dep-lbl">Ocena FIX</span>${sg ? `${gBadge} <span class="dim">suma ${sg.score>0?'+':''}${tstFmt(sg.score)} pkt · historycznie Over ${tstFmt(TST_GRADES[sg.grade].hist)}%</span>` : '<span class="dim">za mało danych</span>'}</div>
+          ${hot ? `<div class="dep-exr"><span class="dep-lbl">H2H</span><span class="hot-chip">🌶️ ${hot.overs}/${hot.n}</span></div>` : ''}
+          ${sg && sg.ids.length ? `<div class="dep-exr wrapx">${sg.ids.map(tstChip).join('')}</div>` : ''}
+        </div>`;
+        return `<details class="dep-q"><summary><span class="tst-lb" style="background:${leagueColor(r.lg)}">${esc2(leagueShortLabel(r.lg))}</span><b>${esc2(r.m.home)}</b> – <b>${esc2(r.m.away)}</b><span class="dep-ms">${r.h.short}<span class="dep-sep">|</span>${r.a.short}</span><span class="dep-right">${gBadge}<span class="dep-sum ${cl}" title="Wypadkowa różnica Over wg historii dla ${MODE==='all'?'schematów obu drużyn':'wybranego filtra'} (pkt vs oczekiwane, z przycięciem przy małej próbie)">${arrow} ${r.sum>=0?'+':''}${depF(r.sum)}</span></span></summary><div class="dep-qb"><div class="dep-qt">${r.h.html}${r.a.html}</div>${extra}</div></details>`;
       }).join('')}${q.rows.length>40?`<div class="dep-empty">…i ${q.rows.length-40} kolejnych (zawęź ligę).</div>`:''}</details>`).join('')
-    : '<div class="dep-empty">W najbliższych 4 dniach brak meczów ze schematem dla wybranej ligi.</div>';
+    : '<div class="dep-empty">W najbliższych 4 dniach brak meczów spełniających ten filtr dla wybranej ligi.</div>';
 
   // --- 2) AKTUALNE SERIE (sezon 2026/27): Over / Under ×3…8+
   const grp = {};
@@ -4128,10 +4167,10 @@ function renderDep(){
   // --- 3) statystyki wstecz (zwijane)
   const mLabel = k => ({obie:'obie drużyny po wczorajszym meczu', gosp:'tylko gospodarz po wczorajszym meczu', gosc:'tylko gość po wczorajszym meczu', zadna:'żadna po wczorajszym meczu'})[k];
   const sLabelRest = k => k===1 ? 'grała wczoraj (B2B)' : k===2 ? '1 dzień przerwy' : k===3 ? '2 dni przerwy' : '3+ dni przerwy';
-  const statCard = (tag, title, sub, body) => `<details class="dep-card dep-sc" data-tag="${tag}" ${depFilter===tag?'open':''}><summary class="dep-h">${title}</summary>${sub?`<div class="dep-sub">${sub}</div>`:''}${body}</details>`;
+  const statCard = (tag, title, sub, body) => `<details class="dep-card dep-sc" data-tag="${tag}" ${depFilter===tag?'open':''} style="${(depFilter==='all'||depFilter==='hist'||tag===depFilter)?'':'display:none'}"><summary class="dep-h">${title}</summary>${sub?`<div class="dep-sub">${sub}</div>`:''}${body}</details>`;
   const statCards = [
     statCard('streak','📊 Co dzieje się po serii Over / Under','Over w następnym meczu po serii o danej długości (w obrębie sezonu).', depInsight(sRows,k=>k>0?`Over ×${k}`:`Under ×${-k}`)+depTable(sRows, sLabel, 'Seria przed meczem')),
-    statCard('seq','🔄 Sekwencje ostatnich 3 meczów','Wzór od najstarszego do najnowszego, np. O U O = Over, Under, Over.', depInsight(pRows,k=>k.split('').join(' '))+depTable(pRows, depPat, 'Ostatnie 3')),
+    statCard('seq','🔄 Sekwencje ostatnich 3 meczów','Wzór od najstarszego do najnowszego, np. O U O = Over, Under, Over.', depInsight(pRows,k=>k.split('').join(' '))+depTable(pRows, depPat, 'Ostatnie 3 (starszy → najnowszy)')),
     statCard('seq','🧮 Forma w liczbach','Ile Overów w ostatnich 5 meczach drużyny oraz ile goli w P1 w jej poprzednim meczu.', `<div class="dep-two"><div><div class="dep-mini">Overów w ostatnich 5</div>${depTable(c5Rows,k=>`${k} z 5`,'Ostatnie 5')}</div><div><div class="dep-mini">Gole w P1 poprzedniego meczu</div>${depTable(p1Rows,k=>k===4?'4 i więcej':String(k),'Gole P1')}</div></div>`),
     statCard('ha','🏟️ Dom / Wyjazd: seria 3 meczów w tej samej roli','Ostatnie 3 mecze u siebie (gospodarz) lub na wyjeździe (gość) i Over w następnym meczu w tej roli.', `<div class="dep-two"><div><div class="dep-mini">🏠 Gospodarz</div>${depTable(v3H,k=>k==='mix'?'mieszane':depPat(k),'Ostatnie 3 u siebie')}</div><div><div class="dep-mini">✈️ Gość</div>${depTable(v3A,k=>k==='mix'?'mieszane':depPat(k),'Ostatnie 3 na wyjeździe')}</div></div>`),
     statCard('b2b','⏳ Back-to-back i dni odpoczynku','Over wg przerwy drużyny przed meczem oraz wg układu B2B w meczu.', `<div class="dep-two"><div><div class="dep-mini">Przerwa drużyny</div>${depTable(restRows,sLabelRest,'Przerwa')}</div><div><div class="dep-mini">Układ w meczu</div>${depTable(mRows,mLabel,'B2B w meczu')}</div></div>`),
@@ -4143,22 +4182,18 @@ function renderDep(){
   const lgs = Object.keys(DATA.leagues);
   const lgSel = `<select id="depLg" class="dep-sel"><option value="ALL">Wszystkie ligi</option>${lgs.map(lg=>`<option value="${lg}" ${depLg===lg?'selected':''}>${esc2(leagueChipLabel(lg))}</option>`).join('')}</select>`;
   const seg = `<div class="dep-seg" id="depScope"><button data-s="cur" class="${depScope==='cur'?'active':''}">AKTUALNY SEZON</button><button data-s="all" class="${depScope==='all'?'active':''}">CAŁOŚĆ</button></div>`;
-  const chips = [['all','Wszystkie'],['streak','🔥 Serie'],['seq','🔄 Sekwencje'],['ha','🏟️ Dom/Wyjazd'],['b2b','⏳ B2B'],['hist','🤖 6+ sezonów']]
-    .map(([k,l])=>`<button data-v="${k}" class="${depFilter===k?'active':''}">${l}</button>`).join('');
+  const chipDefs = [['all','Wszystkie',tagCnt.all],['streak','🔥 Serie',tagCnt.streak],['seq','🔄 Sekwencje',tagCnt.seq],['ha','🏟️ Dom/Wyjazd',tagCnt.ha],['b2b','⏳ B2B',tagCnt.b2b],['hist','🤖 6+ sezonów',null]];
+  const chips = chipDefs.map(([k,l,n])=>`<button data-v="${k}" class="${depFilter===k?'active':''}">${l}${n!==null?` <span class="dep-cnt">${n}</span>`:''}</button>`).join('');
   const lgsIn = [...new Set(obs.map(o=>o.lg))];
   const note = `Schematy i serie dotyczą <b>aktualnego sezonu 2026/27</b>. Statystyki „po takiej serii” liczone z: <b>${depScope==='cur'?'aktualnego sezonu':'wszystkich sezonów w danych'}</b>${histMode?' (tylko ligi z 6+ sezonami)':''}, <b>${obs.length}</b> obserwacji${depLg==='ALL'?` z ${lgsIn.length} lig`:''}. ▲/▼ przy meczu = wypadkowa różnica Over wg historii dla schematów obu drużyn; ★ = różnica istotna statystycznie.${depScope==='cur'?' W samym sezonie próby są małe, więc liczby bywają przypadkowe.':''}`;
 
   el.innerHTML = `<div class="dep-bar">${lgSel}${seg}<div class="dep-chips" id="depChips">${chips}</div></div><div class="dep-note">${note}</div>
-    <details class="dep-card dep-main" open><summary class="dep-h">📅 Kolejka: najbliższe dni i mecze ze schematami</summary><div class="dep-sub">Mecze, w których któraś drużyna jest na serii, gra back-to-back albo ma serię 3 meczów w swojej roli (dom/wyjazd). Stan drużyny liczony tylko do jej najbliższego meczu.</div>${qHtml}</details>
-    <details class="dep-card dep-main" open><summary class="dep-h">🔥 Aktualne serie w sezonie 2026/27</summary><div class="dep-sub">Drużyny z serią 3, 4, 5, 6, 7, 8+ meczów Over lub Under z rzędu i ich następny mecz.</div>${serieHtml}</details>
+    <details class="dep-card dep-main" open><summary class="dep-h">📅 Kolejka: najbliższe dni i mecze ze schematami</summary><div class="dep-sub">${MODE==='all'?'Mecze, w których któraś drużyna ma schemat (seria, sekwencja, rola dom/wyjazd, B2B).':'Filtr: '+({streak:'serie 3+ meczów',seq:'wyraźna sekwencja ostatnich 3 meczów',ha:'seria 3 meczów w roli dom/wyjazd',b2b:'drużyna grała wczoraj (B2B)'})[MODE]+'.'} Kliknij mecz, żeby zobaczyć schematy obu drużyn, prognozę i ocenę.</div>${qHtml}</details>
+    <details class="dep-card dep-main" data-sec="series" open style="${['all','hist','streak'].includes(depFilter)?'':'display:none'}"><summary class="dep-h">🔥 Aktualne serie w sezonie 2026/27</summary><div class="dep-sub">Seria = ile ostatnich meczów z rzędu, licząc od najnowszego wstecz, skończyło się Over (zielone) albo Under (czerwone) w P1.</div>${serieHtml}</details>
     <div class="dep-hd">📚 Statystyki wstecz (zwinięte)</div><div class="dep-grid">${statCards}</div>`;
   el.querySelector('#depLg').addEventListener('change', e=>{ depLg = e.target.value; renderDep(); });
   el.querySelectorAll('#depScope button').forEach(b=>b.addEventListener('click', ()=>{ depScope = b.dataset.s; renderDep(); }));
   el.querySelectorAll('#depChips button').forEach(b=>b.addEventListener('click', ()=>{ depFilter = b.dataset.v; renderDep(); }));
-  el.querySelectorAll('.dep-sc').forEach(c=>{
-    const tag = c.dataset.tag;
-    c.style.display = (depFilter==='all' || depFilter==='hist' || tag===depFilter) ? '' : 'none';
-  });
 }
 
 // =====================================================================
