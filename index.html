@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
 <meta charset="UTF-8">
-<title>NHL Over 1,5 P1</title>
+<title>PUCKLINE</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap');
   :root{
@@ -513,6 +513,22 @@
   .sqd{display:inline-flex; flex-direction:column; align-items:center; gap:2px;} .sqd em{font-style:normal; font-size:9px; color:var(--muted); font-family:'JetBrains Mono',monospace;}
   .sqd .pt{width:24px; height:24px; font-size:12px; margin:0; border-radius:7px;}
   .sqd.last .pt{outline:2px solid #fff; outline-offset:1px;} .sqd.last em{color:#fff; font-weight:700;}
+
+
+  /* ===== v26.10: serie przy drużynach, wybór ligi, rozdzielone drużyny, klikane serie ===== */
+  .sk{display:inline-block; font-family:'JetBrains Mono',monospace; font-weight:700; font-size:10px; border-radius:5px; padding:1px 5px; margin-left:5px; vertical-align:middle;}
+  .sk.o{background:rgba(34,230,168,.18); color:#22e6a8; border:1px solid rgba(34,230,168,.4);} .sk.u{background:rgba(255,77,77,.18); color:#ff6b6b; border:1px solid rgba(255,77,77,.4);}
+  .dep-lgs{display:flex; flex-wrap:wrap; gap:6px; width:100%;}
+  .dep-lgs button{display:inline-flex; align-items:center; gap:6px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.1); color:var(--text); font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:12px; padding:7px 12px; border-radius:10px; cursor:pointer;}
+  .dep-lgs button:hover{border-color:rgba(255,159,28,.5);} .dep-lgs button.active{background:var(--amber); color:#14100a; border-color:var(--amber); box-shadow:0 4px 16px rgba(255,159,28,.4);}
+  .dep-lgs .ld{width:8px; height:8px; border-radius:50%;}
+  .dep-mt{display:flex; flex-direction:column; gap:5px; flex:1; min-width:0;}
+  .dep-mr{display:flex; align-items:center; gap:8px; flex-wrap:wrap;} .dep-mr b{font-weight:600;} .dep-role-ic{font-size:12px; width:16px; text-align:center;}
+  .dep-q > summary{align-items:center;} .dep-mr .dep-ms{margin-left:4px;}
+  .dep-role.ov{background:rgba(34,230,168,.15); color:#22e6a8;} .dep-role.un{background:rgba(255,77,77,.16); color:#ff6b6b;}
+  button.dep-pill{cursor:pointer; color:var(--text); font-family:inherit;} button.dep-pill:hover{border-color:rgba(255,159,28,.6);} button.dep-pill.on{background:rgba(255,159,28,.16); border-color:var(--amber);} .dep-pill.off{opacity:.65;}
+  .dep-pb{margin:10px 0 4px; padding:12px 14px; border:1px solid rgba(255,159,28,.35); border-radius:12px; background:rgba(255,159,28,.05);}
+  .dep-pbh{display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:13px; margin-bottom:10px;}
 
   /* ---- zakładka FIX ---- */
   .tst-sum{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.9fr); gap:22px; align-items:start;}
@@ -1935,6 +1951,7 @@ function pickTop5(matches, cutoff){
 }
 
 function renderPlayNow(opts){
+  try{ depBuild(); }catch(e){}
   opts = opts || {};
   ensureLeagueFilter();
   const content = document.getElementById('playnowContent');
@@ -2243,6 +2260,15 @@ function renderPerf(){
 
 // ---------- Updates / changelog ----------
 const CHANGELOG = [
+  {
+    date: '26.10.2026',
+    title: 'Zamknięcie etapu: serie w Terminarzu, ZALEŻNOŚCI v3, nazwa karty PUCKLINE',
+    items: [
+      'Nazwa karty w przeglądarce: PUCKLINE',
+      'Terminarz: przy drużynie po procencie pojawia się znaczek serii Over/Under 3+ (np. O4, U3), tylko dla najbliższego meczu drużyny; aktualizuje się sam po każdym ściągnięciu wyników przez scraper',
+      'ZALEŻNOŚCI: wybór ligi przyciskami; ostatnie 7 meczów zamiast 3 (kwadraciki z datami i liczba Overów z 7); każda drużyna w kolejce opisana osobno (najpierw gospodarz, potem gość); kliknięcie drużyny z listy serii otwiera pod spodem jej najbliższy mecz z prognozą i oceną',
+    ],
+  },
   {
     date: '25.10.2026',
     title: 'ZALEŻNOŚCI: kolejka na najbliższe dni, aktualne serie, wybór ligi i zakresu',
@@ -3202,9 +3228,9 @@ function combinedRowHtml(m, dayKey, idPrefix, opts){
   const rankTag = opts.rankTag ? `<span class="top5-rank-tag">#${opts.rankTag}</span>` : '';
   return `<div class="cmb-row-grid${rowClass}${tblRowClass(m.league, m)||(hot?' has-tbl':'')}${hot?' is-hot':''}" id="${rowId}" data-cmb data-cmb-key="${combKey}" data-key="${detailsPrefix}${combKey}">
     <div class="cmb-league-badge" style="background:${leagueColor(m.league)}">${rankTag}${m.league}${relDotHtml(m.league)}${hotBadge}</div>
-    <div class="cmb-team home">${logo(m.home, m.league)}${teamNameBlock(m.league, m.home)}${m.homePct!=null?`<span class="ft-pct" style="color:${pctColor(m.homePct)}">${m.homePct.toFixed(1)}%</span>`:''}</div>
+    <div class="cmb-team home">${logo(m.home, m.league)}${teamNameBlock(m.league, m.home)}${m.homePct!=null?`<span class="ft-pct" style="color:${pctColor(m.homePct)}">${m.homePct.toFixed(1)}%</span>`:''}${rowStreakChip(m, m.home)}</div>
     <div class="cmb-vs">vs</div>
-    <div class="cmb-team away">${logo(m.away, m.league)}${teamNameBlock(m.league, m.away)}${m.awayPct!=null?`<span class="ft-pct" style="color:${pctColor(m.awayPct)}">${m.awayPct.toFixed(1)}%</span>`:''}</div>
+    <div class="cmb-team away">${logo(m.away, m.league)}${teamNameBlock(m.league, m.away)}${m.awayPct!=null?`<span class="ft-pct" style="color:${pctColor(m.awayPct)}">${m.awayPct.toFixed(1)}%</span>`:''}${rowStreakChip(m, m.away)}</div>
     <div class="cmb-result">${resultCell}</div>
     ${probCell}
     ${tblLinesHtml(m.league, m)}${hotLine}
@@ -3961,7 +3987,7 @@ function depBuild(){
           const vv = x.v[side]; const v3 = vv.length>=3 ? (vv.slice(-3).every(z=>z)?'OOO':vv.slice(-3).every(z=>!z)?'UUU':'mix') : null;
           const rest = x.last ? depDays(x.last, m.sortDate) : null;
           feats[side] = {rest};
-          obs.push({lg, y, side, streak, l3, c5, v3, rest, p1:x.p1, cur:isCur, month:m.sortDate.slice(5,7), dow:new Date(m.sortDate+'T12:00:00').getDay(), n:keys.length});
+          obs.push({lg, y, side, streak, l3, c5, c7: h.length>=7 ? h.slice(-7).reduce((p,q)=>p+q,0) : null, v3, rest, p1:x.p1, cur:isCur, month:m.sortDate.slice(5,7), dow:new Date(m.sortDate+'T12:00:00').getDay(), n:keys.length});
         });
         mobs.push({lg, y, rh:feats.H.rest, ra:feats.A.rest, cur:isCur, n:keys.length});
         const pk = [m.home,m.away].sort().join('||'); const ph = pairHist[pk] || (pairHist[pk]=[]);
@@ -3973,7 +3999,7 @@ function depBuild(){
         Object.keys(st).forEach(t=>{
           const x = st[t], h = x.h; let streak = 0;
           if(h.length){ const v = h[h.length-1]; let k = 1; while(k<h.length && h[h.length-1-k]===v) k++; streak = v ? k : -k; }
-          cur[lg+'|'+t] = {lg, team:t, streak, l5d: x.rc.slice(-5), l5: h.slice(-5).map(z=>z?'O':'U').join(''), l3: h.length>=3 ? h.slice(-3).map(z=>z?'O':'U').join('') : null, n:h.length,
+          cur[lg+'|'+t] = {lg, team:t, streak, l7d: x.rc.slice(-7), c7: x.rc.length>=7 ? x.rc.slice(-7).reduce((p,r)=>p+r.y,0) : null, l5d: x.rc.slice(-5), l5: h.slice(-5).map(z=>z?'O':'U').join(''), l3: h.length>=3 ? h.slice(-3).map(z=>z?'O':'U').join('') : null, n:h.length,
             v3H: x.v.H.length>=3 ? (x.v.H.slice(-3).every(z=>z)?'OOO':x.v.H.slice(-3).every(z=>!z)?'UUU':'mix') : null,
             v3A: x.v.A.length>=3 ? (x.v.A.slice(-3).every(z=>z)?'OOO':x.v.A.slice(-3).every(z=>!z)?'UUU':'mix') : null, last:x.last};
         });
@@ -3986,6 +4012,7 @@ function depBuild(){
   const base = lg => lb[lg].o/lb[lg].n;
   obs.forEach(o=>{ o.b = base(o.lg); }); mobs.forEach(o=>{ o.b = base(o.lg); }); hobs.forEach(o=>{ o.b = base(o.lg); });
   depCache = {src:DATA, sig, obs, mobs, hobs, cur, sched, upcoming, lgSeasons, lb};
+  depCache.nextU = depNextUnplayedMap(depCache);
   return depCache;
 }
 
@@ -4044,6 +4071,27 @@ function depNextUnplayedMap(T){
   return out;
 }
 
+function depLgName(lg){
+  if(lg==='NHL' || lg==='AHL') return lg;
+  if(/OHL/i.test(lg)) return 'OHL';
+  const sp = splitCountryLeague(DATA.leagues[lg].label);
+  const country = sp.country.replace(' Republic','');
+  const dup = Object.keys(DATA.leagues).some(k=>k!==lg && k!=='NHL' && k!=='AHL' && splitCountryLeague(DATA.leagues[k].label).country===sp.country);
+  return dup ? `${country} ${sp.league.split(' ')[0]}` : country;
+}
+// znaczek serii Over/Under (3+) przy drużynie w Terminarzu — tylko dla jej najbliższego meczu
+function rowStreakChip(m, team){
+  try{
+    if(m.played) return '';
+    const T = (depCache.src===DATA && depCache.cur) ? depCache : depBuild();
+    const st = T.cur[m.league+'|'+team]; if(!st || Math.abs(st.streak)<3) return '';
+    const nx = T.nextU[m.league+'|'+team];
+    if(!nx || nx.sortDate!==m.sortDate || nx.home!==m.home || nx.away!==m.away) return '';
+    const n = Math.abs(st.streak), over = st.streak>0;
+    return `<span class="sk ${over?'o':'u'}" title="${team}: ${n} mecze z rzędu ${over?'Over':'Under'} w P1">${over?'O':'U'}${n}</span>`;
+  }catch(e){ return ''; }
+}
+
 function renderDep(){
   const el = document.getElementById('depContent');
   const T = depBuild();
@@ -4062,10 +4110,8 @@ function renderDep(){
   const sRows = depRows(obs.filter(o=>o.streak!==0), o=>Math.max(-8,Math.min(8,o.streak)), sKeys);
   const sLabel = k => k>0 ? `<span class="dep-s o">Over ×${k}${k===8?'+':''}</span>` : `<span class="dep-s u">Under ×${-k}${k===-8?'+':''}</span>`;
   const sMap = Object.fromEntries(sRows.map(r=>[r.k,r]));
-  const pats = ['UUU','UUO','UOU','UOO','OUU','OUO','OOU','OOO'];
-  const pRows = depRows(obs.filter(o=>o.l3), o=>o.l3, pats);
-  const pMap = Object.fromEntries(pRows.map(r=>[r.k,r]));
-  const c5Rows = depRows(obs.filter(o=>o.c5!==null), o=>o.c5, [0,1,2,3,4,5]);
+  const c7Rows = depRows(obs.filter(o=>o.c7!==null), o=>o.c7, [0,1,2,3,4,5,6,7]);
+  const c7Map = Object.fromEntries(c7Rows.map(r=>[r.k,r]));
   const p1Rows = depRows(obs.filter(o=>o.p1!==null), o=>Math.min(4,o.p1), [0,1,2,3,4]);
   const v3H = depRows(obs.filter(o=>o.side==='H' && o.v3), o=>o.v3, ['OOO','mix','UUU']);
   const v3A = depRows(obs.filter(o=>o.side==='A' && o.v3), o=>o.v3, ['OOO','mix','UUU']);
@@ -4086,7 +4132,7 @@ function renderDep(){
     const home = nm.home===t.team;
     return `<span class="dep-nm">${nm.date.slice(0,5)}</span> ${home?'🏠':'✈️'} ${esc2(home?nm.away:nm.home)}`;
   };
-  const sqd = arr => `<div class="dep-seq"><span class="dep-lbl">ostatnie 5 meczów · najnowszy po prawej</span><div class="dep-sqs">${arr.map((r,i)=>`<span class="sqd${i===arr.length-1?' last':''}" title="${r.d.slice(8,10)}.${r.d.slice(5,7)} · ${r.home?'u siebie':'na wyjeździe'} vs ${esc2(r.opp)} · P1 ${r.p1} → ${r.y?'Over':'Under'}"><i class="pt ${r.y?'o':'u'}">${r.y?'O':'U'}</i><em>${r.d.slice(8,10)}.${r.d.slice(5,7)}</em></span>`).join('')}</div></div>`;
+  const sqd = arr => `<div class="dep-seq"><span class="dep-lbl">ostatnie 7 meczów · najnowszy po prawej</span><div class="dep-sqs">${arr.map((r,i)=>`<span class="sqd${i===arr.length-1?' last':''}" title="${r.d.slice(8,10)}.${r.d.slice(5,7)} · ${r.home?'u siebie':'na wyjeździe'} vs ${esc2(r.opp)} · P1 ${r.p1} → ${r.y?'Over':'Under'}"><i class="pt ${r.y?'o':'u'}">${r.y?'O':'U'}</i><em>${r.d.slice(8,10)}.${r.d.slice(5,7)}</em></span>`).join('')}</div></div>`;
   const clampS = v => Math.max(-8, Math.min(8, v));
 
   // --- 1) KOLEJKA: najbliższe dni i mecze ze schematami drużyn
@@ -4101,8 +4147,8 @@ function renderDep(){
     if(rest===1){ chips.push('<span class="dep-b2b">⏳ B2B</span>'); tags.add('b2b'); lifts.push({t:'b2b', v:depLiftOf(restMap[1])}); }
     const v3 = valid ? (isHome ? st.v3H : st.v3A) : null;
     if(v3 && v3!=='mix'){ const r = (isHome ? v3H : v3A).find(z=>z.k===v3); chips.push(`<span class="dep-role">${isHome?'🏠':'✈️'} ${depPat(v3)}</span>`); tags.add('ha'); lifts.push({t:'ha', v:depLiftOf(r)}); }
-    if(valid && st.l3){ const v = depLiftOf(pMap[st.l3]); if(v!==0){ chips.push(`<span class="dep-role" title="Ostatnie 3 mecze, od najstarszego do najnowszego">3: ${depPat(st.l3)}</span>`); tags.add('seq'); lifts.push({t:'seq', v, dup:bigStreak}); } }
-    return {tags, lifts, short: chips.join('') || '<span class="dim">—</span>', html:`<div class="dep-tc"><div class="dep-tn">${logo(team, lg)}<b>${esc2(team)}</b></div><div class="dep-tx">${chips.join('') || '<span class="dim">bez wyraźnego schematu</span>'}</div>${valid&&st.l5d&&st.l5d.length?sqd(st.l5d):(st&&!valid&&st.last?`<div class="dep-tx dim" title="Wyniki z ostatnich dni nie są jeszcze w danych, więc schemat drużyny może być nieaktualny">brak świeżych wyników (ostatni mecz w danych: ${st.last.slice(8,10)}.${st.last.slice(5,7)})</div>`:'')}</div>`};
+    if(valid && st.c7!==null){ const v = depLiftOf(c7Map[st.c7]); if(v!==0){ chips.push(`<span class="dep-role ${st.c7>=5?'ov':st.c7<=2?'un':''}" title="Ile z 7 ostatnich meczów skończyło się Over w P1">ost. 7: ${st.c7}× Over</span>`); tags.add('seq'); lifts.push({t:'seq', v, dup:bigStreak}); } }
+    return {tags, lifts, short: chips.join('') || '<span class="dim">—</span>', html:`<div class="dep-tc"><div class="dep-tn">${logo(team, lg)}<b>${esc2(team)}</b></div><div class="dep-tx">${chips.join('') || '<span class="dim">bez wyraźnego schematu</span>'}</div>${valid&&st.l7d&&st.l7d.length?sqd(st.l7d):(st&&!valid&&st.last?`<div class="dep-tx dim" title="Wyniki z ostatnich dni nie są jeszcze w danych, więc schemat drużyny może być nieaktualny">brak świeżych wyników (ostatni mecz w danych: ${st.last.slice(8,10)}.${st.last.slice(5,7)})</div>`:'')}</div>`};
   };
   const dayName = d => d===cut ? 'Dziś' : d===tstAddDays(cut,1) ? 'Jutro' : d===tstAddDays(cut,2) ? 'Pojutrze' : dn[new Date(d+'T12:00:00').getDay()];
   const MODE = ['streak','seq','ha','b2b'].includes(depFilter) ? depFilter : 'all';
@@ -4131,34 +4177,50 @@ function renderDep(){
     rows = rows.map(r=>({...r, sum:sumFor(r.lifts)})).sort((x,y)=>Math.abs(y.sum)-Math.abs(x.sum));
     return {d:q.d, rows};
   }).filter(q=>q.rows.length);
-  const qHtml = queue.length ? queue.map((q,i)=>`<details class="dep-day" ${i===0?'open':''}><summary><span class="dep-dn">${dayName(q.d)}</span> <span class="dep-nm">${q.d.slice(8,10)}.${q.d.slice(5,7)}</span> · ${q.rows.length} meczów ze schematem</summary>
-      ${q.rows.slice(0,40).map(r=>{
-        const cl = r.sum>=1 ? 'pos' : r.sum<=-1 ? 'neg' : 'flat'; const arrow = r.sum>=1 ? '▲' : r.sum<=-1 ? '▼' : '•';
-        let sg = null, hot = null;
-        try{ const rr = tstBuild().byKey[`${r.m.sortDate}|${r.lg}|${r.m.home}|${r.m.away}`]; sg = rr && rr.sig ? rr.sig : null; }catch(e){}
-        try{ hot = findHotInfo({league:r.lg, home:r.m.home, away:r.m.away}); }catch(e){}
-        const gBadge = sg ? `<span class="u2-g g${sg.grade}" title="Ocena FIX: ${sg.grade}">${sg.grade}</span>` : '';
-        const extra = `<div class="dep-ex">
-          <div class="dep-exr"><span class="dep-lbl">Prognoza modelu</span><b>${r.m.prob!==undefined ? r.m.prob.toFixed(0)+'%' : '—'}</b></div>
+  const sigInfo = (lg, m) => {
+    let sg = null, hot = null;
+    try{ const rr = tstBuild().byKey[`${m.sortDate}|${lg}|${m.home}|${m.away}`]; sg = rr && rr.sig ? rr.sig : null; }catch(e){}
+    try{ hot = findHotInfo({league:lg, home:m.home, away:m.away}); }catch(e){}
+    return {sg, hot};
+  };
+  const bodyHtml = (lg, m, h, a) => {
+    h = h || teamCell(lg, m.home, true, m); a = a || teamCell(lg, m.away, false, m);
+    const {sg, hot} = sigInfo(lg, m);
+    const gBadge = sg ? `<span class="u2-g g${sg.grade}" title="Ocena FIX: ${sg.grade}">${sg.grade}</span>` : '';
+    return `<div class="dep-qt">${h.html}${a.html}</div><div class="dep-ex">
+          <div class="dep-exr"><span class="dep-lbl">Prognoza modelu</span><b>${m.prob!==undefined ? m.prob.toFixed(0)+'%' : '—'}</b></div>
           <div class="dep-exr"><span class="dep-lbl">Ocena FIX</span>${sg ? `${gBadge} <span class="dim">suma ${sg.score>0?'+':''}${tstFmt(sg.score)} pkt · historycznie Over ${tstFmt(TST_GRADES[sg.grade].hist)}%</span>` : '<span class="dim">za mało danych</span>'}</div>
           ${hot ? `<div class="dep-exr"><span class="dep-lbl">H2H</span><span class="hot-chip">🌶️ ${hot.overs}/${hot.n}</span></div>` : ''}
           ${sg && sg.ids.length ? `<div class="dep-exr wrapx">${sg.ids.map(tstChip).join('')}</div>` : ''}
         </div>`;
-        return `<details class="dep-q"><summary><span class="tst-lb" style="background:${leagueColor(r.lg)}">${esc2(leagueShortLabel(r.lg))}</span><b>${esc2(r.m.home)}</b> – <b>${esc2(r.m.away)}</b><span class="dep-ms">${r.h.short}<span class="dep-sep">|</span>${r.a.short}</span><span class="dep-right">${gBadge}<span class="dep-sum ${cl}" title="Wypadkowa różnica Over wg historii dla ${MODE==='all'?'schematów obu drużyn':'wybranego filtra'} (pkt vs oczekiwane, z przycięciem przy małej próbie)">${arrow} ${r.sum>=0?'+':''}${depF(r.sum)}</span></span></summary><div class="dep-qb"><div class="dep-qt">${r.h.html}${r.a.html}</div>${extra}</div></details>`;
+  };
+  const qHtml = queue.length ? queue.map((q,i)=>`<details class="dep-day" ${i===0?'open':''}><summary><span class="dep-dn">${dayName(q.d)}</span> <span class="dep-nm">${q.d.slice(8,10)}.${q.d.slice(5,7)}</span> · ${q.rows.length} meczów ze schematem</summary>
+      ${q.rows.slice(0,40).map(r=>{
+        const cl = r.sum>=1 ? 'pos' : r.sum<=-1 ? 'neg' : 'flat'; const arrow = r.sum>=1 ? '▲' : r.sum<=-1 ? '▼' : '•';
+        const {sg} = sigInfo(r.lg, r.m);
+        const gBadge = sg ? `<span class="u2-g g${sg.grade}" title="Ocena FIX: ${sg.grade}">${sg.grade}</span>` : '';
+        return `<details class="dep-q"><summary><span class="tst-lb" style="background:${leagueColor(r.lg)}">${esc2(leagueShortLabel(r.lg))}</span><span class="dep-mt"><span class="dep-mr"><span class="dep-role-ic">🏠</span><b>${esc2(r.m.home)}</b><span class="dep-ms">${r.h.short}</span></span><span class="dep-mr"><span class="dep-role-ic">✈️</span><b>${esc2(r.m.away)}</b><span class="dep-ms">${r.a.short}</span></span></span><span class="dep-right">${gBadge}<span class="dep-sum ${cl}" title="Wypadkowa różnica Over wg historii dla ${MODE==='all'?'schematów obu drużyn':'wybranego filtra'} (pkt vs oczekiwane, z przycięciem przy małej próbie)">${arrow} ${r.sum>=0?'+':''}${depF(r.sum)}</span></span></summary><div class="dep-qb">${bodyHtml(r.lg, r.m, r.h, r.a)}</div></details>`;
       }).join('')}${q.rows.length>40?`<div class="dep-empty">…i ${q.rows.length-40} kolejnych (zawęź ligę).</div>`:''}</details>`).join('')
     : '<div class="dep-empty">W najbliższych 4 dniach brak meczów spełniających ten filtr dla wybranej ligi.</div>';
 
   // --- 2) AKTUALNE SERIE (sezon 2026/27): Over / Under ×3…8+
   const grp = {};
   teamsNow.filter(t=>Math.abs(t.streak)>=3).forEach(t=>{ const k = clampS(t.streak); (grp[k] = grp[k] || []).push(t); });
+  let pbId = 0;
   const serieBlock = (keys, title, cls) => {
     const parts = keys.filter(k=>grp[k] && grp[k].length).map(k=>{
       const r = sMap[k];
       const hist = r ? `<span class="dep-hist" title="W wybranym zakresie danych">po takiej serii Over ${depF(r.p)}% (${r.lift>=0?'+':''}${depF(r.lift)} pkt, ${r.n} obs.)</span>` : '';
-      return `<div class="dep-sg"><div class="dep-sgh">${sLabel(k)} <span class="dim">${grp[k].length} dr.</span>${hist}</div><div class="dep-pills">${grp[k].sort((a,b)=>b.n-a.n).map(t=>{
+      const teams = grp[k].sort((a,b)=>b.n-a.n);
+      const ids = [];
+      const pills = teams.map(t=>{
         const nm = nextU[t.lg+'|'+t.team];
-        return `<span class="dep-pill">${logo(t.team, t.lg)}<b>${esc2(t.team)}</b><small>${fmtNext(t, nm)}</small></span>`;
-      }).join('')}</div></div>`;
+        if(!nm) return `<span class="dep-pill off">${logo(t.team, t.lg)}<b>${esc2(t.team)}</b><small>${fmtNext(t, nm)}</small></span>`;
+        const id = 'dpb'+(pbId++); ids.push([id, t, nm]);
+        return `<button type="button" class="dep-pill" data-pb="${id}">${logo(t.team, t.lg)}<b>${esc2(t.team)}</b><small>${fmtNext(t, nm)}</small></button>`;
+      }).join('');
+      const panels = ids.map(([id,t,nm])=>`<div class="dep-pb" id="${id}" hidden><div class="dep-pbh"><span class="tst-lb" style="background:${leagueColor(t.lg)}">${esc2(leagueShortLabel(t.lg))}</span><b>${esc2(nm.home)}</b> – <b>${esc2(nm.away)}</b><span class="dep-nm">${nm.date.slice(0,5)}</span></div>${bodyHtml(t.lg, nm)}</div>`).join('');
+      return `<div class="dep-sg"><div class="dep-sgh">${sLabel(k)} <span class="dim">${teams.length} dr.</span>${hist}</div><div class="dep-pills">${pills}</div>${panels}</div>`;
     }).join('');
     return parts ? `<details class="dep-det" open><summary class="dep-sum2 ${cls}">${title}</summary>${parts}</details>` : '';
   };
@@ -4170,8 +4232,8 @@ function renderDep(){
   const statCard = (tag, title, sub, body) => `<details class="dep-card dep-sc" data-tag="${tag}" ${depFilter===tag?'open':''} style="${(depFilter==='all'||depFilter==='hist'||tag===depFilter)?'':'display:none'}"><summary class="dep-h">${title}</summary>${sub?`<div class="dep-sub">${sub}</div>`:''}${body}</details>`;
   const statCards = [
     statCard('streak','📊 Co dzieje się po serii Over / Under','Over w następnym meczu po serii o danej długości (w obrębie sezonu).', depInsight(sRows,k=>k>0?`Over ×${k}`:`Under ×${-k}`)+depTable(sRows, sLabel, 'Seria przed meczem')),
-    statCard('seq','🔄 Sekwencje ostatnich 3 meczów','Wzór od najstarszego do najnowszego, np. O U O = Over, Under, Over.', depInsight(pRows,k=>k.split('').join(' '))+depTable(pRows, depPat, 'Ostatnie 3 (starszy → najnowszy)')),
-    statCard('seq','🧮 Forma w liczbach','Ile Overów w ostatnich 5 meczach drużyny oraz ile goli w P1 w jej poprzednim meczu.', `<div class="dep-two"><div><div class="dep-mini">Overów w ostatnich 5</div>${depTable(c5Rows,k=>`${k} z 5`,'Ostatnie 5')}</div><div><div class="dep-mini">Gole w P1 poprzedniego meczu</div>${depTable(p1Rows,k=>k===4?'4 i więcej':String(k),'Gole P1')}</div></div>`),
+    statCard('seq','🔄 Overy w ostatnich 7 meczach','Ile z 7 ostatnich meczów drużyny skończyło się Over w P1 i jak to wpływa na następny mecz.', depInsight(c7Rows,k=>`${k} z 7`)+depTable(c7Rows,k=>`${k} z 7 Over`,'Ostatnie 7 meczów')),
+    statCard('seq','🧮 Gole w P1 w poprzednim meczu','Ile goli padło w pierwszej tercji poprzedniego meczu drużyny i Over w następnym.', depTable(p1Rows,k=>k===4?'4 i więcej':String(k),'Gole P1')),
     statCard('ha','🏟️ Dom / Wyjazd: seria 3 meczów w tej samej roli','Ostatnie 3 mecze u siebie (gospodarz) lub na wyjeździe (gość) i Over w następnym meczu w tej roli.', `<div class="dep-two"><div><div class="dep-mini">🏠 Gospodarz</div>${depTable(v3H,k=>k==='mix'?'mieszane':depPat(k),'Ostatnie 3 u siebie')}</div><div><div class="dep-mini">✈️ Gość</div>${depTable(v3A,k=>k==='mix'?'mieszane':depPat(k),'Ostatnie 3 na wyjeździe')}</div></div>`),
     statCard('b2b','⏳ Back-to-back i dni odpoczynku','Over wg przerwy drużyny przed meczem oraz wg układu B2B w meczu.', `<div class="dep-two"><div><div class="dep-mini">Przerwa drużyny</div>${depTable(restRows,sLabelRest,'Przerwa')}</div><div><div class="dep-mini">Układ w meczu</div>${depTable(mRows,mLabel,'B2B w meczu')}</div></div>`),
     statCard('x','📈 Miesiąc sezonu i dzień tygodnia','Czy Over zależy od momentu sezonu lub dnia tygodnia (po odjęciu różnic między ligami).', `<div class="dep-two"><div>${depTable(monRows,k=>moN[k],'Miesiąc')}</div><div>${depTable(dowRows,k=>dn[k],'Dzień tygodnia')}</div></div>`),
@@ -4180,7 +4242,7 @@ function renderDep(){
 
   // --- pasek sterowania
   const lgs = Object.keys(DATA.leagues);
-  const lgSel = `<select id="depLg" class="dep-sel"><option value="ALL">Wszystkie ligi</option>${lgs.map(lg=>`<option value="${lg}" ${depLg===lg?'selected':''}>${esc2(leagueChipLabel(lg))}</option>`).join('')}</select>`;
+  const lgSel = `<div class="dep-lgs" id="depLgs"><button data-lg="ALL" class="${depLg==='ALL'?'active':''}">Wszystkie</button>${lgs.filter(lg=>depFilter!=='hist' || T.lgSeasons[lg]>=6).map(lg=>`<button data-lg="${lg}" class="${depLg===lg?'active':''}"><span class="ld" style="background:${leagueColor(lg)}"></span>${esc2(depLgName(lg))}</button>`).join('')}</div>`;
   const seg = `<div class="dep-seg" id="depScope"><button data-s="cur" class="${depScope==='cur'?'active':''}">AKTUALNY SEZON</button><button data-s="all" class="${depScope==='all'?'active':''}">CAŁOŚĆ</button></div>`;
   const chipDefs = [['all','Wszystkie',tagCnt.all],['streak','🔥 Serie',tagCnt.streak],['seq','🔄 Sekwencje',tagCnt.seq],['ha','🏟️ Dom/Wyjazd',tagCnt.ha],['b2b','⏳ B2B',tagCnt.b2b],['hist','🤖 6+ sezonów',null]];
   const chips = chipDefs.map(([k,l,n])=>`<button data-v="${k}" class="${depFilter===k?'active':''}">${l}${n!==null?` <span class="dep-cnt">${n}</span>`:''}</button>`).join('');
@@ -4191,7 +4253,14 @@ function renderDep(){
     <details class="dep-card dep-main" open><summary class="dep-h">📅 Kolejka: najbliższe dni i mecze ze schematami</summary><div class="dep-sub">${MODE==='all'?'Mecze, w których któraś drużyna ma schemat (seria, sekwencja, rola dom/wyjazd, B2B).':'Filtr: '+({streak:'serie 3+ meczów',seq:'wyraźna sekwencja ostatnich 3 meczów',ha:'seria 3 meczów w roli dom/wyjazd',b2b:'drużyna grała wczoraj (B2B)'})[MODE]+'.'} Kliknij mecz, żeby zobaczyć schematy obu drużyn, prognozę i ocenę.</div>${qHtml}</details>
     <details class="dep-card dep-main" data-sec="series" open style="${['all','hist','streak'].includes(depFilter)?'':'display:none'}"><summary class="dep-h">🔥 Aktualne serie w sezonie 2026/27</summary><div class="dep-sub">Seria = ile ostatnich meczów z rzędu, licząc od najnowszego wstecz, skończyło się Over (zielone) albo Under (czerwone) w P1.</div>${serieHtml}</details>
     <div class="dep-hd">📚 Statystyki wstecz (zwinięte)</div><div class="dep-grid">${statCards}</div>`;
-  el.querySelector('#depLg').addEventListener('change', e=>{ depLg = e.target.value; renderDep(); });
+  el.querySelectorAll('#depLgs button').forEach(b=>b.addEventListener('click', ()=>{ depLg = b.dataset.lg; renderDep(); }));
+  el.querySelectorAll('.dep-pill[data-pb]').forEach(b=>b.addEventListener('click', ()=>{
+    const grpEl = b.closest('.dep-sg'); const target = grpEl.querySelector('#'+b.dataset.pb);
+    const wasOpen = !target.hidden;
+    grpEl.querySelectorAll('.dep-pb').forEach(x=>{ x.hidden = true; });
+    grpEl.querySelectorAll('.dep-pill').forEach(x=>x.classList.remove('on'));
+    if(!wasOpen){ target.hidden = false; b.classList.add('on'); }
+  }));
   el.querySelectorAll('#depScope button').forEach(b=>b.addEventListener('click', ()=>{ depScope = b.dataset.s; renderDep(); }));
   el.querySelectorAll('#depChips button').forEach(b=>b.addEventListener('click', ()=>{ depFilter = b.dataset.v; renderDep(); }));
 }
