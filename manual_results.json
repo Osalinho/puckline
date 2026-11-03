@@ -48,5 +48,8 @@
     "p1h": 1,
     "p1a": 0,
     "over15": false
+  },
+  "2026-09-17|NORWAY|Nidaros|Sparta Sarpsborg": {
+    "skipped": true
   }
 }
