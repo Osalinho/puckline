@@ -687,6 +687,14 @@
   #ui2Bottom button b{font-size:19px; line-height:1.1; font-weight:400;}
   #ui2Bottom button.active{color:var(--amber);}
   body.ui2m #countryStrip{position:fixed; left:8px; right:8px; bottom:74px; top:auto; width:auto; max-height:60vh; z-index:300;}
+  .frm{display:inline-flex; gap:2px; vertical-align:middle;}
+  .frm i{font-style:normal; width:13px; height:13px; border-radius:3px; font-size:8.5px; font-weight:700; display:inline-flex; align-items:center; justify-content:center; font-family:'JetBrains Mono',monospace;}
+  .frm i.o{background:var(--teal-dim); color:var(--teal);}
+  .frm i.u{background:var(--red-dim); color:var(--red);}
+  .frm i.pv{opacity:.45;}
+  .todo-info{display:flex; align-items:center; gap:12px; flex-wrap:wrap; padding:10px 14px; margin:0 0 10px; background:var(--surface); border:1px solid var(--amber-dim); border-radius:10px; font-size:13px;}
+  .todo-info.ok{border-color:var(--border); color:var(--muted);}
+  .todo-info button{margin-left:auto; background:var(--amber); color:#1A1200; border:none; font-weight:700; font-size:11.5px; padding:7px 12px; border-radius:7px; cursor:pointer; font-family:'Space Grotesk',sans-serif;}
   /* DO WPISANIA */
   .td-bar{justify-content:space-between; gap:10px;}
   .td-list{max-height:72vh; overflow-y:auto; border:1px solid var(--border); border-radius:12px; background:var(--surface);}
@@ -1608,21 +1616,40 @@ function leagueTable(lg){
   TBL.map[lg] = out;
   return out;
 }
-function tblTagHtml(lg, team){
+let FORM_CACHE = {};
+function formIndex(lg){
+  if(FORM_CACHE[lg]) return FORM_CACHE[lg];
+  const L = DATA.leagues[lg]; const idx = {};
+  const push = (m, prev) => { const p = m.p1; if(!p) return; const [a,b] = p.split(':').map(Number); const o = (a+b)>=2;
+    [m.home, m.away].forEach(t=>{ (idx[t] = idx[t] || []).push({d:m.sortDate, o, prev}); }); };
+  const keys = Object.keys(L.seasons).filter(k=>L.seasons[k].status==='completed').sort();
+  if(keys.length) (L.seasons[keys[keys.length-1]].matches||[]).filter(m=>m.p1).slice().sort((x,y)=>x.sortDate.localeCompare(y.sortDate)).forEach(m=>push(m,true));
+  const cs = L.seasons['2026-27'];
+  if(cs) [...(cs.preseason?.matches||[]), ...(cs.mainSeason?.matches||[])].filter(m=>m.played && m.p1).sort((x,y)=>x.sortDate.localeCompare(y.sortDate)).forEach(m=>push(m,false));
+  return FORM_CACHE[lg] = idx;
+}
+function formHtml(lg, team, date){
+  if(!date) return '';
+  const last = (formIndex(lg)[team]||[]).filter(r=>r.d<date).slice(-5);
+  if(!last.length) return '';
+  return `<span class="frm" title="Ostatnie ${last.length} meczów drużyny: Over/Under 1,5 w 1. tercji (najstarszy po lewej, najnowszy po prawej; wyszarzone = poprzedni sezon)">${last.map(r=>`<i class="${r.o?'o':'u'}${r.prev?' pv':''}">${r.o?'O':'U'}</i>`).join('')}</span>`;
+}
+function tblTagHtml(lg, team, date){
   const t = (leagueTable(lg)||{})[team];
-  if(!t) return '';
+  const frm = formHtml(lg, team, date);
+  if(!t) return frm ? `<span class="tbl-tag"><span class="g"><span class="k">Forma</span>${frm}</span></span>` : '';
   const gd = (t.gd>0?'+':'')+t.gd;
-  return `<span class="tbl-tag" title="Miejsce w tabeli (wg % wygranych, potem bilans bramek) · bramki zdobyte:stracone w ${t.gp} meczach sezonu zasadniczego, różnica ${gd}"><span class="g"><span class="k">Miejsce</span><span class="v">${t.pos}.</span></span><span class="sep">|</span><span class="g"><span class="k">Bramki</span><span class="v2">${t.gf}:${t.ga}</span></span></span>`;
+  return `<span class="tbl-tag" title="Miejsce w tabeli (wg % wygranych, potem bilans bramek) · bramki zdobyte:stracone w ${t.gp} meczach sezonu zasadniczego, różnica ${gd}"><span class="g"><span class="k">Miejsce</span><span class="v">${t.pos}.</span></span><span class="sep">|</span><span class="g"><span class="k">Bramki</span><span class="v2">${t.gf}:${t.ga}</span></span>${frm?`<span class="sep">|</span><span class="g"><span class="k">Forma</span>${frm}</span>`:''}</span>`;
 }
 function teamNameBlock(lg, team){
   return `<b title="${team}">${team}</b>`;
 }
 function tblLinesHtml(lg, m){
-  const h = tblTagHtml(lg, m.home), a = tblTagHtml(lg, m.away);
+  const h = tblTagHtml(lg, m.home, m.sortDate), a = tblTagHtml(lg, m.away, m.sortDate);
   if(!h && !a) return '';
   return `<div class="tbl-line home">${h}</div><div class="tbl-line away">${a}</div>`;
 }
-function tblRowClass(lg, m){ return (leagueTable(lg)[m.home] || leagueTable(lg)[m.away]) ? ' has-tbl' : ''; }
+function tblRowClass(lg, m){ return (leagueTable(lg)[m.home] || leagueTable(lg)[m.away] || formIndex(lg)[m.home] || formIndex(lg)[m.away]) ? ' has-tbl' : ''; }
 
 function fixtureTableHeaderHtml(){
   return `<div class="cmb-table-header" style="grid-template-columns:22px 1fr 22px 1fr 56px 52px;">
@@ -2304,6 +2331,8 @@ const CHANGELOG = [
     date: '03.11.2026',
     title: 'Nowa zakładka DO WPISANIA + korekta ocen A–D po 2 miesiącach sezonu',
     items: [
+      'Terminarz: pod każdą drużyną (obok miejsca i bramek) forma z ostatnich 5 meczów — O = Over, U = Under 1,5 w P1; najnowszy po prawej, wyszarzone = mecze z poprzedniego sezonu (gdy w tym jest ich mniej niż 5)',
+      'WYNIKI: tylko rozegrane mecze i informacja, ile meczów czeka na wpisanie (przycisk przenosi do DO WPISANIA); wpisywanie wyników przeniesione wyłącznie do DO WPISANIA',
       'DO WPISANIA (po UPDATES): lista meczów z minioną datą bez wyniku 1. tercji. Przy każdym wpiszesz wynik P1 albo klikniesz „Odwołany” — taki mecz znika z listy i ze statystyk, zapisuje się w manual_results.json (synchronizacja GitHub) i można go przywrócić z sekcji „Pominięte”',
       'Backtest 1790 meczów 2026/27 (zamrożone prognozy): średnia prognoza 50,9% vs faktyczny Over 51,8%, AUC 0,54. Kalibracja procentów (Platt) zostaje bez zmian: przefitowanie na żywych danych dało nachylenie 0,43 ±0,26 przy obecnych 0,61, czyli różnica w granicach błędu',
       'Sygnały FIX: siła każdego sygnału to teraz połączenie testu historycznego (z wagą 0,25 jak w modelu) i wyników bieżącego sezonu. Największe zmiany: liga o wysokiej średniej Over +8,0 → +6,1, back-to-back +2,8 → +1,3, słaba obrona gospodarza +4,0 → +5,9, obie obrony mocne −5,2 → −6,6',
@@ -3007,7 +3036,7 @@ function rebuildCurrentSeasonModel(lg){
       delete m.prob; delete m.homePct; delete m.awayPct; delete m.homeOverallPct; delete m.awayOverallPct; delete m.components; delete m.modelBasis; delete m.dataSource;
     }
   });
-  TOP5_IDX = {}; TOP5_CUR = {}; PERF_CACHE = null;
+  TOP5_IDX = {}; TOP5_CUR = {}; PERF_CACHE = null; FORM_CACHE = {};
 }
 
 function collectPlayedWithProb(scope){
@@ -3048,15 +3077,7 @@ function wynikiRowHtml(m, i){
   // Ten sam komponent wiersza co w TERMINARZU (combinedRowHtml) + pasek wpisu wyniku pod spodem.
   const key = m.key || `${m.sortDate}|${m.league}|${m.home}|${m.away}`;
   let strip = '';
-  if(!m.played){
-    strip = `<div class="entry-strip" data-mkey="${key}">
-      <span>Wynik P1:</span>
-      <input type="number" min="0" max="20" placeholder="0" data-p1h>
-      <span>:</span>
-      <input type="number" min="0" max="20" placeholder="0" data-p1a>
-      <button data-save-result>Zapisz</button>
-    </div>`;
-  } else if(m.isManual){
+  if(m.played && m.isManual){
     strip = `<div class="entry-strip manual" data-mkey="${key}"><span style="font-style:italic;">(wpisane ręcznie)</span><a href="#" data-delete-manual>usuń wpis</a></div>`;
   }
   return combinedRowHtml(m, m.sortDate, 'wa-row-', {afterRowHtml: strip, showDate: wynikiScope==='all', seasonLabel: m.seasonLabel});
@@ -3117,7 +3138,7 @@ function renderWynikiAll(){
   ensureLeagueFilter();
   const content = document.getElementById('wynikiallContent');
   const isCurrent = wynikiScope === 'current';
-  const rawRows = isCurrent ? collectCurrentSeasonWithManual() : collectPlayedWithProb('all');
+  const rawRows = isCurrent ? collectCurrentSeasonWithManual().filter(r=>r.played) : collectPlayedWithProb('all');
   const allRows = rawRows.filter(r=>playNowLeagueFilter.has(r.league));
   const playedRows = allRows.filter(r=>r.played);
 
@@ -3209,13 +3230,9 @@ function renderWynikiAll(){
       ${summaryPanel}
       
       ${leagueChipsHtml()}
-      <div class="toolbar" style="margin:0 0 10px;">
-        <div class="expand-controls">
-          <button id="saveAllBtn">💾 Zapisz wszystko wypełnione</button>
-        </div>
-      </div>
+      ${(()=>{ const n = todoCount(); return `<div class="todo-info${n?'':' ok'}">${n ? `✍️ <b>${n}</b> ${n===1?'mecz czeka':'meczów czeka'} na wpisanie wyniku` : '✓ Wszystkie wyniki uzupełnione'}${n ? '<button id="goTodoBtn">Przejdź do DO WPISANIA →</button>' : ''}</div>`; })()}
       ${pastSection}
-      <div class="fixtures-scroll">${upcomingDates.length ? upcomingDates.map(d=>dayGroupHtml(d)).join('') : `<div style="color:var(--muted); font-size:13px; padding:24px; text-align:center;">Brak nadchodzących meczów w sezonie 2026/27.</div>`}</div>
+      <div class="fixtures-scroll">${upcomingDates.length ? upcomingDates.map(d=>dayGroupHtml(d)).join('') : `<div style="color:var(--muted); font-size:13px; padding:24px; text-align:center;">Brak wyników z dzisiejszego dnia.</div>`}</div>
       ${legendBottom}`;
 
     content.querySelector('.month-header[data-toggle="past"]')?.addEventListener('click', ()=>{
@@ -3226,6 +3243,7 @@ function renderWynikiAll(){
     });
     content.querySelectorAll('.day-group.open').forEach(g=>fillLazyDay(g));
     attachWynikiRowHandlers(content, allRows);
+    document.getElementById('goTodoBtn')?.addEventListener('click', ()=>{ document.querySelector('#leagueSwitch button[data-league="__TODO__"]')?.click(); });
     document.getElementById('saveAllBtn')?.addEventListener('click', ()=>{
       let savedCount = 0;
       const affectedLeagues = new Set();
