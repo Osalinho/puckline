@@ -687,6 +687,27 @@
   #ui2Bottom button b{font-size:19px; line-height:1.1; font-weight:400;}
   #ui2Bottom button.active{color:var(--amber);}
   body.ui2m #countryStrip{position:fixed; left:8px; right:8px; bottom:74px; top:auto; width:auto; max-height:60vh; z-index:300;}
+  /* DO WPISANIA */
+  .td-bar{justify-content:space-between; gap:10px;}
+  .td-list{max-height:72vh; overflow-y:auto; border:1px solid var(--border); border-radius:12px; background:var(--surface);}
+  .td-day{position:sticky; top:0; z-index:2; display:flex; justify-content:space-between; padding:8px 14px; background:var(--surface2); border-bottom:1px solid var(--border); font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:12.5px;}
+  .td-day span{color:var(--muted); font-weight:500;}
+  .td-row{display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:10px 14px; border-bottom:1px solid var(--surface2);}
+  .td-row.td-err input{border-color:var(--red);}
+  .td-date{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); flex-shrink:0;}
+  .td-lg{font-size:9px; font-weight:700; color:#0A0E1A; border-radius:4px; padding:2px 5px; flex-shrink:0;}
+  .td-teams{flex:1 1 220px; min-width:0; display:flex; align-items:center; gap:6px; font-size:12.5px;}
+  .td-teams b{font-weight:600;}
+  .td-in{display:flex; align-items:center; gap:6px; margin-left:auto;}
+  .td-in input{width:40px; background:var(--bg); border:1px solid var(--border); color:var(--text); border-radius:6px; padding:5px 6px; text-align:center; font-family:'JetBrains Mono',monospace;}
+  .td-btn{background:var(--amber); color:#1A1200; border:none; font-weight:700; font-size:11px; padding:7px 12px; border-radius:7px; cursor:pointer; font-family:'Space Grotesk',sans-serif;}
+  .td-btn.danger{background:transparent; color:var(--red); border:1px solid var(--red);}
+  .td-btn.ghost{background:transparent; color:var(--muted); border:1px solid var(--border);}
+  .td-tag{font-size:10px; font-weight:700; color:var(--red); letter-spacing:.03em; margin-left:auto;}
+  .td-row.skipped{opacity:.8;}
+  .td-empty{padding:28px; text-align:center; color:var(--muted); font-size:13px;}
+  #ui2Bottom button b{min-width:0;}
+  @media (max-width:520px){ #ui2Bottom button{font-size:8.5px;} body.ui2m #ui2Bottom button b{width:34px; font-size:20px;} }
 </style>
 </head>
 <body>
@@ -771,6 +792,10 @@
 
   <div id="updates" class="panel">
     <div id="updatesContent"></div>
+  </div>
+
+  <div id="todo" class="panel">
+    <div id="todoContent"></div>
   </div>
 
   <footer>
@@ -914,7 +939,7 @@ function allLeagueMenuItems(){
 }
 
 function renderHeader(){
-  const SPECIAL_TABS = ['__PLAYNOW__', '__WYNIKIALL__', '__HOT__', '__PERF__', '__UPDATES__', '__TEST__', '__DEP__'];
+  const SPECIAL_TABS = ['__PLAYNOW__', '__WYNIKIALL__', '__HOT__', '__PERF__', '__UPDATES__', '__TODO__', '__TEST__', '__DEP__'];
   const isLeagueView = !SPECIAL_TABS.includes(currentLeague);
   const currentItem = isLeagueView ? allLeagueMenuItems().find(it=>it.key===currentLeague) : null;
   const krajLabel = currentItem ? `🌍 ${currentItem.country}` : '🌍 Wybierz ligę';
@@ -930,6 +955,7 @@ function renderHeader(){
     <button class="${currentLeague==='__DEP__'?'active':''}" data-league="__DEP__">🔗 ZALEŻNOŚCI</button>
     <button class="${currentLeague==='__PERF__'?'active':''}" data-league="__PERF__">📈 SKUTECZNOŚĆ</button>
     <button class="${currentLeague==='__UPDATES__'?'active':''}" data-league="__UPDATES__">📝 UPDATES</button>
+    <button class="${currentLeague==='__TODO__'?'active':''}" data-league="__TODO__">✍️ DO WPISANIA${todoCount()?` (${todoCount()})`:''}</button>
     <button class="${isLeagueView?'active':''}" data-league="__KRAJ__">${krajLabel} ${countryPickerOpen?'▴':'▾'}</button>`;
 
   document.querySelectorAll('#leagueSwitch button').forEach(b=>{
@@ -1049,6 +1075,16 @@ function renderHeader(){
     document.querySelector('.topbar').style.display = 'none';
     document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
     document.getElementById('updates').classList.add('active');
+    document.getElementById('metaRight').innerHTML = '';
+    return;
+  }
+
+  if(currentLeague === '__TODO__'){
+    document.getElementById('subtitle').textContent = 'Mecze bez wyniku 1. tercji — wpisz wynik albo oznacz jako odwołany';
+    document.getElementById('seasonSwitch').style.display = 'none';
+    document.querySelector('.topbar').style.display = 'none';
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    document.getElementById('todo').classList.add('active');
     document.getElementById('metaRight').innerHTML = '';
     return;
   }
@@ -1767,6 +1803,10 @@ function renderAll(){
     renderUpdates();
     return;
   }
+  if(currentLeague === '__TODO__'){
+    renderTodo();
+    return;
+  }
   if(currentLeague === '__TEST__'){
     renderTest();
     return;
@@ -2261,6 +2301,16 @@ function renderPerf(){
 // ---------- Updates / changelog ----------
 const CHANGELOG = [
   {
+    date: '03.11.2026',
+    title: 'Nowa zakładka DO WPISANIA + korekta ocen A–D po 2 miesiącach sezonu',
+    items: [
+      'DO WPISANIA (po UPDATES): lista meczów z minioną datą bez wyniku 1. tercji. Przy każdym wpiszesz wynik P1 albo klikniesz „Odwołany” — taki mecz znika z listy i ze statystyk, zapisuje się w manual_results.json (synchronizacja GitHub) i można go przywrócić z sekcji „Pominięte”',
+      'Backtest 1790 meczów 2026/27 (zamrożone prognozy): średnia prognoza 50,9% vs faktyczny Over 51,8%, AUC 0,54. Kalibracja procentów (Platt) zostaje bez zmian: przefitowanie na żywych danych dało nachylenie 0,43 ±0,26 przy obecnych 0,61, czyli różnica w granicach błędu',
+      'Sygnały FIX: siła każdego sygnału to teraz połączenie testu historycznego (z wagą 0,25 jak w modelu) i wyników bieżącego sezonu. Największe zmiany: liga o wysokiej średniej Over +8,0 → +6,1, back-to-back +2,8 → +1,3, słaba obrona gospodarza +4,0 → +5,9, obie obrony mocne −5,2 → −6,6',
+      'Oceny A–D: próg A obniżony z 12 do 9 pkt (przy nowych siłach sygnałów dawał za mało meczów). Na żywo: A 56,0%, B 54,2%, C 53,2%, D 47,0% (średnia 51,3%) — główna różnica to D vs reszta, A i B różnią się niewiele',
+    ]
+  },
+  {
     date: '26.10.2026',
     title: 'Zamknięcie etapu: serie w Terminarzu, ZALEŻNOŚCI v3, nazwa karty PUCKLINE',
     items: [
@@ -2486,6 +2536,79 @@ const CHANGELOG = [
   },
 ];
 
+// ---------- DO WPISANIA — mecze bez wyniku P1: wpis ręczny albo ODWOŁANY / NIE ODBYŁ SIĘ ----------
+function warsawToday(){
+  return new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Warsaw', year:'numeric', month:'2-digit', day:'2-digit'}).format(new Date());
+}
+function collectTodo(){
+  const today = warsawToday(); const todo = [], skipped = [];
+  Object.keys(DATA.leagues).forEach(lg=>{
+    const s = DATA.leagues[lg].seasons['2026-27']; if(!s) return;
+    [...(s.preseason?.matches||[]), ...(s.mainSeason?.matches||[])].forEach(m=>{
+      if(!m.played && m.sortDate < today) todo.push({lg, m, key:`${m.sortDate}|${lg}|${m.home}|${m.away}`});
+    });
+    (SKIPPED_STASH[lg]||[]).forEach(x=>skipped.push({lg, m:x.m, key:x.key}));
+  });
+  const by = (a,b)=>a.m.sortDate.localeCompare(b.m.sortDate) || a.lg.localeCompare(b.lg) || a.m.home.localeCompare(b.m.home);
+  todo.sort(by); skipped.sort(by);
+  return {todo, skipped};
+}
+function todoCount(){ try{ return DATA ? collectTodo().todo.length : 0; }catch(e){ return 0; } }
+
+function todoRowHtml(r, isSkipped){
+  const m = r.m;
+  const teams = `<div class="td-teams">${logo(m.home, r.lg)}<b>${esc2(m.home)}</b> <span class="tst-vs">–</span> ${logo(m.away, r.lg)}<b>${esc2(m.away)}</b></div>`;
+  const head = `<span class="td-date">${m.date}</span><span class="td-lg" style="background:${leagueColor(r.lg)}">${esc2(leagueShortLabel(r.lg))}</span>`;
+  if(isSkipped){
+    return `<div class="td-row skipped" data-key="${esc2(r.key)}">${head}${teams}<span class="td-tag">ODWOŁANY / NIE ODBYŁ SIĘ</span><button data-td-restore class="td-btn ghost">Przywróć</button></div>`;
+  }
+  return `<div class="td-row" data-key="${esc2(r.key)}">${head}${teams}
+    <span class="td-in"><input type="number" min="0" max="20" placeholder="0" data-p1h inputmode="numeric"><span>:</span><input type="number" min="0" max="20" placeholder="0" data-p1a inputmode="numeric">
+    <button data-td-save class="td-btn">Zapisz</button><button data-td-skip class="td-btn danger" title="Mecz się nie odbył — pomiń w statystykach">Odwołany</button></span></div>`;
+}
+
+function renderTodo(){
+  const el = document.getElementById('todoContent');
+  const {todo, skipped} = collectTodo();
+  const prevScroll = (el.querySelector('.td-list')||{}).scrollTop || 0;
+  const group = list => { const g = {}; list.forEach(r=>{ (g[r.m.sortDate] = g[r.m.sortDate] || []).push(r); }); return g; };
+  const listHtml = (list, isSkipped) => { const g = group(list); return Object.keys(g).sort().map(d=>`<div class="td-day">${g[d][0].m.date}<span>${g[d].length}</span></div>${g[d].map(r=>todoRowHtml(r, isSkipped)).join('')}`).join(''); };
+  el.innerHTML = `
+    <div class="toolbar td-bar">
+      <b>${todo.length ? `${todo.length} ${todo.length===1?'mecz':'meczów'} bez wyniku` : 'Wszystko uzupełnione ✓'}</b>
+      ${todo.length ? '<button id="tdSaveAll" class="td-btn">💾 Zapisz wszystko wypełnione</button>' : ''}
+    </div>
+    <div class="td-list">${todo.length ? listHtml(todo, false) : '<div class="td-empty">Brak meczów do uzupełnienia.</div>'}</div>
+    ${skipped.length ? `<details class="top5-panel tst-det" style="margin-top:14px;" ${skippedOpen?'open':''} id="tdSkippedDet"><summary class="top5-title">🚫 Pominięte w statystykach (${skipped.length})</summary><div class="td-list">${listHtml(skipped, true)}</div></details>` : ''}`;
+  const l = el.querySelector('.td-list'); if(l) l.scrollTop = prevScroll;
+  const afterChange = lgs => {
+    lgs.forEach(lg=>rebuildCurrentSeasonModel(lg));
+    TOP5_IDX = {}; TOP5_CUR = {}; PERF_CACHE = null;
+    renderAll();
+  };
+  el.querySelectorAll('[data-td-save]').forEach(b=>b.addEventListener('click', ()=>{
+    const row = b.closest('.td-row'); const h = row.querySelector('[data-p1h]').value, a = row.querySelector('[data-p1a]').value;
+    if(h.trim()==='' || a.trim()===''){ row.classList.add('td-err'); return; }
+    saveManualResult(row.dataset.key, +h, +a); afterChange([row.dataset.key.split('|')[1]]);
+  }));
+  el.querySelectorAll('[data-td-skip]').forEach(b=>b.addEventListener('click', ()=>{
+    const row = b.closest('.td-row'); saveSkippedMatch(row.dataset.key); afterChange([row.dataset.key.split('|')[1]]);
+  }));
+  el.querySelectorAll('[data-td-restore]').forEach(b=>b.addEventListener('click', ()=>{
+    const row = b.closest('.td-row'); deleteManualResult(row.dataset.key); afterChange([row.dataset.key.split('|')[1]]);
+  }));
+  document.getElementById('tdSaveAll')?.addEventListener('click', ()=>{
+    const lgs = new Set(); let n = 0;
+    el.querySelectorAll('.td-row:not(.skipped)').forEach(row=>{
+      const h = row.querySelector('[data-p1h]').value, a = row.querySelector('[data-p1a]').value;
+      if(h.trim()!=='' && a.trim()!==''){ saveManualResult(row.dataset.key, +h, +a); lgs.add(row.dataset.key.split('|')[1]); n++; }
+    });
+    if(n) afterChange([...lgs]);
+  });
+  document.getElementById('tdSkippedDet')?.addEventListener('toggle', e=>{ skippedOpen = e.target.open; });
+}
+let skippedOpen = false;
+
 function renderUpdates(){
   const content = document.getElementById('updatesContent');
   content.innerHTML = `
@@ -2629,7 +2752,13 @@ function scheduleGithubSync(){
   syncDebounceTimer = setTimeout(()=>{ pushManualResultsToGithub(); }, 1500);
 }
 
+const SKIPPED_STASH = {};   // liga -> [{pool, m, key}] mecze ODWOŁANE / NIE ODBYŁY SIĘ (wyjęte z puli, nie liczą się w statystykach)
 function getManualResults(){ return MANUAL_RESULTS; }
+function saveSkippedMatch(key){
+  MANUAL_RESULTS[key] = {skipped:true};
+  setManualResultsLocalCache();
+  scheduleGithubSync();
+}
 function saveManualResult(key, p1h, p1a){
   MANUAL_RESULTS[key] = {p1h, p1a, over15: (p1h+p1a)>=2};
   setManualResultsLocalCache();
@@ -2825,6 +2954,22 @@ function rebuildCurrentSeasonModel(lg){
   if(!season) return;
 
   let manualChanged = false;
+  // mecze oznaczone wcześniej jako ODWOŁANE wracają do puli, żeby ich stan wyliczyć od nowa (cofnięcie oznaczenia działa)
+  (SKIPPED_STASH[lg]||[]).forEach(x=>{ const p = season[x.pool]; if(p && p.matches){ delete x.m.skipped; p.matches.push(x.m); } });
+  SKIPPED_STASH[lg] = [];
+  ['preseason','mainSeason'].forEach(pn=>{
+    const p = season[pn]; if(!p || !p.matches) return;
+    p.matches = p.matches.filter(m=>{
+      const key = `${m.sortDate}|${lg}|${m.home}|${m.away}`;
+      const man = MANUAL_RESULTS[key];
+      if(!(man && man.skipped)) return true;
+      if(m.played && !m.isManual){ delete MANUAL_RESULTS[key]; manualChanged = true; return true; } // oficjalny wynik wygrywa
+      if(m.isManual){ m.played = false; m.isManual = false; delete m.p1; delete m.over15; }
+      m.skipped = true;
+      (SKIPPED_STASH[lg] = SKIPPED_STASH[lg] || []).push({pool: pn, m, key});
+      return false;
+    });
+  });
   const pools = [season.preseason && season.preseason.matches, season.mainSeason && season.mainSeason.matches].filter(Boolean);
 
   pools.forEach(pool=>{
@@ -2835,7 +2980,7 @@ function rebuildCurrentSeasonModel(lg){
         if(man){ delete MANUAL_RESULTS[key]; manualChanged = true; }
         return;
       }
-      if(man){
+      if(man && !man.skipped){
         m.played = true;
         m.p1 = `${man.p1h}:${man.p1a}`;
         m.over15 = man.over15;
@@ -3668,28 +3813,28 @@ if(localStorage.getItem("puckline_unlocked") === "1"){
 // =====================================================================
 const TST_K = 8, TST_PRIOR_W = 0.5, TST_MIN_N = 10;
 const TST_UP = [
-  {id:'lgHi',   lift:8.0, cover:18.2, over:59.0, recall:21.1, label:'liga o wysokiej średniej Over (≥55%)'},
-  {id:'weak2',  lift:7.3, cover:12.5, over:58.3, recall:14.3, label:'obie obrony słabe + mocne ataki'},
-  {id:'ooo',    lift:6.2, cover:2.3,  over:57.2, recall:2.6,  label:'obie: 3 ost. mecze Over'},
-  {id:'tempoHi',lift:5.7, cover:25.0, over:56.7, recall:27.8, label:'wysokie tempo goli P1'},
-  {id:'gap',    lift:4.7, cover:15.5, over:55.7, recall:16.9, label:'duża różnica klasy'},
-  {id:'weakH',  lift:4.0, cover:8.8,  over:55.0, recall:9.5,  label:'słaba obrona gosp. vs mocny atak gościa'},
-  {id:'weakA',  lift:3.7, cover:9.0,  over:54.7, recall:9.6,  label:'słaba obrona gościa vs mocny atak gosp.'},
-  {id:'b2b',    lift:2.8, cover:20.7, over:53.8, recall:21.9, label:'back-to-back'},
-  {id:'h2hHot', lift:2.4, cover:7.4,  over:53.3, recall:7.7,  label:'gorące H2H (≥4 mecze, ≥80% Over)'},
-  {id:'form2',  lift:2.0, cover:28.4, over:53.0, recall:29.5, label:'obie formy ≥60% Over'},
+  {id:'lgHi',   lift:6.1, cover:18.2, over:59.0, recall:21.1, label:'liga o wysokiej średniej Over (≥55%)'},
+  {id:'weak2',  lift:5.7, cover:12.5, over:58.3, recall:14.3, label:'obie obrony słabe + mocne ataki'},
+  {id:'ooo',    lift:4.2, cover:2.3,  over:57.2, recall:2.6,  label:'obie: 3 ost. mecze Over'},
+  {id:'tempoHi',lift:5.1, cover:25.0, over:56.7, recall:27.8, label:'wysokie tempo goli P1'},
+  {id:'gap',    lift:3.4, cover:15.5, over:55.7, recall:16.9, label:'duża różnica klasy'},
+  {id:'weakH',  lift:5.9, cover:8.8,  over:55.0, recall:9.5,  label:'słaba obrona gosp. vs mocny atak gościa'},
+  {id:'weakA',  lift:3.4, cover:9.0,  over:54.7, recall:9.6,  label:'słaba obrona gościa vs mocny atak gosp.'},
+  {id:'b2b',    lift:1.3, cover:20.7, over:53.8, recall:21.9, label:'back-to-back'},
+  {id:'h2hHot', lift:3.0, cover:7.4,  over:53.3, recall:7.7,  label:'gorące H2H (≥4 mecze, ≥80% Over)'},
+  {id:'form2',  lift:1.6, cover:28.4, over:53.0, recall:29.5, label:'obie formy ≥60% Over'},
 ];
 const TST_DOWN = [
   {id:'uuu',    lift:-9.9, cover:1.7,  over:41.1, recall:1.3,  label:'obie: 3 ost. mecze Under'},
-  {id:'lgLo',   lift:-5.9, cover:29.3, over:45.1, recall:25.9, label:'liga o niskiej średniej Over (≤47%)'},
-  {id:'tempoLo',lift:-5.4, cover:25.0, over:45.6, recall:22.4, label:'niskie tempo goli P1'},
-  {id:'def2',   lift:-5.2, cover:8.2,  over:45.8, recall:7.4,  label:'obie obrony bardzo mocne'},
-  {id:'def1',   lift:-2.2, cover:12.8, over:48.8, recall:12.3, label:'jedna bardzo mocna obrona'},
+  {id:'lgLo',   lift:-4.1, cover:29.3, over:45.1, recall:25.9, label:'liga o niskiej średniej Over (≤47%)'},
+  {id:'tempoLo',lift:-5.2, cover:25.0, over:45.6, recall:22.4, label:'niskie tempo goli P1'},
+  {id:'def2',   lift:-6.6, cover:8.2,  over:45.8, recall:7.4,  label:'obie obrony bardzo mocne'},
+  {id:'def1',   lift:-1.9, cover:12.8, over:48.8, recall:12.3, label:'jedna bardzo mocna obrona'},
 ];
 const TST_ALL = [...TST_UP, ...TST_DOWN];
 const TST_BY_ID = Object.fromEntries(TST_ALL.map(x=>[x.id,x]));
 // ocena A–D: progi sumy sygnałów (pkt) i wynik historyczny każdej oceny
-const TST_GRADES = {A:{min:12, hist:59.3, share:16.0}, B:{min:5, hist:53.7, share:16.3}, C:{min:0, hist:52.2, share:30.2}, D:{min:-99, hist:45.3, share:37.5}};
+const TST_GRADES = {A:{min:9, hist:58.1, share:15.8}, B:{min:5, hist:53.9, share:16.1}, C:{min:0, hist:52.5, share:28.0}, D:{min:-99, hist:45.9, share:40.1}};
 const TST_HIST_BASE = 51.0;
 let tstOpen = (localStorage.getItem('puckline_tst_open')==='1');
 let tstScope = 'upcoming';   // 'upcoming' | 'played'
@@ -3883,7 +4028,7 @@ function renderTest(){
       <summary class="top5-title">🎯 Szczegóły: jak sprawdzają się oceny i sygnały (sezon 2026/27 vs test historyczny) ${''}</summary>
       <div class="tst-sum">
         <table class="tst-tab"><thead><tr><th>Ocena</th><th class="n">mecze</th><th class="n">Over live</th><th class="n">Over hist.</th><th class="n">% meczów hist.</th></tr></thead><tbody>
-          ${['A','B','C','D'].map(g=>`<tr><td><span class="tst-grade g${g}">${g}</span> <span class="tst-rng">${g==='A'?'≥ +12':g==='B'?'+5…+12':g==='C'?'0…+5':'< 0'} pkt</span></td><td class="n">${G[g].n}</td><td class="n">${fmtP(G[g].pct)}</td><td class="n">${tstFmt(TST_GRADES[g].hist)}%</td><td class="n">${tstFmt(TST_GRADES[g].share)}%</td></tr>`).join('')}
+          ${['A','B','C','D'].map(g=>`<tr><td><span class="tst-grade g${g}">${g}</span> <span class="tst-rng">${g==='A'?'≥ +9':g==='B'?'+5…+9':g==='C'?'0…+5':'< 0'} pkt</span></td><td class="n">${G[g].n}</td><td class="n">${fmtP(G[g].pct)}</td><td class="n">${tstFmt(TST_GRADES[g].hist)}%</td><td class="n">${tstFmt(TST_GRADES[g].share)}%</td></tr>`).join('')}
         </tbody></table>
         <table class="tst-tab"><thead><tr><th>Sygnał</th><th class="n" title="Test historyczny: Over przy sygnale vs średnia">hist. lift</th><th class="n" title="% wszystkich meczów z tym sygnałem (historycznie)">w % meczów</th><th class="n" title="% wszystkich Overów, przy których był ten sygnał (historycznie)">w % Overów</th><th class="n">live mecze</th><th class="n">live Over</th><th class="n">live vs średnia</th></tr></thead><tbody>
           ${sigRows.map(x=>`<tr><td>${x.sg.lift>0?'<span class="pos">▲</span>':'<span class="neg">▼</span>'} ${x.sg.label}</td><td class="n ${x.sg.lift>0?'pos':'neg'}">${x.sg.lift>0?'+':''}${tstFmt(x.sg.lift)}</td><td class="n">${tstFmt(x.sg.cover)}%</td><td class="n">${tstFmt(x.sg.recall)}%</td><td class="n">${x.n}</td><td class="n">${fmtP(x.pct)}</td>${liftCell(x.pct)}</tr>`).join('')}
@@ -4299,7 +4444,7 @@ function renderDep(){
   title.appendChild(krajBox); right.appendChild(rightBody);
   wrap.appendChild(right);
   const bottom = mk('nav','ui2Bottom');
-  bottom.innerHTML = [['__PLAYNOW__','🔥','Terminarz'],['__WYNIKIALL__','📊','Wyniki'],['__TEST__','🎯','FIX'],['__DEP__','🔗','Zależn.'],['__PERF__','📈','Skut.'],['__UPDATES__','📝','Info'],['__KRAJ__','🌍','Ligi']]
+  bottom.innerHTML = [['__PLAYNOW__','🔥','Terminarz'],['__WYNIKIALL__','📊','Wyniki'],['__TEST__','🎯','FIX'],['__DEP__','🔗','Zależn.'],['__PERF__','📈','Skut.'],['__UPDATES__','📝','Info'],['__TODO__','✍️','Wpisz'],['__KRAJ__','🌍','Ligi']]
     .map(([k,i,l])=>`<button type="button" data-go="${k}"><b>${i}</b>${l}</button>`).join('');
   document.body.appendChild(bottom);
 
@@ -4494,7 +4639,7 @@ function renderDep(){
 
   function syncChrome(){
     document.body.dataset.view = currentLeague;
-    const special = ['__PLAYNOW__','__HOT__','__WYNIKIALL__','__PERF__','__UPDATES__','__TEST__','__DEP__'];
+    const special = ['__PLAYNOW__','__HOT__','__WYNIKIALL__','__PERF__','__UPDATES__','__TODO__','__TEST__','__DEP__'];
     const act = special.includes(currentLeague) ? currentLeague : '__KRAJ__';
     bottom.querySelectorAll('button').forEach(b=>b.classList.toggle('active', b.dataset.go===act));
     const kb = document.querySelector('#leagueSwitch button[data-league="__KRAJ__"]');
@@ -4566,7 +4711,7 @@ function renderDep(){
   renderAll = function(){
     _renderAll.apply(this, arguments);
     // widok pojedynczej ligi: pokaż panel aktywnej zakładki (Ranking / Terminarz / H2H) zamiast panelu Terminarza całości
-    const special = ['__PLAYNOW__','__HOT__','__WYNIKIALL__','__PERF__','__UPDATES__','__TEST__','__DEP__','COMBINED'];
+    const special = ['__PLAYNOW__','__HOT__','__WYNIKIALL__','__PERF__','__UPDATES__','__TODO__','__TEST__','__DEP__','COMBINED'];
     if(!special.includes(currentLeague)){
       document.querySelectorAll('.panel').forEach(pn=>pn.classList.remove('active'));
       const pn = document.getElementById(currentTab); if(pn) pn.classList.add('active');
