@@ -695,6 +695,32 @@
   .todo-info{display:flex; align-items:center; gap:12px; flex-wrap:wrap; padding:10px 14px; margin:0 0 10px; background:var(--surface); border:1px solid var(--amber-dim); border-radius:10px; font-size:13px;}
   .todo-info.ok{border-color:var(--border); color:var(--muted);}
   .todo-info button{margin-left:auto; background:var(--amber); color:#1A1200; border:none; font-weight:700; font-size:11.5px; padding:7px 12px; border-radius:7px; cursor:pointer; font-family:'Space Grotesk',sans-serif;}
+  .ilu-bar select{background:var(--surface); border:1px solid var(--border); color:var(--text); padding:8px 10px; border-radius:8px; font-size:12.5px;}
+  .ilu-kpis{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin:6px 0 12px;}
+  .ilu-kpis div{background:var(--surface2); border-radius:9px; padding:10px 12px; display:flex; flex-direction:column; gap:3px;}
+  .ilu-kpis span{font-size:10.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em;}
+  .ilu-kpis b{font-family:'JetBrains Mono',monospace; font-size:20px;}
+  .ilu-kpis small{font-size:10.5px; color:var(--muted);}
+  .ilu-verdict{padding:10px 12px; border-radius:9px; font-size:12.5px; line-height:1.5; border:1px solid var(--border);}
+  .ilu-verdict.sig{border-color:var(--amber); background:var(--amber-dim);}
+  .ilu-months{display:flex; gap:8px; align-items:flex-end; overflow-x:auto; padding:8px 2px;}
+  .ilu-m{display:flex; flex-direction:column; align-items:center; gap:3px; min-width:58px; font-size:11px;}
+  .ilu-m .bar{height:110px; display:flex; align-items:flex-end;}
+  .ilu-m .bar i{display:block; width:26px; border-radius:5px 5px 0 0;}
+  .ilu-m small{color:var(--muted); font-size:10px;}
+  .ilu-m b{font-family:'JetBrains Mono',monospace;}
+  .ilu-note{font-size:11.5px; color:var(--muted); margin-top:8px;}
+  .ilu-list{display:flex; flex-direction:column; border:1px solid var(--border); border-radius:10px; overflow:hidden; margin-top:6px;}
+  .ilu-day summary, .ilu-rec{display:flex; align-items:center; gap:12px; padding:9px 14px; border-bottom:1px solid var(--surface2); cursor:pointer; flex-wrap:wrap;}
+  .ilu-rec{cursor:default;}
+  .ilu-day .dt, .ilu-rec .dt{font-family:'JetBrains Mono',monospace; font-size:12px; min-width:90px;}
+  .ilu-day .c, .ilu-rec .c{color:var(--muted); font-size:11.5px;}
+  .ilu-day .v{margin-left:auto; font-family:'JetBrains Mono',monospace; font-weight:700; font-size:12.5px;}
+  .ilu-rec b{margin-left:auto; font-family:'JetBrains Mono',monospace;}
+  .ilu-rec small{color:var(--muted); font-size:10.5px; width:100%; text-align:right;}
+  .ilu-per{display:flex; flex-wrap:wrap; gap:6px 16px; padding:6px 14px 10px; font-size:11.5px; color:var(--muted); background:var(--surface2);}
+  .ilu-head{display:flex; align-items:center; gap:10px; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:22px; letter-spacing:.14em; color:var(--amber); margin:2px 0 14px;}
+  .ilu-ico{vertical-align:-0.15em;}
   /* DO WPISANIA */
   .td-bar{justify-content:space-between; gap:10px;}
   .td-list{max-height:72vh; overflow-y:auto; border:1px solid var(--border); border-radius:12px; background:var(--surface);}
@@ -804,6 +830,10 @@
 
   <div id="todo" class="panel">
     <div id="todoContent"></div>
+  </div>
+
+  <div id="ilu" class="panel">
+    <div id="iluContent"></div>
   </div>
 
   <footer>
@@ -947,7 +977,7 @@ function allLeagueMenuItems(){
 }
 
 function renderHeader(){
-  const SPECIAL_TABS = ['__PLAYNOW__', '__WYNIKIALL__', '__HOT__', '__PERF__', '__UPDATES__', '__TODO__', '__TEST__', '__DEP__'];
+  const SPECIAL_TABS = ['__PLAYNOW__', '__WYNIKIALL__', '__HOT__', '__PERF__', '__UPDATES__', '__TODO__', '__ILU__', '__TEST__', '__DEP__'];
   const isLeagueView = !SPECIAL_TABS.includes(currentLeague);
   const currentItem = isLeagueView ? allLeagueMenuItems().find(it=>it.key===currentLeague) : null;
   const krajLabel = currentItem ? `🌍 ${currentItem.country}` : '🌍 Wybierz ligę';
@@ -964,6 +994,7 @@ function renderHeader(){
     <button class="${currentLeague==='__PERF__'?'active':''}" data-league="__PERF__">📈 SKUTECZNOŚĆ</button>
     <button class="${currentLeague==='__UPDATES__'?'active':''}" data-league="__UPDATES__">📝 UPDATES</button>
     <button class="${currentLeague==='__TODO__'?'active':''}" data-league="__TODO__">✍️ DO WPISANIA${todoCount()?` (${todoCount()})`:''}</button>
+    <button class="${currentLeague==='__ILU__'?'active':''}" data-league="__ILU__"><svg class="ilu-ico" viewBox="0 0 24 24" width="1.1em" height="1.1em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M12 2.5 22 20.5H2z"/><path d="M6.5 14.4c1.6-2.2 3.4-3.2 5.5-3.2s3.9 1 5.5 3.2c-1.6 2.2-3.4 3.2-5.5 3.2s-3.9-1-5.5-3.2z"/><circle cx="12" cy="14.4" r="1.4" fill="currentColor"/></svg> ILUMINATI</button>
     <button class="${isLeagueView?'active':''}" data-league="__KRAJ__">${krajLabel} ${countryPickerOpen?'▴':'▾'}</button>`;
 
   document.querySelectorAll('#leagueSwitch button').forEach(b=>{
@@ -1083,6 +1114,16 @@ function renderHeader(){
     document.querySelector('.topbar').style.display = 'none';
     document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
     document.getElementById('updates').classList.add('active');
+    document.getElementById('metaRight').innerHTML = '';
+    return;
+  }
+
+  if(currentLeague === '__ILU__'){
+    document.getElementById('subtitle').textContent = 'Kalendarz Over 1,5 P1 — jak w poprzednich latach układały się dni i miesiące';
+    document.getElementById('seasonSwitch').style.display = 'none';
+    document.querySelector('.topbar').style.display = 'none';
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    document.getElementById('ilu').classList.add('active');
     document.getElementById('metaRight').innerHTML = '';
     return;
   }
@@ -1834,6 +1875,10 @@ function renderAll(){
     renderTodo();
     return;
   }
+  if(currentLeague === '__ILU__'){
+    renderIlu();
+    return;
+  }
   if(currentLeague === '__TEST__'){
     renderTest();
     return;
@@ -2331,6 +2376,7 @@ const CHANGELOG = [
     date: '03.11.2026',
     title: 'Nowa zakładka DO WPISANIA + korekta ocen A–D po 2 miesiącach sezonu',
     items: [
+      'Nowa zakładka ILUMINATI (tylko Over, każda liga osobno): nadchodzące dni ligi z historią tej samej daty (±3 dni) w poprzednich sezonach, Over% wg miesięcy i ranking dni z największym Over (np. 4/4, 9/10) niezależnie od liczby meczów',
       'Terminarz: pod każdą drużyną (obok miejsca i bramek) forma z ostatnich 5 meczów — O = Over, U = Under 1,5 w P1; najnowszy po prawej, wyszarzone = mecze z poprzedniego sezonu (gdy w tym jest ich mniej niż 5)',
       'WYNIKI: tylko rozegrane mecze i informacja, ile meczów czeka na wpisanie (przycisk przenosi do DO WPISANIA); wpisywanie wyników przeniesione wyłącznie do DO WPISANIA',
       'DO WPISANIA (po UPDATES): lista meczów z minioną datą bez wyniku 1. tercji. Przy każdym wpiszesz wynik P1 albo klikniesz „Odwołany” — taki mecz znika z listy i ze statystyk, zapisuje się w manual_results.json (synchronizacja GitHub) i można go przywrócić z sekcji „Pominięte”',
@@ -2637,6 +2683,98 @@ function renderTodo(){
   document.getElementById('tdSkippedDet')?.addEventListener('toggle', e=>{ skippedOpen = e.target.open; });
 }
 let skippedOpen = false;
+
+// ---------- ILUMINATI — kalendarz Over 1,5 P1: dni i miesiące w poprzednich sezonach ----------
+let ILU_CACHE = null;
+let iluState = {lg:'NHL', min:3, month:'ALL'};
+function iluData(){
+  if(ILU_CACHE) return ILU_CACHE;
+  const rows = [];
+  Object.keys(DATA.leagues).forEach(lg=>{
+    Object.entries(DATA.leagues[lg].seasons).forEach(([sk, se])=>{
+      const pools = se.status==='completed' ? [se.matches||[]] : [se.preseason?.matches||[], se.mainSeason?.matches||[]];
+      pools.forEach(p=>p.forEach(m=>{
+        if(m.played && m.p1){ const [a,b] = m.p1.split(':').map(Number); rows.push({lg, d:m.sortDate, o:(a+b)>=2?1:0, sk}); }
+      }));
+    });
+  });
+  return ILU_CACHE = rows;
+}
+function binomTailGE(n, k, p){   // P(X >= k)
+  let term = Math.pow(1-p, n), cdf = 0;
+  for(let i=0;i<k;i++){ cdf += term; term *= (n-i)/(i+1) * p/(1-p); }
+  return Math.max(0, 1-cdf);
+}
+function binomTailLE(n, k, p){ return 1 - binomTailGE(n, k+1, p); }
+function seasonYearOf(d){ const y = +d.slice(0,4), mo = +d.slice(5,7); return mo>=7 ? y : y-1; }
+const WD_PL = ['nd','pn','wt','śr','czw','pt','sob'];
+
+function renderIlu(){
+  const el = document.getElementById('iluContent');
+  const st = iluState;
+  const lgKeys = Object.keys(DATA.leagues);
+  if(!lgKeys.includes(st.lg)) st.lg = lgKeys.includes('NHL') ? 'NHL' : lgKeys[0];
+  const rows = iluData().filter(r=>r.lg===st.lg);
+  const base = rows.length ? rows.reduce((a,r)=>a+r.o,0)/rows.length : 0.5;
+  const f1 = v => v.toFixed(1);
+  const byDay = {};
+  rows.forEach(r=>{ const x = byDay[r.d] = byDay[r.d] || {n:0, k:0}; x.n++; x.k+=r.o; });
+  const days = Object.entries(byDay).map(([d,x])=>({d, n:x.n, k:x.k, pct:x.k/x.n}));
+  const card = (title, body, open) => `<details class="top5-panel tst-det" ${open?'open':''}><summary class="top5-title">${title}</summary>${body}</details>`;
+  const wdOf = d => WD_PL[new Date(d+'T12:00:00Z').getUTCDay()];
+
+  // nadchodzące dni tej ligi + ta sama data w poprzednich sezonach (±3 dni)
+  const today = warsawToday(); const upc = {};
+  const se = DATA.leagues[st.lg].seasons['2026-27'];
+  if(se) [...(se.preseason?.matches||[]), ...(se.mainSeason?.matches||[])].forEach(m=>{ if(!m.played && m.sortDate>=today) upc[m.sortDate] = (upc[m.sortDate]||0)+1; });
+  const idx = {}; rows.forEach(r=>{ (idx[r.d] = idx[r.d] || []).push(r.o); });
+  const curSeason = seasonYearOf(today);
+  const histFor = dateStr => {
+    const mo = dateStr.slice(5,7), dd = dateStr.slice(8); const per = [];
+    for(let sy=2020; sy<curSeason; sy++){
+      const yr = +mo>=7 ? sy : sy+1; const c = new Date(Date.UTC(yr, +mo-1, +dd)); let n=0,k=0,exact=null;
+      for(let off=-3; off<=3; off++){ const t = new Date(c.getTime()+off*86400000).toISOString().slice(0,10); (idx[t]||[]).forEach(o=>{n++; k+=o;}); if(off===0 && idx[t]) exact = idx[t].reduce((a,b)=>a+b,0)+'/'+idx[t].length; }
+      if(n) per.push({sy, n, k, exact});
+    }
+    return {per, N: per.reduce((a,x)=>a+x.n,0), K: per.reduce((a,x)=>a+x.k,0)};
+  };
+  const upDates = Object.keys(upc).sort().slice(0,14);
+  const upBody = upDates.length ? `<div class="ilu-list">${upDates.map(d=>{
+    const h = histFor(d); const p = h.N ? h.K/h.N*100 : null; const diff = p===null ? null : p-base*100;
+    const col = diff===null ? 'var(--muted)' : diff>=3 ? 'var(--teal)' : 'var(--text)';
+    return `<details class="ilu-day"><summary><span class="dt">${d.slice(8)}.${d.slice(5,7)} ${wdOf(d)}</span><span class="c">${upc[d]} ${upc[d]===1?'mecz':'meczów'}</span><span class="v" style="color:${col}">${p===null?'brak danych':f1(p)+'% ('+h.K+'/'+h.N+')'}${diff===null?'':` <small>${diff>=0?'+':''}${f1(diff)} pp</small>`}</span></summary>
+      <div class="ilu-per">${h.per.map(x=>`<span>${x.sy}/${String(x.sy+1).slice(2)}: <b>${x.k}/${x.n}</b>${x.exact?` · dokładnie ten dzień ${x.exact}`:''}</span>`).join('') || 'brak danych'}</div></details>`;
+  }).join('')}</div><div class="ilu-note">Over 1,5 P1 w tej lidze: ta sama data ±3 dni w poprzednich sezonach. Średnia ligi: ${f1(base*100)}%.</div>` : '<div class="ilu-note">Brak nadchodzących meczów tej ligi.</div>';
+
+  // miesiące
+  const months = {}; rows.forEach(r=>{ const m = r.d.slice(5,7); const x = months[m] = months[m] || {n:0,k:0}; x.n++; x.k+=r.o; });
+  const order = ['08','09','10','11','12','01','02','03','04','05'];
+  const monthBody = `<div class="ilu-months">${order.filter(m=>months[m] && months[m].n>=10).map(m=>{
+    const x = months[m], p = x.k/x.n*100, se2 = 1.96*Math.sqrt(p/100*(1-p/100)/x.n)*100, diff = p-base*100;
+    return `<div class="ilu-m"><div class="nm">${MONTH_NAMES[+m-1].slice(0,3)}</div><div class="bar"><i style="height:${Math.max(4,(p-30)*3.2)}px;background:${diff>=0?'var(--teal)':'var(--red)'}"></i></div><b>${f1(p)}%</b><small>${diff>=0?'+':''}${f1(diff)} ±${f1(se2)}</small><small>${x.n} m.</small></div>`;
+  }).join('')}</div>`;
+
+  // dni z samymi / prawie samymi Overami
+  const minN = st.min;
+  const pool = days.filter(x=>x.n>=minN && (st.month==='ALL' || x.d.slice(5,7)===st.month));
+  const full = pool.filter(x=>x.pct===1).length, hi = pool.filter(x=>x.pct>=0.9).length;
+  const rec = [...pool].sort((a,b)=>b.pct-a.pct || b.n-a.n || b.d.localeCompare(a.d)).slice(0,40);
+  const recBody = `<div class="ilu-note" style="margin:4px 0 8px;">Dni (≥${minN} mecze tej ligi): <b>${pool.length}</b> · wszystkie Over: <b style="color:var(--teal)">${full}</b> · ≥90% Over: <b style="color:var(--teal)">${hi}</b></div>
+    <div class="ilu-list rec">${rec.map(x=>`<div class="ilu-rec"><span class="dt">${x.d.slice(8)}.${x.d.slice(5,7)}.${x.d.slice(0,4)} ${wdOf(x.d)}</span><b style="color:var(--teal)">${x.k}/${x.n} (${Math.round(x.pct*100)}%)</b></div>`).join('') || '<div class="ilu-note">Brak dni.</div>'}</div>`;
+
+  const lgOpts = lgKeys.map(k=>`<option value="${k}" ${k===st.lg?'selected':''}>${esc2(leagueShortLabel(k))} (${esc2(k)})</option>`).join('');
+  const moOpts = ['ALL','08','09','10','11','12','01','02','03','04','05'].map(m=>`<option value="${m}" ${m===st.month?'selected':''}>${m==='ALL'?'Wszystkie miesiące':MONTH_NAMES[+m-1]}</option>`).join('');
+  const minOpts = [1,2,3,4,5,6,8].map(n=>`<option value="${n}" ${n===st.min?'selected':''}>min. ${n} ${n===1?'mecz':'mecze'} w dniu</option>`).join('');
+  el.innerHTML = `
+    <div class="ilu-head">${document.querySelector('#leagueSwitch .ilu-ico')?document.querySelector('#leagueSwitch .ilu-ico').outerHTML.replace('1.1em','28').replace('1.1em','28'):''}<span>ILUMINATI</span></div>
+    <div class="toolbar ilu-bar"><select id="iluLg">${lgOpts}</select></div>
+    ${card('🔮 Nadchodzące dni tej ligi — ta sama data w poprzednich latach', upBody, true)}
+    ${card('📅 Miesiące', monthBody, false)}
+    ${card('🏆 Dni z największym Over', `<div class="toolbar ilu-bar" style="margin-top:6px;"><select id="iluMin">${minOpts}</select><select id="iluMonth">${moOpts}</select></div>${recBody}`, false)}`;
+  document.getElementById('iluLg').addEventListener('change', e=>{ st.lg = e.target.value; renderIlu(); });
+  document.getElementById('iluMin').addEventListener('change', e=>{ st.min = +e.target.value; renderIlu(); });
+  document.getElementById('iluMonth').addEventListener('change', e=>{ st.month = e.target.value; renderIlu(); });
+}
 
 function renderUpdates(){
   const content = document.getElementById('updatesContent');
@@ -3036,7 +3174,7 @@ function rebuildCurrentSeasonModel(lg){
       delete m.prob; delete m.homePct; delete m.awayPct; delete m.homeOverallPct; delete m.awayOverallPct; delete m.components; delete m.modelBasis; delete m.dataSource;
     }
   });
-  TOP5_IDX = {}; TOP5_CUR = {}; PERF_CACHE = null; FORM_CACHE = {};
+  TOP5_IDX = {}; TOP5_CUR = {}; PERF_CACHE = null; FORM_CACHE = {}; ILU_CACHE = null;
 }
 
 function collectPlayedWithProb(scope){
@@ -4462,7 +4600,7 @@ function renderDep(){
   title.appendChild(krajBox); right.appendChild(rightBody);
   wrap.appendChild(right);
   const bottom = mk('nav','ui2Bottom');
-  bottom.innerHTML = [['__PLAYNOW__','🔥','Terminarz'],['__WYNIKIALL__','📊','Wyniki'],['__TEST__','🎯','FIX'],['__DEP__','🔗','Zależn.'],['__PERF__','📈','Skut.'],['__UPDATES__','📝','Info'],['__TODO__','✍️','Wpisz'],['__KRAJ__','🌍','Ligi']]
+  bottom.innerHTML = [['__PLAYNOW__','🔥','Terminarz'],['__WYNIKIALL__','📊','Wyniki'],['__TEST__','🎯','FIX'],['__DEP__','🔗','Zależn.'],['__PERF__','📈','Skut.'],['__UPDATES__','📝','Info'],['__TODO__','✍️','Wpisz'],['__ILU__','<svg class="ilu-ico" viewBox="0 0 24 24" width="1.1em" height="1.1em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M12 2.5 22 20.5H2z"/><path d="M6.5 14.4c1.6-2.2 3.4-3.2 5.5-3.2s3.9 1 5.5 3.2c-1.6 2.2-3.4 3.2-5.5 3.2s-3.9-1-5.5-3.2z"/><circle cx="12" cy="14.4" r="1.4" fill="currentColor"/></svg>','Ilum.'],['__KRAJ__','🌍','Ligi']]
     .map(([k,i,l])=>`<button type="button" data-go="${k}"><b>${i}</b>${l}</button>`).join('');
   document.body.appendChild(bottom);
 
@@ -4657,7 +4795,7 @@ function renderDep(){
 
   function syncChrome(){
     document.body.dataset.view = currentLeague;
-    const special = ['__PLAYNOW__','__HOT__','__WYNIKIALL__','__PERF__','__UPDATES__','__TODO__','__TEST__','__DEP__'];
+    const special = ['__PLAYNOW__','__HOT__','__WYNIKIALL__','__PERF__','__UPDATES__','__TODO__','__ILU__','__TEST__','__DEP__'];
     const act = special.includes(currentLeague) ? currentLeague : '__KRAJ__';
     bottom.querySelectorAll('button').forEach(b=>b.classList.toggle('active', b.dataset.go===act));
     const kb = document.querySelector('#leagueSwitch button[data-league="__KRAJ__"]');
@@ -4729,7 +4867,7 @@ function renderDep(){
   renderAll = function(){
     _renderAll.apply(this, arguments);
     // widok pojedynczej ligi: pokaż panel aktywnej zakładki (Ranking / Terminarz / H2H) zamiast panelu Terminarza całości
-    const special = ['__PLAYNOW__','__HOT__','__WYNIKIALL__','__PERF__','__UPDATES__','__TODO__','__TEST__','__DEP__','COMBINED'];
+    const special = ['__PLAYNOW__','__HOT__','__WYNIKIALL__','__PERF__','__UPDATES__','__TODO__','__ILU__','__TEST__','__DEP__','COMBINED'];
     if(!special.includes(currentLeague)){
       document.querySelectorAll('.panel').forEach(pn=>pn.classList.remove('active'));
       const pn = document.getElementById(currentTab); if(pn) pn.classList.add('active');
