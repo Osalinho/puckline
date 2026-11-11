@@ -709,6 +709,12 @@
   .ilu-m .bar i{display:block; width:26px; border-radius:5px 5px 0 0;}
   .ilu-m small{color:var(--muted); font-size:10px;}
   .ilu-m b{font-family:'JetBrains Mono',monospace;}
+  .ilu-sec{margin:0 0 16px;}
+  .ilu-sec h3{font-family:'Space Grotesk',sans-serif; font-size:13px; margin:0 0 6px; color:var(--text);}
+  .ilu-chips{overflow-x:auto; flex-wrap:nowrap !important; padding-bottom:4px;}
+  .ilu-chips button{white-space:nowrap;}
+  .ilu-m.up b{color:var(--teal);}
+  .ilu-m .nm{color:var(--muted); font-size:10.5px;}
   .ilu-note{font-size:11.5px; color:var(--muted); margin-top:8px;}
   .ilu-list{display:flex; flex-direction:column; border:1px solid var(--border); border-radius:10px; overflow:hidden; margin-top:6px;}
   .ilu-day summary, .ilu-rec{display:flex; align-items:center; gap:12px; padding:9px 14px; border-bottom:1px solid var(--surface2); cursor:pointer; flex-wrap:wrap;}
@@ -719,6 +725,7 @@
   .ilu-rec b{margin-left:auto; font-family:'JetBrains Mono',monospace;}
   .ilu-rec small{color:var(--muted); font-size:10.5px; width:100%; text-align:right;}
   .ilu-per{display:flex; flex-wrap:wrap; gap:6px 16px; padding:6px 14px 10px; font-size:11.5px; color:var(--muted); background:var(--surface2);}
+  .ovr-n{color:var(--teal); font-family:'JetBrains Mono',monospace; font-weight:700;}
   .ilu-head{display:flex; align-items:center; gap:10px; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:22px; letter-spacing:.14em; color:var(--amber); margin:2px 0 14px;}
   .ilu-ico{vertical-align:-0.15em;}
   /* DO WPISANIA */
@@ -1519,7 +1526,7 @@ function populateFixtures(isInitial){
     const monthPlayed = monthAllMatches.filter(m=>m.played);
     const monthOvers = monthPlayed.filter(m=>m.over15).length;
     const monthUnders = monthPlayed.length - monthOvers;
-    const monthOverTxt = monthPlayed.length ? ` · <span style="color:var(--teal)">${monthOvers} Over</span> / <span style="color:var(--red)">${monthUnders} Under</span>` : '';
+    const monthOverTxt = monthPlayed.length ? ` · <span class="ovr-n" title="Over 1,5 w 1. tercji: ${monthOvers} z ${monthPlayed.length} meczów">${monthOvers}/${monthPlayed.length}</span>` : '';
     return `<div class="month-group" id="month-${mk}">
       <div class="month-header" data-toggle="month">
         <span class="name">${MONTH_NAMES[+mo-1]} ${y}</span>
@@ -1533,7 +1540,7 @@ function populateFixtures(isInitial){
           const dayPlayed = dayMatches.filter(m=>m.played);
           const dayOvers = dayPlayed.filter(m=>m.over15).length;
           const dayUnders = dayPlayed.length - dayOvers;
-          const dayOverTxt = dayPlayed.length ? ` · <span style="color:var(--teal)">${dayOvers} Over</span> / <span style="color:var(--red)">${dayUnders} Under</span>` : '';
+          const dayOverTxt = dayPlayed.length ? ` · <span class="ovr-n" title="Over 1,5 w 1. tercji: ${dayOvers} z ${dayPlayed.length} meczów">${dayOvers}/${dayPlayed.length}</span>` : '';
           const probs = dayMatches.filter(m=>m.prob!==undefined).map(m=>m.prob);
           const avgProb = probs.length ? Math.round(probs.reduce((a,b)=>a+b,0)/probs.length) : null;
           const maxProb = probs.length ? Math.max(...probs) : null;
@@ -1943,7 +1950,7 @@ function bindLeagueChips(root, rerender){
 }
 function overBadgeHtml(x, y){
   if(!y) return '';
-  return `<span class="over-badge">${x}/${y} Over</span> <span class="over-pct">(${Math.round(x/y*100)}%)</span>`;
+  return `<span class="ovr-n" title="Over 1,5 w 1. tercji: ${x} z ${y} meczów">${x}/${y}</span>`;
 }
 
 // Sortowanie meczów w dniu. Daty w danych są w czasie polskim, więc mecze USA/Kanady (NHL, AHL, OHL) danego dnia
@@ -2109,7 +2116,7 @@ function renderPlayNow(opts){
     const hotTag = hotCount>0 ? ` · <span class="day-hot">🌶️ ${hotCount} HOT</span>` : '';
     const playedDay = dayMatches.filter(m=>m.played && m.p1);
     const overDay = playedDay.filter(m=>m.over15).length;
-    const overTag = playedDay.length ? ` · <span class="day-over">Over ${overDay}/${playedDay.length} (${Math.round(overDay/playedDay.length*100)}%)</span>` : '';
+    const overTag = playedDay.length ? ` · <span class="ovr-n" title="Over 1,5 w 1. tercji: ${overDay} z ${playedDay.length} meczów">${overDay}/${playedDay.length}</span>` : '';
     let gradeTag = '';
     try{
       const TB = tstBuild();
@@ -2376,7 +2383,8 @@ const CHANGELOG = [
     date: '03.11.2026',
     title: 'Nowa zakładka DO WPISANIA + korekta ocen A–D po 2 miesiącach sezonu',
     items: [
-      'Nowa zakładka ILUMINATI (tylko Over, każda liga osobno): nadchodzące dni ligi z historią tej samej daty (±3 dni) w poprzednich sezonach, Over% wg miesięcy i ranking dni z największym Over (np. 4/4, 9/10) niezależnie od liczby meczów',
+      'ILUMINATI przebudowane: dla wybranej ligi (NHL, AHL i pozostałe) Over 1,5 P1 wg dnia tygodnia, dnia miesiąca i miesiąca (słupki z oznaczeniem, co wychodzi poza przypadek), tabela najbliższych dni z tymi zależnościami i ranking dni z największym Over; wszystkie sekcje rozwinięte',
+      'Nagłówki dni w Terminarzu i WYNIKACH: obok liczby meczów zielone x/y = ile meczów miało Over 1,5 w P1',
       'Terminarz: pod każdą drużyną (obok miejsca i bramek) forma z ostatnich 5 meczów — O = Over, U = Under 1,5 w P1; najnowszy po prawej, wyszarzone = mecze z poprzedniego sezonu (gdy w tym jest ich mniej niż 5)',
       'WYNIKI: tylko rozegrane mecze i informacja, ile meczów czeka na wpisanie (przycisk przenosi do DO WPISANIA); wpisywanie wyników przeniesione wyłącznie do DO WPISANIA',
       'DO WPISANIA (po UPDATES): lista meczów z minioną datą bez wyniku 1. tercji. Przy każdym wpiszesz wynik P1 albo klikniesz „Odwołany” — taki mecz znika z listy i ze statystyk, zapisuje się w manual_results.json (synchronizacja GitHub) i można go przywrócić z sekcji „Pominięte”',
@@ -2686,7 +2694,7 @@ let skippedOpen = false;
 
 // ---------- ILUMINATI — kalendarz Over 1,5 P1: dni i miesiące w poprzednich sezonach ----------
 let ILU_CACHE = null;
-let iluState = {lg:'NHL', min:3, month:'ALL'};
+let iluState = {lg:'NHL', min:5};
 function iluData(){
   if(ILU_CACHE) return ILU_CACHE;
   const rows = [];
@@ -2713,67 +2721,63 @@ function renderIlu(){
   const el = document.getElementById('iluContent');
   const st = iluState;
   const lgKeys = Object.keys(DATA.leagues);
-  if(!lgKeys.includes(st.lg)) st.lg = lgKeys.includes('NHL') ? 'NHL' : lgKeys[0];
+  if(!lgKeys.includes(st.lg)) st.lg = 'NHL';
   const rows = iluData().filter(r=>r.lg===st.lg);
-  const base = rows.length ? rows.reduce((a,r)=>a+r.o,0)/rows.length : 0.5;
+  const N = rows.length, K = rows.reduce((a,r)=>a+r.o,0), base = N ? K/N : 0.5;
   const f1 = v => v.toFixed(1);
-  const byDay = {};
-  rows.forEach(r=>{ const x = byDay[r.d] = byDay[r.d] || {n:0, k:0}; x.n++; x.k+=r.o; });
-  const days = Object.entries(byDay).map(([d,x])=>({d, n:x.n, k:x.k, pct:x.k/x.n}));
-  const card = (title, body, open) => `<details class="top5-panel tst-det" ${open?'open':''}><summary class="top5-title">${title}</summary>${body}</details>`;
-  const wdOf = d => WD_PL[new Date(d+'T12:00:00Z').getUTCDay()];
-
-  // nadchodzące dni tej ligi + ta sama data w poprzednich sezonach (±3 dni)
-  const today = warsawToday(); const upc = {};
-  const se = DATA.leagues[st.lg].seasons['2026-27'];
-  if(se) [...(se.preseason?.matches||[]), ...(se.mainSeason?.matches||[])].forEach(m=>{ if(!m.played && m.sortDate>=today) upc[m.sortDate] = (upc[m.sortDate]||0)+1; });
-  const idx = {}; rows.forEach(r=>{ (idx[r.d] = idx[r.d] || []).push(r.o); });
-  const curSeason = seasonYearOf(today);
-  const histFor = dateStr => {
-    const mo = dateStr.slice(5,7), dd = dateStr.slice(8); const per = [];
-    for(let sy=2020; sy<curSeason; sy++){
-      const yr = +mo>=7 ? sy : sy+1; const c = new Date(Date.UTC(yr, +mo-1, +dd)); let n=0,k=0,exact=null;
-      for(let off=-3; off<=3; off++){ const t = new Date(c.getTime()+off*86400000).toISOString().slice(0,10); (idx[t]||[]).forEach(o=>{n++; k+=o;}); if(off===0 && idx[t]) exact = idx[t].reduce((a,b)=>a+b,0)+'/'+idx[t].length; }
-      if(n) per.push({sy, n, k, exact});
-    }
-    return {per, N: per.reduce((a,x)=>a+x.n,0), K: per.reduce((a,x)=>a+x.k,0)};
+  const WD_ORDER = [1,2,3,4,5,6,0], WD_FULL = ['niedziela','poniedziałek','wtorek','środa','czwartek','piątek','sobota'];
+  const wdOf = d => new Date(d+'T12:00:00Z').getUTCDay();
+  const agg = keyFn => { const o = {}; rows.forEach(r=>{ const k = keyFn(r); const x = o[k] = o[k] || {n:0,k:0}; x.n++; x.k+=r.o; }); return o; };
+  const byWd = agg(r=>wdOf(r.d)), byDom = agg(r=>+r.d.slice(8)), byMo = agg(r=>r.d.slice(5,7));
+  let outside = 0, bins = 0;
+  const bars = (items, w) => {
+    const ok = items.filter(x=>x.n>=15);
+    if(!ok.length) return '<div class="ilu-note">Za mało danych.</div>';
+    const ps = ok.map(x=>x.k/x.n*100), lo = Math.min(...ps), hi = Math.max(...ps), span = Math.max(1, hi-lo);
+    return `<div class="ilu-months" style="gap:${w}px;">${ok.map(x=>{
+      const p = x.k/x.n*100, se = Math.sqrt(base*(1-base)/x.n)*100*1.96, diff = p-base*100;
+      const up = diff>se, down = diff<-se; bins++; if(up||down) outside++;
+      const col = up ? 'var(--teal)' : down ? 'var(--red)' : 'var(--border)';
+      return `<div class="ilu-m ${up?'up':''}"><div class="bar"><i style="height:${14+(p-lo)/span*90}px;background:${col}"></i></div><b>${Math.round(p)}%</b><div class="nm">${x.label}</div><small>${x.n}</small></div>`;
+    }).join('')}</div>`;
   };
-  const upDates = Object.keys(upc).sort().slice(0,14);
-  const upBody = upDates.length ? `<div class="ilu-list">${upDates.map(d=>{
-    const h = histFor(d); const p = h.N ? h.K/h.N*100 : null; const diff = p===null ? null : p-base*100;
-    const col = diff===null ? 'var(--muted)' : diff>=3 ? 'var(--teal)' : 'var(--text)';
-    return `<details class="ilu-day"><summary><span class="dt">${d.slice(8)}.${d.slice(5,7)} ${wdOf(d)}</span><span class="c">${upc[d]} ${upc[d]===1?'mecz':'meczów'}</span><span class="v" style="color:${col}">${p===null?'brak danych':f1(p)+'% ('+h.K+'/'+h.N+')'}${diff===null?'':` <small>${diff>=0?'+':''}${f1(diff)} pp</small>`}</span></summary>
-      <div class="ilu-per">${h.per.map(x=>`<span>${x.sy}/${String(x.sy+1).slice(2)}: <b>${x.k}/${x.n}</b>${x.exact?` · dokładnie ten dzień ${x.exact}`:''}</span>`).join('') || 'brak danych'}</div></details>`;
-  }).join('')}</div><div class="ilu-note">Over 1,5 P1 w tej lidze: ta sama data ±3 dni w poprzednich sezonach. Średnia ligi: ${f1(base*100)}%.</div>` : '<div class="ilu-note">Brak nadchodzących meczów tej ligi.</div>';
+  const wdItems = WD_ORDER.map(d=>({label:WD_FULL[d].slice(0,3), ...(byWd[d]||{n:0,k:0})}));
+  const domItems = Array.from({length:31},(_,i)=>i+1).map(d=>({label:String(d), ...(byDom[d]||{n:0,k:0})}));
+  const moOrder = ['09','10','11','12','01','02','03','04','05'];
+  const moItems = moOrder.filter(m=>byMo[m]).map(m=>({label:MONTH_NAMES[+m-1].slice(0,3), ...byMo[m]}));
+  const wdBody = bars(wdItems, 10), domBody = bars(domItems, 4), moBody = bars(moItems, 10);
 
-  // miesiące
-  const months = {}; rows.forEach(r=>{ const m = r.d.slice(5,7); const x = months[m] = months[m] || {n:0,k:0}; x.n++; x.k+=r.o; });
-  const order = ['08','09','10','11','12','01','02','03','04','05'];
-  const monthBody = `<div class="ilu-months">${order.filter(m=>months[m] && months[m].n>=10).map(m=>{
-    const x = months[m], p = x.k/x.n*100, se2 = 1.96*Math.sqrt(p/100*(1-p/100)/x.n)*100, diff = p-base*100;
-    return `<div class="ilu-m"><div class="nm">${MONTH_NAMES[+m-1].slice(0,3)}</div><div class="bar"><i style="height:${Math.max(4,(p-30)*3.2)}px;background:${diff>=0?'var(--teal)':'var(--red)'}"></i></div><b>${f1(p)}%</b><small>${diff>=0?'+':''}${f1(diff)} ±${f1(se2)}</small><small>${x.n} m.</small></div>`;
-  }).join('')}</div>`;
+  // najbliższe dni ligi z jej zależnościami
+  const today = warsawToday(); const upc = {};
+  const se0 = DATA.leagues[st.lg].seasons['2026-27'];
+  if(se0) [...(se0.preseason?.matches||[]), ...(se0.mainSeason?.matches||[])].forEach(m=>{ if(!m.played && m.sortDate>=today) upc[m.sortDate] = (upc[m.sortDate]||0)+1; });
+  const pc = (x, minN=15) => x && x.n>=minN ? x.k/x.n*100 : null;
+  const cell = p => p===null ? '<td class="n">—</td>' : `<td class="n" style="color:${p-base*100>=2?'var(--teal)':p-base*100<=-2?'var(--red)':'inherit'}">${Math.round(p)}%</td>`;
+  const upRows = Object.keys(upc).sort().slice(0,10).map(d=>`<tr><td>${d.slice(8)}.${d.slice(5,7)} ${WD_FULL[wdOf(d)].slice(0,3)}</td><td class="n">${upc[d]}</td>${cell(pc(byWd[wdOf(d)]))}${cell(pc(byDom[+d.slice(8)]))}${cell(pc(byMo[d.slice(5,7)]))}</tr>`).join('');
+  const upBody = upRows ? `<table class="tst-tab"><thead><tr><th>Dzień</th><th class="n">mecze</th><th class="n">dzień tyg.</th><th class="n">dzień mies.</th><th class="n">miesiąc</th></tr></thead><tbody>${upRows}</tbody></table>` : '<div class="ilu-note">Brak nadchodzących meczów tej ligi.</div>';
 
-  // dni z samymi / prawie samymi Overami
-  const minN = st.min;
-  const pool = days.filter(x=>x.n>=minN && (st.month==='ALL' || x.d.slice(5,7)===st.month));
-  const full = pool.filter(x=>x.pct===1).length, hi = pool.filter(x=>x.pct>=0.9).length;
-  const rec = [...pool].sort((a,b)=>b.pct-a.pct || b.n-a.n || b.d.localeCompare(a.d)).slice(0,40);
-  const recBody = `<div class="ilu-note" style="margin:4px 0 8px;">Dni (≥${minN} mecze tej ligi): <b>${pool.length}</b> · wszystkie Over: <b style="color:var(--teal)">${full}</b> · ≥90% Over: <b style="color:var(--teal)">${hi}</b></div>
-    <div class="ilu-list rec">${rec.map(x=>`<div class="ilu-rec"><span class="dt">${x.d.slice(8)}.${x.d.slice(5,7)}.${x.d.slice(0,4)} ${wdOf(x.d)}</span><b style="color:var(--teal)">${x.k}/${x.n} (${Math.round(x.pct*100)}%)</b></div>`).join('') || '<div class="ilu-note">Brak dni.</div>'}</div>`;
+  // najlepsze dni (każdy dzień historii, ranking po % Over)
+  const byDay = {}; rows.forEach(r=>{ const x = byDay[r.d] = byDay[r.d] || {n:0,k:0}; x.n++; x.k+=r.o; });
+  const pool = Object.entries(byDay).map(([d,x])=>({d,...x,pct:x.k/x.n})).filter(x=>x.n>=st.min);
+  const rec = pool.sort((a,b)=>b.pct-a.pct || b.n-a.n || b.d.localeCompare(a.d)).slice(0,40);
+  const recBody = `<div class="toolbar ilu-bar" style="margin-top:6px;"><select id="iluMin">${[3,4,5,6,8,10].map(n=>`<option value="${n}" ${n===st.min?'selected':''}>min. ${n} meczów w dniu</option>`).join('')}</select></div>
+    <div class="ilu-list rec">${rec.map(x=>`<div class="ilu-rec"><span class="dt">${x.d.slice(8)}.${x.d.slice(5,7)}.${x.d.slice(0,4)} ${WD_FULL[wdOf(x.d)].slice(0,3)}</span><b class="ovr-n">${x.k}/${x.n} (${Math.round(x.pct*100)}%)</b></div>`).join('') || '<div class="ilu-note">Brak dni.</div>'}</div>`;
 
-  const lgOpts = lgKeys.map(k=>`<option value="${k}" ${k===st.lg?'selected':''}>${esc2(leagueShortLabel(k))} (${esc2(k)})</option>`).join('');
-  const moOpts = ['ALL','08','09','10','11','12','01','02','03','04','05'].map(m=>`<option value="${m}" ${m===st.month?'selected':''}>${m==='ALL'?'Wszystkie miesiące':MONTH_NAMES[+m-1]}</option>`).join('');
-  const minOpts = [1,2,3,4,5,6,8].map(n=>`<option value="${n}" ${n===st.min?'selected':''}>min. ${n} ${n===1?'mecz':'mecze'} w dniu</option>`).join('');
+  const logoSvg = document.querySelector('#leagueSwitch .ilu-ico');
+  const chips = lgKeys.map(k=>`<button class="${k===st.lg?'active':''}" data-ilu-lg="${k}">${esc2(k)}</button>`).join('');
+  const sec = (t, body) => `<section class="ilu-sec"><h3>${t}</h3>${body}</section>`;
   el.innerHTML = `
-    <div class="ilu-head">${document.querySelector('#leagueSwitch .ilu-ico')?document.querySelector('#leagueSwitch .ilu-ico').outerHTML.replace('1.1em','28').replace('1.1em','28'):''}<span>ILUMINATI</span></div>
-    <div class="toolbar ilu-bar"><select id="iluLg">${lgOpts}</select></div>
-    ${card('🔮 Nadchodzące dni tej ligi — ta sama data w poprzednich latach', upBody, true)}
-    ${card('📅 Miesiące', monthBody, false)}
-    ${card('🏆 Dni z największym Over', `<div class="toolbar ilu-bar" style="margin-top:6px;"><select id="iluMin">${minOpts}</select><select id="iluMonth">${moOpts}</select></div>${recBody}`, false)}`;
-  document.getElementById('iluLg').addEventListener('change', e=>{ st.lg = e.target.value; renderIlu(); });
-  document.getElementById('iluMin').addEventListener('change', e=>{ st.min = +e.target.value; renderIlu(); });
-  document.getElementById('iluMonth').addEventListener('change', e=>{ st.month = e.target.value; renderIlu(); });
+    <div class="ilu-head">${logoSvg ? logoSvg.outerHTML.replace(/1\.1em/g,'28') : ''}<span>ILUMINATI</span></div>
+    <div class="quick-filters ilu-chips" style="margin-bottom:12px;">${chips}</div>
+    <div class="ilu-note" style="margin:0 0 10px;"><b>${esc2(st.lg)}</b>: ${N} meczów, Over 1,5 w P1 padł w <b class="ovr-n">${K}/${N}</b> (${f1(base*100)}%). Daty wg czasu polskiego.</div>
+    ${sec('Dzień tygodnia', wdBody)}
+    ${sec('Dzień miesiąca', domBody)}
+    ${sec('Miesiąc', moBody)}
+    ${sec('Najbliższe dni tej ligi', upBody)}
+    ${sec('Dni z największym Over', recBody)}
+    <div class="ilu-note">Zielony słupek = powyżej średniej ligi o więcej niż margines błędu, czerwony = poniżej, szary = w granicach przypadku. Pod słupkiem liczba meczów. Przy ${bins} słupkach samym przypadkiem wychodzi poza margines ok. ${(bins*0.05).toFixed(0)}; tu wyszło ${outside}.</div>`;
+  el.querySelectorAll('[data-ilu-lg]').forEach(b=>b.addEventListener('click', ()=>{ st.lg = b.dataset.iluLg; renderIlu(); }));
+  document.getElementById('iluMin')?.addEventListener('change', e=>{ st.min = +e.target.value; renderIlu(); });
 }
 
 function renderUpdates(){
