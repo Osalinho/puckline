@@ -725,6 +725,16 @@
   .ilu-rec b{margin-left:auto; font-family:'JetBrains Mono',monospace;}
   .ilu-rec small{color:var(--muted); font-size:10.5px; width:100%; text-align:right;}
   .ilu-per{display:flex; flex-wrap:wrap; gap:6px 16px; padding:6px 14px 10px; font-size:11.5px; color:var(--muted); background:var(--surface2);}
+  .o05-row{display:flex; align-items:center; gap:10px; padding:9px 14px; border-bottom:1px solid var(--surface2); border-left:3px solid transparent;}
+  .o05-row.hit{border-left-color:var(--teal); background:rgba(47,191,160,0.06);}
+  .o05-row.miss{border-left-color:var(--red); background:rgba(224,90,90,0.06);}
+  .o05-t{flex:1; min-width:0; display:flex; align-items:center; gap:6px; font-size:12.5px; flex-wrap:wrap;}
+  .o05-res{font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); flex-shrink:0;}
+  .o05-p{font-family:'JetBrains Mono',monospace; font-weight:700; font-size:13px; text-align:center; padding:5px 0; border-radius:7px; width:52px; flex-shrink:0;}
+  .o05-hi{background:var(--teal-dim); color:var(--teal);}
+  .o05-mid{background:var(--yellow-dim); color:var(--yellow);}
+  .o05-lo{background:var(--orange-dim); color:var(--orange);}
+  .o05-switch{margin-bottom:12px;}
   .ovr-n{color:var(--teal); font-family:'JetBrains Mono',monospace; font-weight:700;}
   .ilu-head{display:flex; align-items:center; gap:10px; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:22px; letter-spacing:.14em; color:var(--amber); margin:2px 0 14px;}
   .ilu-ico{vertical-align:-0.15em;}
@@ -2069,7 +2079,92 @@ function pickTop5(matches, cutoff){
   return matches.map(m=>({m, c: top5Comps(m, cutoff)})).filter(x=>x.c).sort((a,b)=>b.c.S-a.c.S).slice(0,5);
 }
 
+// ---------- Podzakładka OVER 0,5 w 1. tercji (lekki terminarz) ----------
+let playNowMode = 'o15';
+let o05Lg = 'ALL';
+let O05_CACHE = null;
+function o05Data(){
+  if(O05_CACHE) return O05_CACHE;
+  const out = {};
+  Object.keys(DATA.leagues).forEach(lg=>{
+    const L = DATA.leagues[lg], arr = [];
+    Object.entries(L.seasons).forEach(([sk, se])=>{
+      const pools = se.status==='completed' ? [se.matches||[]] : [se.preseason?.matches||[], se.mainSeason?.matches||[]];
+      pools.forEach(p=>p.forEach(m=>{ if(m.played && m.p1){ const [a,b] = m.p1.split(':').map(Number); arr.push({d:m.sortDate, sk, h:m.home, a:m.away, gh:a, ga:b}); } }));
+    });
+    arr.sort((x,y)=>x.d.localeCompare(y.d));
+    out[lg] = {arr, done: Object.keys(L.seasons).filter(k=>L.seasons[k].status==='completed').sort().reverse().slice(0,3)};
+  });
+  return O05_CACHE = out;
+}
+// P(co najmniej 1 gol w 1. tercji): połowa Poisson drużynowy (ataki/obrony z P1; 3 ostatnie sezony z wagą 0,7 i bieżący sezon),
+// połowa średnia ligi; tylko dane sprzed danego dnia. Backtest 2026/27: logloss 0,4751 vs 0,4763 dla samej średniej ligi.
+function o05Predictor(lg, day){
+  const D = o05Data()[lg]; if(!D) return ()=>null;
+  const wS = {}; D.done.forEach((sk,i)=>{ wS[sk] = Math.pow(0.7, i); });
+  const G = {}; let Wl = 0, gl = 0, zero = 0;
+  D.arr.forEach(m=>{
+    const w = m.sk==='2026-27' ? (m.d<day ? 1 : 0) : (wS[m.sk]||0); if(!w) return;
+    [[m.h,m.gh,m.ga],[m.a,m.ga,m.gh]].forEach(([t,gf,ga])=>{ const x = G[t] = G[t] || [0,0,0]; x[0]+=w*gf; x[1]+=w*ga; x[2]+=w; });
+    Wl += 2*w; gl += w*(m.gh+m.ga); zero += w*((m.gh+m.ga)===0?1:0);
+  });
+  if(Wl < 50) return ()=>null;
+  const mu = gl/Wl, lgp = 1 - zero/(Wl/2), K = 20;
+  return (home, away)=>{
+    const h = G[home], a = G[away]; if(!h || !a) return lgp*100;
+    const r = (x,i)=>(x[i]+K*mu)/(x[2]+K);
+    const lam = r(h,0)*r(a,1)/mu + r(a,0)*r(h,1)/mu;
+    return (0.5*(1-Math.exp(-lam)) + 0.5*lgp)*100;
+  };
+}
+function o05Class(p){ return p>=88 ? 'o05-hi' : p>=83 ? 'o05-mid' : 'o05-lo'; }
+
+function renderO05(content){
+  const today = warsawToday();
+  const shift = n => new Date(new Date(today+'T12:00:00Z').getTime()+n*86400000).toISOString().slice(0,10);
+  const from = shift(-2), to = shift(7);
+  const lgKeys = Object.keys(DATA.leagues);
+  if(o05Lg!=='ALL' && !lgKeys.includes(o05Lg)) o05Lg = 'ALL';
+  const days = {};
+  lgKeys.forEach(lg=>{
+    if(o05Lg!=='ALL' && lg!==o05Lg) return;
+    const se = DATA.leagues[lg].seasons['2026-27']; if(!se) return;
+    const preds = {};
+    [...(se.preseason?.matches||[]), ...(se.mainSeason?.matches||[])].forEach(m=>{
+      if(m.sortDate<from || m.sortDate>to) return;
+      const pr = preds[m.sortDate] || (preds[m.sortDate] = o05Predictor(lg, m.sortDate));
+      const p = pr(m.home, m.away);
+      let hit = null;
+      if(m.played && m.p1){ const [a,b] = m.p1.split(':').map(Number); hit = (a+b)>=1; }
+      (days[m.sortDate] = days[m.sortDate] || []).push({lg, m, p, hit});
+    });
+  });
+  const keys = Object.keys(days).sort();
+  const chips = ['ALL', ...lgKeys].map(k=>`<button class="${k===o05Lg?'active':''}" data-o05-lg="${k}">${k==='ALL'?'Wszystkie':esc2(k)}</button>`).join('');
+  const dayHtml = d=>{
+    const list = days[d].sort((a,b)=>(b.p??-1)-(a.p??-1));
+    const pl = list.filter(x=>x.hit!==null), ok = pl.filter(x=>x.hit).length;
+    const wd = WD_PL[new Date(d+'T12:00:00Z').getUTCDay()];
+    return `<div class="day-group open"><div class="day-header"><span class="date">${list[0].m.date} ${wd}${d===today?' · dziś':''}</span><span class="n">${list.length} mecz${list.length===1?'':list.length<5?'e':'ów'}${pl.length?` · <span class="ovr-n">${ok}/${pl.length}</span>`:''}</span></div>
+      <div class="day-body" style="display:block;">${list.map(x=>`<div class="o05-row${x.hit===true?' hit':x.hit===false?' miss':''}">
+        <span class="td-lg" style="background:${leagueColor(x.lg)}">${esc2(leagueShortLabel(x.lg))}</span>
+        <span class="o05-t">${logo(x.m.home, x.lg)}<b>${esc2(x.m.home)}</b> <span class="tst-vs">–</span> ${logo(x.m.away, x.lg)}<b>${esc2(x.m.away)}</b></span>
+        <span class="o05-res">${x.hit===null?'':`P1: ${x.m.p1} ${x.hit?'<span class="ovr-n">✔</span>':'<span style="color:var(--red)">✘</span>'}`}</span>
+        ${x.p===null||x.p===undefined?'<span class="o05-p">—</span>':`<span class="o05-p ${o05Class(x.p)}">${x.p.toFixed(0)}%</span>`}</div>`).join('')}</div></div>`;
+  };
+  content.innerHTML = `<div class="quick-filters ilu-chips" style="margin-bottom:12px;">${chips}</div>
+    <div class="fixtures-scroll" style="max-height:none;">${keys.length ? keys.map(dayHtml).join('') : '<div class="td-empty">Brak meczów w tym oknie (2 dni wstecz, 7 do przodu).</div>'}</div>`;
+  content.querySelectorAll('[data-o05-lg]').forEach(b=>b.addEventListener('click', ()=>{ o05Lg = b.dataset.o05Lg; renderPlayNow(); }));
+}
+
 function renderPlayNow(opts){
+  const content = document.getElementById('playnowContent');
+  if(playNowMode==='o05') renderO05(content); else renderPlayNowInner(opts);
+  content.insertAdjacentHTML('afterbegin', `<div class="subtab o05-switch"><button class="${playNowMode==='o15'?'active':''}" data-pn-mode="o15">Over 1,5 P1</button><button class="${playNowMode==='o05'?'active':''}" data-pn-mode="o05">Over 0,5 P1</button></div>`);
+  content.querySelectorAll('[data-pn-mode]').forEach(b=>b.addEventListener('click', ()=>{ playNowMode = b.dataset.pnMode; renderPlayNow(); }));
+}
+
+function renderPlayNowInner(opts){
   try{ depBuild(); }catch(e){}
   opts = opts || {};
   ensureLeagueFilter();
@@ -2383,6 +2478,7 @@ const CHANGELOG = [
     date: '03.11.2026',
     title: 'Nowa zakładka DO WPISANIA + korekta ocen A–D po 2 miesiącach sezonu',
     items: [
+      'Terminarz: nowa podzakładka „Over 0,5 P1” (przełącznik na górze) — lekki terminarz z prawdopodobieństwem co najmniej 1 gola w 1. tercji (2 dni wstecz, 7 do przodu, filtr ligi, ✔/✘ dla rozegranych). Model: połowa Poisson drużynowy z goli P1, połowa średnia ligi',
       'ILUMINATI przebudowane: dla wybranej ligi (NHL, AHL i pozostałe) Over 1,5 P1 wg dnia tygodnia, dnia miesiąca i miesiąca (słupki z oznaczeniem, co wychodzi poza przypadek), tabela najbliższych dni z tymi zależnościami i ranking dni z największym Over; wszystkie sekcje rozwinięte',
       'Nagłówki dni w Terminarzu i WYNIKACH: obok liczby meczów zielone x/y = ile meczów miało Over 1,5 w P1',
       'Terminarz: pod każdą drużyną (obok miejsca i bramek) forma z ostatnich 5 meczów — O = Over, U = Under 1,5 w P1; najnowszy po prawej, wyszarzone = mecze z poprzedniego sezonu (gdy w tym jest ich mniej niż 5)',
@@ -3178,7 +3274,7 @@ function rebuildCurrentSeasonModel(lg){
       delete m.prob; delete m.homePct; delete m.awayPct; delete m.homeOverallPct; delete m.awayOverallPct; delete m.components; delete m.modelBasis; delete m.dataSource;
     }
   });
-  TOP5_IDX = {}; TOP5_CUR = {}; PERF_CACHE = null; FORM_CACHE = {}; ILU_CACHE = null;
+  TOP5_IDX = {}; TOP5_CUR = {}; PERF_CACHE = null; FORM_CACHE = {}; ILU_CACHE = null; O05_CACHE = null;
 }
 
 function collectPlayedWithProb(scope){
