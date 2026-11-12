@@ -1950,20 +1950,33 @@ function leagueChipLabel(lg){
 }
 function leagueChipsHtml(){
   ensureLeagueFilter();
-  return `<div class="quick-filters league-chips" style="margin-bottom:14px;">${Object.keys(DATA.leagues).map(lg=>{
+  return `<div class="quick-filters league-chips" style="margin-bottom:14px;"><button class="${playNowLeagueFilter.size===Object.keys(DATA.leagues).length?'active':''}" data-toggle-league="__ALL__">Wszystkie</button>${Object.keys(DATA.leagues).map(lg=>{
     const active = playNowLeagueFilter.has(lg);
     const r = relInfo(lg);
     return `<button title="${lg}${r?` · wiarygodność modelu: ${REL_LABEL[r.tier]}`:''}" class="${active?'active':''}" data-toggle-league="${lg}" style="border-color:${leagueColor(lg)}; ${active?`background:${leagueColor(lg)}; color:#0B0F17;`:''}">${leagueChipLabel(lg)}${relDotHtml(lg)}</button>`;
   }).join('')}</div>`;
 }
+// Wybór lig wspólny dla wszystkich zakładek: gdy zaznaczone są wszystkie, pierwszy klik wybiera tylko tę ligę;
+// potem kolejne kliknięcia dodają / odejmują ligi (np. NHL + AHL). Odznaczenie ostatniej wraca do „Wszystkie”.
+function toggleLeagueSel(lg){
+  const all = Object.keys(DATA.leagues);
+  ensureLeagueFilter();
+  if(lg==='__ALL__'){ playNowLeagueFilter = new Set(all); return; }
+  const next = new Set(playNowLeagueFilter);
+  if(next.size===all.length) next.clear();
+  if(next.has(lg)) next.delete(lg); else next.add(lg);
+  playNowLeagueFilter = next.size ? next : new Set(all);
+}
+function leagueSelLabel(){
+  ensureLeagueFilter();
+  const all = Object.keys(DATA.leagues);
+  if(playNowLeagueFilter.size===all.length) return 'wszystkie ligi';
+  const k = all.filter(x=>playNowLeagueFilter.has(x));
+  return k.length>4 ? k.length+' lig' : k.join(' + ');
+}
 function bindLeagueChips(root, rerender){
   root.querySelectorAll('.league-chips button').forEach(b=>{
-    b.addEventListener('click', ()=>{
-      const lg = b.dataset.toggleLeague;
-      const isOnlyThisOne = playNowLeagueFilter.size===1 && playNowLeagueFilter.has(lg);
-      playNowLeagueFilter = isOnlyThisOne ? new Set(Object.keys(DATA.leagues)) : new Set([lg]);
-      rerender();
-    });
+    b.addEventListener('click', ()=>{ toggleLeagueSel(b.dataset.toggleLeague); rerender(); });
   });
 }
 function overBadgeHtml(x, y){
@@ -2439,10 +2452,12 @@ function top5PastRecord(){
 
 function renderPerf(){
   const content = document.getElementById('perfContent');
-  const rows = perfRows();
+  ensureLeagueFilter();
+  const rows = perfRows().filter(r=>playNowLeagueFilter.has(r.lg));
   const N = rows.length;
   if(N < 20){
-    content.innerHTML = `<div class="schedule-note">📈 <span>Za mało rozegranych meczów 2026/27 z prognozą (${N}), żeby ocenić skuteczność. Panel wypełni się po wczytaniu większej liczby wyników.</span></div>`;
+    content.innerHTML = `${leagueChipsHtml()}<div class="schedule-note">📈 <span>Za mało rozegranych meczów 2026/27 z prognozą (${N}), żeby ocenić skuteczność. Panel wypełni się po wczytaniu większej liczby wyników.</span></div>`;
+    bindLeagueChips(content, ()=>renderPerf());
     return;
   }
   const base = rows.filter(r=>r.over).length / N;
@@ -2476,7 +2491,7 @@ function renderPerf(){
   }).join('');
 
   content.innerHTML = `
-    
+    ${leagueChipsHtml()}
     <div class="top5-panel">
       <div class="top5-title">Baza: Over 1,5 w P1 pada w ${(base*100).toFixed(1)}% meczów (${rows.filter(r=>r.over).length}/${N})</div>
       <div class="perf-note" style="margin:0;">Prognoza ma sens tylko wtedy, gdy mecze z wysoką prognozą wchodzą częściej niż baza. Różnica „vs baza” poniżej to ten zysk w punktach procentowych.</div>
@@ -2497,6 +2512,7 @@ function renderPerf(){
     <div class="perf-h">Wiarygodność modelu w ligach</div>
     <div class="card"><table class="perf-table"><thead><tr><th class="l">Liga</th><th class="l">Historia (24/25–25/26)</th><th class="num">Mecze 26/27</th><th class="num">Over</th><th class="num">Śr. prognoza</th></tr></thead><tbody>${lgRows}</tbody></table></div>
     <div class="perf-note">Wiarygodność = siła rozróżniania meczów (AUC) modelu v2 w poprzednich sezonach: 0,50 to rzut monetą. W większości lig jest ona niewielka, a w NHL i AHL praktycznie żadna (0,50–0,51) — tam prognoza bardziej porządkuje mecze niż je przewiduje. Próbki to 400–1300 meczów na ligę, więc różnice rzędu ±0,03 to szum.</div>`;
+  bindLeagueChips(content, ()=>renderPerf());
 }
 
 // ---------- Updates / changelog ----------
@@ -2506,7 +2522,8 @@ const CHANGELOG = [
     title: 'Nowa zakładka DO WPISANIA + korekta ocen A–D po 2 miesiącach sezonu',
     items: [
       'Przełącznik Over 1,5 / Over 0,5 pod logo (Terminarz, Wyniki, Iluminati): w trybie 0,5 „Over” = co najmniej 1 gol w 1. tercji — wyniki, nagłówki dni x/y, forma, serie i prognoza (model: połowa Poisson drużynowy, połowa średnia ligi) liczą się dla progu 0,5; oceny A–D i HOT dotyczą tylko 1,5',
-      'ILUMINATI: wybór ligi, sezonu i miesiąca; tabela sezony × miesiące (kliknięcie wybiera), dzień tygodnia, dzień miesiąca, najbliższe dni i dni z największym Over; kolory takie jak w reszcie strony',
+      'Wybór lig działa teraz w każdej zakładce (Terminarz, Wyniki, FIX, Zależności, Skuteczność, Iluminati) i jest wspólny: zaznacz np. NHL i AHL jednocześnie; pierwszy klik wybiera jedną ligę, kolejne dodają lub odejmują, „Wszystkie” przywraca komplet. W FIX na górze są teraz widoczne przyciski lig',
+      'ILUMINATI: wybór ligi (wielu), sezonu i miesiąca; tabela sezony × miesiące (kliknięcie wybiera), dzień tygodnia, dzień miesiąca, najbliższe dni i dni z największym Over; kolory takie jak w reszcie strony',
       'Nagłówki dni w Terminarzu i WYNIKACH: obok liczby meczów zielone x/y = ile meczów miało Over 1,5 w P1',
       'Terminarz: pod każdą drużyną (obok miejsca i bramek) forma z ostatnich 5 meczów — O = Over, U = Under 1,5 w P1; najnowszy po prawej, wyszarzone = mecze z poprzedniego sezonu (gdy w tym jest ich mniej niż 5)',
       'WYNIKI: tylko rozegrane mecze i informacja, ile meczów czeka na wpisanie (przycisk przenosi do DO WPISANIA); wpisywanie wyników przeniesione wyłącznie do DO WPISANIA',
@@ -2843,9 +2860,8 @@ const WD_PL = ['nd','pn','wt','śr','czw','pt','sob'];
 function renderIlu(){
   const el = document.getElementById('iluContent');
   const st = iluState;
-  const lgKeys = Object.keys(DATA.leagues);
-  if(!lgKeys.includes(st.lg)) st.lg = 'NHL';
-  const lgRows = iluData().filter(r=>r.lg===st.lg);
+  ensureLeagueFilter();
+  const lgRows = iluData().filter(r=>playNowLeagueFilter.has(r.lg));
   const seasons = [...new Set(lgRows.map(r=>r.sk))].sort();
   const MO_ORDER = ['08','09','10','11','12','01','02','03','04','05','06','07'];
   const months = MO_ORDER.filter(m=>lgRows.some(r=>r.d.slice(5,7)===m));
@@ -2891,8 +2907,11 @@ function renderIlu(){
 
   // 3) najbliższe dni ligi
   const today = warsawToday(); const upc = {};
-  const se0 = DATA.leagues[st.lg].seasons['2026-27'];
-  if(se0) [...(se0.preseason?.matches||[]), ...(se0.mainSeason?.matches||[])].forEach(m=>{ if(!m.played && m.sortDate>=today) upc[m.sortDate] = (upc[m.sortDate]||0)+1; });
+  Object.keys(DATA.leagues).forEach(lg=>{
+    if(!playNowLeagueFilter.has(lg)) return;
+    const se0 = DATA.leagues[lg].seasons['2026-27'];
+    if(se0) [...(se0.preseason?.matches||[]), ...(se0.mainSeason?.matches||[])].forEach(m=>{ if(!m.played && m.sortDate>=today) upc[m.sortDate] = (upc[m.sortDate]||0)+1; });
+  });
   const byMo2 = agg(rows, r=>r.d.slice(5,7));
   const pc = x => x && x.n>=minBin ? x.k/x.n*100 : null;
   const cell = p => p===null ? '<td class="n">—</td>' : `<td class="n tx-${cls(p-base*100)}">${Math.round(p)}%</td>`;
@@ -2911,17 +2930,17 @@ function renderIlu(){
   const sec = (t, body) => `<section class="ilu-sec"><h3>${t}</h3>${body}</section>`;
   el.innerHTML = `
     <div class="ilu-head">${logoSvg ? logoSvg.outerHTML.replace(/1\.1em/g,'28') : ''}<span>ILUMINATI</span></div>
-    <div class="quick-filters ilu-chips" style="margin-bottom:8px;">${lgKeys.map(k=>chip(st.lg,k,esc2(k),'data-ilu-lg')).join('')}</div>
+    ${leagueChipsHtml()}
     <div class="quick-filters ilu-chips" style="margin-bottom:8px;">${chip(st.season,'ALL','Wszystkie sezony','data-ilu-sk')}${seasons.slice().reverse().map(k=>chip(st.season,k,sl(k),'data-ilu-sk')).join('')}</div>
     <div class="quick-filters ilu-chips" style="margin-bottom:12px;">${chip(st.month,'ALL','Wszystkie miesiące','data-ilu-mo')}${months.map(m=>chip(st.month,m,MONTH_NAMES[+m-1],'data-ilu-mo')).join('')}</div>
-    <div class="ilu-note" style="margin:0 0 12px;"><b>${esc2(st.lg)}</b> · ${st.season==='ALL'?'wszystkie sezony':sl(st.season)} · ${st.month==='ALL'?'wszystkie miesiące':MONTH_NAMES[+st.month-1]}: <b class="ovr-n">${K}/${N}</b> (${N?f1(K/N*100):'–'}%) · średnia ligi ${f1(base*100)}% · daty wg czasu polskiego</div>
+    <div class="ilu-note" style="margin:0 0 12px;"><b>${esc2(leagueSelLabel())}</b> · ${st.season==='ALL'?'wszystkie sezony':sl(st.season)} · ${st.month==='ALL'?'wszystkie miesiące':MONTH_NAMES[+st.month-1]}: <b class="ovr-n">${K}/${N}</b> (${N?f1(K/N*100):'–'}%) · średnia ligi ${f1(base*100)}% · daty wg czasu polskiego</div>
     ${sec('Sezony × miesiące', gridHtml)}
     ${sec('Dzień tygodnia', wdBody)}
     ${sec('Dzień miesiąca', domBody)}
     ${sec('Najbliższe dni tej ligi', upBody)}
     ${sec('Dni z największym Over', recBody)}
     <div class="ilu-legend"><span><i class="bg-teal"></i>wyraźnie powyżej średniej ligi</span><span><i class="bg-yellow"></i>lekko powyżej</span><span><i class="bg-orange"></i>lekko poniżej</span><span><i class="bg-red"></i>wyraźnie poniżej</span></div>`;
-  el.querySelectorAll('[data-ilu-lg]').forEach(b=>b.addEventListener('click', ()=>{ st.lg = b.dataset.iluLg; renderIlu(); }));
+  bindLeagueChips(el, ()=>renderIlu());
   el.querySelectorAll('[data-ilu-sk]').forEach(b=>b.addEventListener('click', ()=>{ st.season = b.dataset.iluSk; renderIlu(); }));
   el.querySelectorAll('[data-ilu-mo]').forEach(b=>b.addEventListener('click', ()=>{ st.month = b.dataset.iluMo; renderIlu(); }));
   el.querySelectorAll('.ilu-grid td[data-sk]').forEach(td=>td.addEventListener('click', ()=>{
@@ -4388,7 +4407,8 @@ function renderTest(){
       <div class="day-body" style="display:${open?'block':'none'};">${open ? rows.map(r=>tstRowHtml(r,T)).join('') : ''}</div></div>`;
   }).join('') : `<div style="color:var(--muted); font-size:13px; padding:24px; text-align:center;">Brak meczów w tym filtrze.</div>`;
 
-  el.innerHTML = `${kpis}${summary}${toolbar}${selInfo}<div class="fixtures-scroll">${body}</div>`;
+  el.innerHTML = `${leagueChipsHtml()}${kpis}${summary}${toolbar}${selInfo}<div class="fixtures-scroll">${body}</div>`;
+  bindLeagueChips(el, ()=>renderTest());
   const det = el.querySelector('#tstDet'); if(det) det.addEventListener('toggle', ()=>{ tstOpen = det.open; try{ localStorage.setItem('puckline_tst_open', det.open?'1':'0'); }catch(e){} });
   el.querySelectorAll('#tstScope button').forEach(b=>b.addEventListener('click', ()=>{ tstScope=b.dataset.v; renderTest(); }));
   el.querySelectorAll('#tstGrade button').forEach(b=>b.addEventListener('click', ()=>{ tstGrade=b.dataset.v; renderTest(); }));
@@ -4557,7 +4577,8 @@ function renderDep(){
   const el = document.getElementById('depContent');
   const T = depBuild();
   const histMode0 = null;
-  const lgOk = lg => (depLg==='ALL' || lg===depLg) && (depFilter!=='hist' || T.lgSeasons[lg]>=6);
+  ensureLeagueFilter();
+  const lgOk = lg => playNowLeagueFilter.has(lg) && (depFilter!=='hist' || T.lgSeasons[lg]>=6);
   const histMode = depFilter==='hist';
   depMinN = depScope==='cur' ? 50 : 150;
   const scoped = list => list.filter(o=>lgOk(o.lg) && (depScope==='all' || o.cur) && (!histMode || o.n>=6));
@@ -4703,18 +4724,18 @@ function renderDep(){
 
   // --- pasek sterowania
   const lgs = Object.keys(DATA.leagues);
-  const lgSel = `<div class="dep-lgs" id="depLgs"><button data-lg="ALL" class="${depLg==='ALL'?'active':''}">Wszystkie</button>${lgs.filter(lg=>depFilter!=='hist' || T.lgSeasons[lg]>=6).map(lg=>`<button data-lg="${lg}" class="${depLg===lg?'active':''}"><span class="ld" style="background:${leagueColor(lg)}"></span>${esc2(depLgName(lg))}</button>`).join('')}</div>`;
+  const lgSel = leagueChipsHtml();
   const seg = `<div class="dep-seg" id="depScope"><button data-s="cur" class="${depScope==='cur'?'active':''}">AKTUALNY SEZON</button><button data-s="all" class="${depScope==='all'?'active':''}">CAŁOŚĆ</button></div>`;
   const chipDefs = [['all','Wszystkie',tagCnt.all],['streak','🔥 Serie',tagCnt.streak],['seq','🔄 Sekwencje',tagCnt.seq],['ha','🏟️ Dom/Wyjazd',tagCnt.ha],['b2b','⏳ B2B',tagCnt.b2b],['hist','🤖 6+ sezonów',null]];
   const chips = chipDefs.map(([k,l,n])=>`<button data-v="${k}" class="${depFilter===k?'active':''}">${l}${n!==null?` <span class="dep-cnt">${n}</span>`:''}</button>`).join('');
   const lgsIn = [...new Set(obs.map(o=>o.lg))];
-  const note = `Schematy i serie dotyczą <b>aktualnego sezonu 2026/27</b>. Statystyki „po takiej serii” liczone z: <b>${depScope==='cur'?'aktualnego sezonu':'wszystkich sezonów w danych'}</b>${histMode?' (tylko ligi z 6+ sezonami)':''}, <b>${obs.length}</b> obserwacji${depLg==='ALL'?` z ${lgsIn.length} lig`:''}. ▲/▼ przy meczu = wypadkowa różnica Over wg historii dla schematów obu drużyn; ★ = różnica istotna statystycznie.${depScope==='cur'?' W samym sezonie próby są małe, więc liczby bywają przypadkowe.':''}`;
+  const note = `Schematy i serie dotyczą <b>aktualnego sezonu 2026/27</b>. Statystyki „po takiej serii” liczone z: <b>${depScope==='cur'?'aktualnego sezonu':'wszystkich sezonów w danych'}</b>${histMode?' (tylko ligi z 6+ sezonami)':''}, <b>${obs.length}</b> obserwacji${playNowLeagueFilter.size===Object.keys(DATA.leagues).length?` z ${lgsIn.length} lig`:''}. ▲/▼ przy meczu = wypadkowa różnica Over wg historii dla schematów obu drużyn; ★ = różnica istotna statystycznie.${depScope==='cur'?' W samym sezonie próby są małe, więc liczby bywają przypadkowe.':''}`;
 
   el.innerHTML = `<div class="dep-bar">${lgSel}${seg}<div class="dep-chips" id="depChips">${chips}</div></div><div class="dep-note">${note}</div>
     <details class="dep-card dep-main" open><summary class="dep-h">📅 Kolejka: najbliższe dni i mecze ze schematami</summary><div class="dep-sub">${MODE==='all'?'Mecze, w których któraś drużyna ma schemat (seria, sekwencja, rola dom/wyjazd, B2B).':'Filtr: '+({streak:'serie 3+ meczów',seq:'wyraźna sekwencja ostatnich 3 meczów',ha:'seria 3 meczów w roli dom/wyjazd',b2b:'drużyna grała wczoraj (B2B)'})[MODE]+'.'} Kliknij mecz, żeby zobaczyć schematy obu drużyn, prognozę i ocenę.</div>${qHtml}</details>
     <details class="dep-card dep-main" data-sec="series" open style="${['all','hist','streak'].includes(depFilter)?'':'display:none'}"><summary class="dep-h">🔥 Aktualne serie w sezonie 2026/27</summary><div class="dep-sub">Seria = ile ostatnich meczów z rzędu, licząc od najnowszego wstecz, skończyło się Over (zielone) albo Under (czerwone) w P1.</div>${serieHtml}</details>
     <div class="dep-hd">📚 Statystyki wstecz (zwinięte)</div><div class="dep-grid">${statCards}</div>`;
-  el.querySelectorAll('#depLgs button').forEach(b=>b.addEventListener('click', ()=>{ depLg = b.dataset.lg; renderDep(); }));
+  bindLeagueChips(el, ()=>renderDep());
   el.querySelectorAll('.dep-pill[data-pb]').forEach(b=>b.addEventListener('click', ()=>{
     const grpEl = b.closest('.dep-sg'); const target = grpEl.querySelector('#'+b.dataset.pb);
     const wasOpen = !target.hidden;
@@ -4836,10 +4857,8 @@ function renderDep(){
       b.addEventListener('click', ()=>{
         const lg = b.dataset.lg;
         const allKeys = Object.keys(DATA.leagues);
-        if(lg === '__ALL__') playNowLeagueFilter = new Set(allKeys);
-        else if(playNowLeagueFilter.size===1 && playNowLeagueFilter.has(lg)) playNowLeagueFilter = new Set(allKeys);
-        else playNowLeagueFilter = new Set([lg]);
-        if(currentLeague!=='__PLAYNOW__' && currentLeague!=='__WYNIKIALL__' && currentLeague!=='__HOT__' && currentLeague!=='__TEST__') currentLeague = '__PLAYNOW__';
+        toggleLeagueSel(lg);
+        if(!['__PLAYNOW__','__WYNIKIALL__','__HOT__','__TEST__','__ILU__','__DEP__','__PERF__'].includes(currentLeague)) currentLeague = '__PLAYNOW__';
         countryPickerOpen = false;
         renderAll();
       });
