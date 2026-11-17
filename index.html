@@ -406,9 +406,10 @@
   .day-hot{color:#FF9F1C; font-weight:700;} .day-over{color:var(--teal); font-weight:600;} .day-grade{color:var(--text); font-weight:600;}
   .ui2-hotbtn{margin-top:10px; background:var(--surface); border:1px solid var(--border); color:var(--text); font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:12px; padding:7px 13px; border-radius:9px; cursor:pointer;}
   .ui2-hotbtn.on{background:#FF9F1C; color:#14100a; border-color:#FF9F1C; box-shadow:0 4px 14px rgba(255,159,28,.35);}
-  .day-group.is-past > .day-header{background:#141b27; border-left:4px solid #5b6b82;}
+  .day-group.is-past > .day-header{background:linear-gradient(90deg,#334157,#222d3f 70%,#1a2332); border-left:4px solid #94A3B8;}
   .day-group.is-past > .day-header .date{color:#cbd5e1;}
-  .day-group.is-past > .day-body{background:rgba(91,107,130,.10); box-shadow:inset 3px 0 0 rgba(91,107,130,.45);}
+  .day-group.is-past > .day-body{background:linear-gradient(180deg,rgba(148,163,184,.26),rgba(148,163,184,.10)); box-shadow:inset 3px 0 0 rgba(148,163,184,.65);}
+  .day-group.is-past .cmb-row-grid{border-bottom-color:rgba(148,163,184,.22);}
   .past-tag{font-size:9.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:#94A3B8; border:1px solid #475569; border-radius:6px; padding:1px 7px; margin-left:auto; margin-right:8px;}
   .day-group.is-past > .day-header .caret{margin-left:0;}
 
@@ -721,6 +722,13 @@
   .ilu-list{display:flex; flex-direction:column; border:1px solid var(--border); border-radius:10px; overflow:hidden; margin-top:6px;}
   .ilu-day summary, .ilu-rec{display:flex; align-items:center; gap:12px; padding:9px 14px; border-bottom:1px solid var(--surface2); cursor:pointer; flex-wrap:wrap;}
   .ilu-rec{cursor:default;}
+  .ilu-rec.pick{cursor:pointer;}
+  .ilu-rec.pick:hover{background:var(--surface2);}
+  .ilu-dr{display:grid; grid-template-columns:90px 70px 60px 90px 60px; align-items:center; gap:8px; padding:8px 14px; border-bottom:1px solid var(--surface2); font-size:12.5px; font-family:'JetBrains Mono',monospace;}
+  .ilu-dr.head{color:var(--muted); font-size:10.5px; text-transform:uppercase; letter-spacing:.04em;}
+  .ilu-dr.tot{background:var(--surface2); font-weight:700;}
+  .ilu-dr small{grid-column:1/-1; color:var(--muted); font-size:10.5px; font-family:'Inter',sans-serif;}
+  .ilu-dr .pill{text-align:center; border-radius:6px; padding:2px 0; font-weight:700;}
   .ilu-day .dt, .ilu-rec .dt{font-family:'JetBrains Mono',monospace; font-size:12px; min-width:90px;}
   .ilu-day .c, .ilu-rec .c{color:var(--muted); font-size:11.5px;}
   .ilu-day .v{margin-left:auto; font-family:'JetBrains Mono',monospace; font-weight:700; font-size:12.5px;}
@@ -1012,14 +1020,14 @@ function renderHeader(){
 
   document.getElementById('leagueSwitch').innerHTML = `
     <button class="${currentLeague==='__PLAYNOW__'?'active':''}" data-league="__PLAYNOW__">🔥 TERMINARZ 26/27</button>
-    <button class="${currentLeague==='__WYNIKIALL__'?'active':''}" data-league="__WYNIKIALL__">📊 WYNIKI</button>
-    <button class="${currentLeague==='__TEST__'?'active':''}" data-league="__TEST__">🎯 FIX</button>
-    <button class="${currentLeague==='__DEP__'?'active':''}" data-league="__DEP__">🔗 ZALEŻNOŚCI</button>
-    <button class="${currentLeague==='__PERF__'?'active':''}" data-league="__PERF__">📈 SKUTECZNOŚĆ</button>
-    <button class="${currentLeague==='__UPDATES__'?'active':''}" data-league="__UPDATES__">📝 UPDATES</button>
     <button class="${currentLeague==='__TODO__'?'active':''}" data-league="__TODO__">✍️ DO WPISANIA${todoCount()?` (${todoCount()})`:''}</button>
+    <button class="${currentLeague==='__TEST__'?'active':''}" data-league="__TEST__">🎯 FIX</button>
+    <button class="${currentLeague==='__WYNIKIALL__'?'active':''}" data-league="__WYNIKIALL__">📊 WYNIKI</button>
+    <button class="${currentLeague==='__DEP__'?'active':''}" data-league="__DEP__">🔗 ZALEŻNOŚCI</button>
     <button class="${currentLeague==='__ILU__'?'active':''}" data-league="__ILU__"><svg class="ilu-ico" viewBox="0 0 24 24" width="1.1em" height="1.1em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M12 2.5 22 20.5H2z"/><path d="M6.5 14.4c1.6-2.2 3.4-3.2 5.5-3.2s3.9 1 5.5 3.2c-1.6 2.2-3.4 3.2-5.5 3.2s-3.9-1-5.5-3.2z"/><circle cx="12" cy="14.4" r="1.4" fill="currentColor"/></svg> ILUMINATI</button>
-    <button class="${isLeagueView?'active':''}" data-league="__KRAJ__">${krajLabel} ${countryPickerOpen?'▴':'▾'}</button>`;
+    <button class="${isLeagueView?'active':''}" data-league="__KRAJ__">${krajLabel} ${countryPickerOpen?'▴':'▾'}</button>
+    <button class="${currentLeague==='__PERF__'?'active':''}" data-league="__PERF__">📈 SKUTECZNOŚĆ</button>
+    <button class="${currentLeague==='__UPDATES__'?'active':''}" data-league="__UPDATES__">📝 UPDATES</button>`;
 
   document.querySelectorAll('#leagueSwitch button').forEach(b=>{
     b.addEventListener('click', (ev)=>{
@@ -2318,7 +2326,7 @@ function renderPlayNow(opts){
         <span class="n">${pastDates.length} dni · ${pastDates.reduce((s,d)=>s+groups[d].length,0)} meczów · ${(()=>{ const pl = pastDates.flatMap(d=>groups[d]).filter(m=>m.played && m.p1); return overBadgeHtml(pl.filter(m=>m.over15).length, pl.length); })()}</span>
         <span class="caret">▾</span>
       </div>
-      <div class="month-body">${pastDates.map(d=>dayGroupHtml(d)).join('')}</div>
+      <div class="month-body">${pastDates.slice().reverse().map(d=>dayGroupHtml(d)).join('')}</div>
     </div>` : (()=>{
       const pp = pastDates.flatMap(d=>picksFor(d).map(p=>p.m)).filter(m=>m.played);
       const po = pp.filter(m=>m.over15).length;
@@ -2329,7 +2337,7 @@ function renderPlayNow(opts){
         <span class="n">${pastDates.length} dni · skuteczność TOP 5: ${overBadgeHtml(po, pp.length) || '<span style="color:var(--muted)">brak wyników</span>'}</span>
         <span class="caret">▾</span>
       </div>
-      <div class="month-body">${pastDates.map(d=>top5GroupHtml(d)).join('')}</div>
+      <div class="month-body">${pastDates.slice().reverse().map(d=>top5GroupHtml(d)).join('')}</div>
     </div>`;
     })());
 
@@ -2523,7 +2531,8 @@ const CHANGELOG = [
     items: [
       'Przełącznik Over 1,5 / Over 0,5 pod logo (Terminarz, Wyniki, Iluminati): w trybie 0,5 „Over” = co najmniej 1 gol w 1. tercji — wyniki, nagłówki dni x/y, forma, serie i prognoza (model: połowa Poisson drużynowy, połowa średnia ligi) liczą się dla progu 0,5; oceny A–D i HOT dotyczą tylko 1,5',
       'Wybór lig działa teraz w każdej zakładce (Terminarz, Wyniki, FIX, Zależności, Skuteczność, Iluminati) i jest wspólny: zaznacz np. NHL i AHL jednocześnie; pierwszy klik wybiera jedną ligę, kolejne dodają lub odejmują, „Wszystkie” przywraca komplet. W FIX na górze są teraz widoczne przyciski lig',
-      'ILUMINATI: wybór ligi (wielu), sezonu i miesiąca; tabela sezony × miesiące (kliknięcie wybiera), dzień tygodnia, dzień miesiąca, najbliższe dni i dni z największym Over; kolory takie jak w reszcie strony',
+      'ILUMINATI: wybór lig, sezonu i miesiąca; tabela sezony × miesiące, dzień tygodnia, dzień miesiąca, najbliższe dni oraz analiza wybranej daty (np. 20.11) sezon po sezonie z ±0/1/3 dniami i ranking dat kalendarzowych z całej historii; kolory takie jak w reszcie strony',
+      'Terminarz i Wyniki: dni zakończone po rozwinięciu od najnowszego do najstarszego, jaśniejszy gradient dni zakończonych; kolejność zakładek: Terminarz, Do wpisania, FIX, Wyniki, Zależności, Iluminati, Ligi, Skuteczność, Updates (na końcu)',
       'Nagłówki dni w Terminarzu i WYNIKACH: obok liczby meczów zielone x/y = ile meczów miało Over 1,5 w P1',
       'Terminarz: pod każdą drużyną (obok miejsca i bramek) forma z ostatnich 5 meczów — O = Over, U = Under 1,5 w P1; najnowszy po prawej, wyszarzone = mecze z poprzedniego sezonu (gdy w tym jest ich mniej niż 5)',
       'WYNIKI: tylko rozegrane mecze i informacja, ile meczów czeka na wpisanie (przycisk przenosi do DO WPISANIA); wpisywanie wyników przeniesione wyłącznie do DO WPISANIA',
@@ -2834,7 +2843,7 @@ let skippedOpen = false;
 
 // ---------- ILUMINATI — kalendarz Over 1,5 P1: dni i miesiące w poprzednich sezonach ----------
 let ILU_CACHE = null;
-let iluState = {lg:'NHL', season:'ALL', month:'ALL', min:5};
+let iluState = {lg:'NHL', season:'ALL', month:'ALL', min:5, md:null, win:0, minPool:20};
 function iluData(){
   if(ILU_CACHE) return ILU_CACHE;
   const rows = [];
@@ -2918,12 +2927,38 @@ function renderIlu(){
   const upRows = Object.keys(upc).sort().slice(0,10).map(d=>`<tr><td>${d.slice(8)}.${d.slice(5,7)} ${WD_FULL[wdOf(d)].slice(0,3)}</td><td class="n">${upc[d]}</td>${cell(pc(byWd[wdOf(d)]))}${cell(pc(byDom[+d.slice(8)]))}${cell(pc(byMo2[d.slice(5,7)]))}</tr>`).join('');
   const upBody = upRows ? `<table class="tst-tab"><thead><tr><th>Dzień</th><th class="n">mecze</th><th class="n">dzień tyg.</th><th class="n">dzień mies.</th><th class="n">miesiąc</th></tr></thead><tbody>${upRows}</tbody></table>` : '<div class="ilu-note">Brak nadchodzących meczów tej ligi.</div>';
 
-  // 4) dni z największym Over (dla wybranego sezonu / miesiąca)
-  const byDay = agg(rows, r=>r.d);
-  const pool = Object.entries(byDay).map(([d,x])=>({d,...x,pct:x.k/x.n})).filter(x=>x.n>=st.min);
-  const rec = pool.sort((a,b)=>b.pct-a.pct || b.n-a.n || b.d.localeCompare(a.d)).slice(0,40);
-  const recBody = `<div class="toolbar ilu-bar" style="margin-top:2px;"><select id="iluMin">${[3,4,5,6,8,10].map(n=>`<option value="${n}" ${n===st.min?'selected':''}>min. ${n} meczów w dniu</option>`).join('')}</select></div>
-    <div class="ilu-list rec">${rec.map(x=>`<div class="ilu-rec"><span class="dt">${x.d.slice(8)}.${x.d.slice(5,7)}.${x.d.slice(0,4)} ${WD_FULL[wdOf(x.d)].slice(0,3)}</span><b class="ovr-n">${x.k}/${x.n} (${Math.round(x.pct*100)}%)</b></div>`).join('') || '<div class="ilu-note">Brak dni.</div>'}</div>`;
+  // 4) wybrana data kalendarzowa przez wszystkie sezony + ranking dat
+  const idxD = {}; lgRows.forEach(r=>{ const x = idxD[r.d] = idxD[r.d] || {n:0,k:0,lg:{}}; x.n++; x.k+=r.o; const y = x.lg[r.lg] = x.lg[r.lg] || {n:0,k:0}; y.n++; y.k+=r.o; });
+  const WIN = st.win;
+  const mdList = []; { const t0 = Date.UTC(2001,7,1); for(let i=0;i<365;i++){ mdList.push(new Date(t0+i*86400000).toISOString().slice(5,10)); } }
+  const sy = sk => +sk.slice(0,4);
+  const dateIn = (sk, md) => { const yr = +md.slice(0,2)>=7 ? sy(sk) : sy(sk)+1; return `${yr}-${md}`; };
+  const winDates = (sk, md) => { const base0 = new Date(dateIn(sk, md)+'T12:00:00Z').getTime(); const out = []; for(let o=-WIN;o<=WIN;o++) out.push(new Date(base0+o*86400000).toISOString().slice(0,10)); return out; };
+  if(!st.md){ const up = Object.keys(upc).sort()[0]; st.md = (up || today).slice(5); }
+  if(!mdList.includes(st.md)) st.md = '11-20';
+  const perSeason = seasons.slice().reverse().map(sk=>{
+    let n=0,k=0; const lgc = {};
+    winDates(sk, st.md).forEach(d=>{ const x = idxD[d]; if(!x) return; n+=x.n; k+=x.k; Object.entries(x.lg).forEach(([lg,y])=>{ const z = lgc[lg] = lgc[lg] || {n:0,k:0}; z.n+=y.n; z.k+=y.k; }); });
+    const dt = dateIn(sk, st.md); return {sk, n, k, lgc, dt: dt.slice(8)+'.'+dt.slice(5,7)+'.'+dt.slice(2,4)};
+  }).filter(x=>x.n>0);
+  const totN = perSeason.reduce((a,x)=>a+x.n,0), totK = perSeason.reduce((a,x)=>a+x.k,0);
+  const mdLabel = md => md.slice(3)+'.'+md.slice(0,2);
+  const mdMonths = ['08','09','10','11','12','01','02','03','04','05','06','07'];
+  const dim = {'01':31,'02':28,'03':31,'04':30,'05':31,'06':30,'07':31,'08':31,'09':30,'10':31,'11':30,'12':31};
+  const selMo = st.md.slice(0,2), selDay = +st.md.slice(3);
+  const dateTable = perSeason.length ? `<div class="ilu-list"><div class="ilu-dr head"><span>Sezon</span><span>Data</span><span>Mecze</span><span>Over</span><span>%</span></div>${perSeason.map(x=>{
+      const p = x.k/x.n*100, c = cls(p-base*100);
+      return `<div class="ilu-dr"><span>${sl(x.sk)}</span><span>${x.dt}</span><span>${x.n}</span><span class="ovr-n">${x.k}/${x.n}</span><span class="c-${c} pill">${Math.round(p)}%</span><small>${Object.entries(x.lgc).map(([lg,y])=>`${esc2(lg)} ${y.k}/${y.n}`).join(' · ')}</small></div>`;
+    }).join('')}<div class="ilu-dr tot"><span>Razem</span><span></span><span>${totN}</span><span class="ovr-n">${totK}/${totN}</span><span class="c-${cls(totK/totN*100-base*100)} pill">${f1(totK/totN*100)}%</span><small>średnia ligi ${f1(base*100)}% · ${perSeason.length} sezonów</small></div></div>` : '<div class="ilu-note">Brak meczów tej daty w historii dla wybranych lig.</div>';
+  const pickers = `<div class="toolbar ilu-bar" style="margin:2px 0 8px;"><select id="iluMo">${mdMonths.map(m=>`<option value="${m}" ${m===selMo?'selected':''}>${MONTH_NAMES[+m-1]}</option>`).join('')}</select><select id="iluDay">${Array.from({length:dim[selMo]},(_,i)=>i+1).map(d=>`<option value="${d}" ${d===selDay?'selected':''}>${d}</option>`).join('')}</select><select id="iluWin">${[[0,'dokładnie ten dzień'],[1,'±1 dzień'],[3,'±3 dni']].map(([v,l])=>`<option value="${v}" ${v===WIN?'selected':''}>${l}</option>`).join('')}</select></div>`;
+  // ranking dat (cała historia, wszystkie sezony razem)
+  const dayAgg = mdList.map(md=>({md, n:0, k:0, sks:new Set()}));
+  lgRows.forEach(r=>{ const md = r.d.slice(5); const i = mdList.indexOf(md); if(i<0) return; dayAgg[i].n++; dayAgg[i].k+=r.o; dayAgg[i].sks.add(r.sk); });
+  const ranked = dayAgg.map((x,i)=>{ let n=0,k=0; const sks=new Set(); for(let j=Math.max(0,i-WIN); j<=Math.min(mdList.length-1,i+WIN); j++){ n+=dayAgg[j].n; k+=dayAgg[j].k; dayAgg[j].sks.forEach(v=>sks.add(v)); } return {md:x.md, n, k, sn:sks.size, pct:n?k/n:0}; })
+    .filter(x=>x.n>=st.minPool && x.sn>=3).sort((a,b)=>b.pct-a.pct || b.n-a.n).slice(0,30);
+  const rankBody = `<div class="toolbar ilu-bar" style="margin-top:2px;"><select id="iluMinPool">${[10,20,30,50].map(n=>`<option value="${n}" ${n===st.minPool?'selected':''}>min. ${n} meczów tej daty łącznie</option>`).join('')}</select></div>
+    <div class="ilu-list rec">${ranked.map(x=>`<div class="ilu-rec pick" data-md="${x.md}"><span class="dt">${mdLabel(x.md)}</span><span class="c">${x.sn} sezonów</span><b class="ovr-n">${x.k}/${x.n} (${Math.round(x.pct*100)}%)</b></div>`).join('') || '<div class="ilu-note">Brak dat spełniających kryteria.</div>'}</div>`;
+  const recBody = `${pickers}${dateTable}<div class="ilu-note" style="margin-top:12px;"><b>Ranking dat</b> (wszystkie sezony razem, kliknij datę, żeby zobaczyć ją sezon po sezonie):</div>${rankBody}`;
 
   const logoSvg = document.querySelector('#leagueSwitch .ilu-ico');
   const chip = (cur, val, label, attr) => `<button class="${cur===val?'active':''}" ${attr}="${val}">${label}</button>`;
@@ -2938,7 +2973,7 @@ function renderIlu(){
     ${sec('Dzień tygodnia', wdBody)}
     ${sec('Dzień miesiąca', domBody)}
     ${sec('Najbliższe dni tej ligi', upBody)}
-    ${sec('Dni z największym Over', recBody)}
+    ${sec('Wybrana data przez wszystkie sezony', recBody)}
     <div class="ilu-legend"><span><i class="bg-teal"></i>wyraźnie powyżej średniej ligi</span><span><i class="bg-yellow"></i>lekko powyżej</span><span><i class="bg-orange"></i>lekko poniżej</span><span><i class="bg-red"></i>wyraźnie poniżej</span></div>`;
   bindLeagueChips(el, ()=>renderIlu());
   el.querySelectorAll('[data-ilu-sk]').forEach(b=>b.addEventListener('click', ()=>{ st.season = b.dataset.iluSk; renderIlu(); }));
@@ -2947,7 +2982,12 @@ function renderIlu(){
     const same = st.season===td.dataset.sk && st.month===td.dataset.mo;
     st.season = same ? 'ALL' : td.dataset.sk; st.month = same ? 'ALL' : td.dataset.mo; renderIlu();
   }));
-  document.getElementById('iluMin')?.addEventListener('change', e=>{ st.min = +e.target.value; renderIlu(); });
+  const setMd = (mo, day) => { st.md = mo+'-'+String(Math.min(+day, dim[mo])).padStart(2,'0'); renderIlu(); };
+  document.getElementById('iluMo')?.addEventListener('change', e=>setMd(e.target.value, selDay));
+  document.getElementById('iluDay')?.addEventListener('change', e=>setMd(selMo, e.target.value));
+  document.getElementById('iluWin')?.addEventListener('change', e=>{ st.win = +e.target.value; renderIlu(); });
+  document.getElementById('iluMinPool')?.addEventListener('change', e=>{ st.minPool = +e.target.value; renderIlu(); });
+  el.querySelectorAll('.ilu-rec.pick').forEach(r=>r.addEventListener('click', ()=>{ st.md = r.dataset.md; renderIlu(); el.scrollIntoView?.(); }));
 }
 
 function renderUpdates(){
@@ -3538,7 +3578,7 @@ function renderWynikiAll(){
           <span class="n">${pastDates.length} dni · ${overBadgeHtml(pastOverTotal, pastPlayedTotal)}</span>
           <span class="caret">▾</span>
         </div>
-        <div class="month-body">${pastDates.map(d=>dayGroupHtml(d)).join('')}</div>
+        <div class="month-body">${pastDates.slice().reverse().map(d=>dayGroupHtml(d)).join('')}</div>
       </div>` : '';
 
     content.innerHTML = `
@@ -4781,7 +4821,7 @@ function renderDep(){
   title.appendChild(krajBox); right.appendChild(rightBody);
   wrap.appendChild(right);
   const bottom = mk('nav','ui2Bottom');
-  bottom.innerHTML = [['__PLAYNOW__','🔥','Terminarz'],['__WYNIKIALL__','📊','Wyniki'],['__TEST__','🎯','FIX'],['__DEP__','🔗','Zależn.'],['__PERF__','📈','Skut.'],['__UPDATES__','📝','Info'],['__TODO__','✍️','Wpisz'],['__ILU__','<svg class="ilu-ico" viewBox="0 0 24 24" width="1.1em" height="1.1em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M12 2.5 22 20.5H2z"/><path d="M6.5 14.4c1.6-2.2 3.4-3.2 5.5-3.2s3.9 1 5.5 3.2c-1.6 2.2-3.4 3.2-5.5 3.2s-3.9-1-5.5-3.2z"/><circle cx="12" cy="14.4" r="1.4" fill="currentColor"/></svg>','Ilum.'],['__KRAJ__','🌍','Ligi']]
+  bottom.innerHTML = [['__PLAYNOW__','🔥','Terminarz'],['__TODO__','✍️','Wpisz'],['__TEST__','🎯','FIX'],['__WYNIKIALL__','📊','Wyniki'],['__DEP__','🔗','Zależn.'],['__ILU__','<svg class="ilu-ico" viewBox="0 0 24 24" width="1.1em" height="1.1em" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M12 2.5 22 20.5H2z"/><path d="M6.5 14.4c1.6-2.2 3.4-3.2 5.5-3.2s3.9 1 5.5 3.2c-1.6 2.2-3.4 3.2-5.5 3.2s-3.9-1-5.5-3.2z"/><circle cx="12" cy="14.4" r="1.4" fill="currentColor"/></svg>','Ilum.'],['__KRAJ__','🌍','Ligi'],['__PERF__','📈','Skut.'],['__UPDATES__','📝','Info']]
     .map(([k,i,l])=>`<button type="button" data-go="${k}"><b>${i}</b>${l}</button>`).join('');
   document.body.appendChild(bottom);
 
